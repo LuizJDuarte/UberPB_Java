@@ -4,10 +4,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Corrida para RF04 com endereÃ§os em texto (e, opcionalmente, coordenadas).
- * PersistÃªncia principal (pipe + escape):
- *   id|email|status|origEnd|destEnd|origLat|origLon|destLat|destLon
- * CompatÃ­vel com formato antigo CSV (id,email,origLat,origLon,destLat,destLon,status)
+ * Corrida para RF04 com endereços em texto (e, opcionalmente, coordenadas).
+ * Agora inclui categoria do veículo e preço estimado (RF05).
+ * Persistência principal (pipe + escape):
+ *   id|email|status|origEnd|destEnd|origLat|origLon|destLat|destLon|categoria|preco
+ * Compatível com formato antigo CSV (id,email,origLat,origLon,destLat,destLon,status)
  */
 public class Corrida {
     private final String id;
@@ -19,6 +20,8 @@ public class Corrida {
     private final Localizacao destino;     // pode ser null
 
     private CorridaStatus status;
+    private CategoriaVeiculo categoria;    // Nova campo para RF05
+    private Double precoEstimado;          // Novo campo para RF05
 
     public Corrida(String id,
                    String emailPassageiro,
@@ -26,7 +29,9 @@ public class Corrida {
                    String destinoEndereco,
                    Localizacao origem,
                    Localizacao destino,
-                   CorridaStatus status) {
+                   CorridaStatus status,
+                   CategoriaVeiculo categoria,
+                   Double precoEstimado) {
         this.id = Objects.requireNonNull(id);
         this.emailPassageiro = Objects.requireNonNull(emailPassageiro);
         this.origemEndereco = origemEndereco;
@@ -34,17 +39,33 @@ public class Corrida {
         this.origem = origem;
         this.destino = destino;
         this.status = Objects.requireNonNull(status);
+        this.categoria = categoria;
+        this.precoEstimado = precoEstimado;
     }
 
+    // Método de criação original (para compatibilidade)
     public static Corrida novaComEnderecos(String emailPassageiro, String origemEndereco, String destinoEndereco) {
         return new Corrida(UUID.randomUUID().toString(), emailPassageiro,
-                origemEndereco, destinoEndereco, null, null, CorridaStatus.SOLICITADA);
-    }
-    public static Corrida novaComCoordenadas(String emailPassageiro, Localizacao origem, Localizacao destino) {
-        return new Corrida(UUID.randomUUID().toString(), emailPassageiro,
-                null, null, origem, destino, CorridaStatus.SOLICITADA);
+                origemEndereco, destinoEndereco, null, null, CorridaStatus.SOLICITADA,
+                null, null);
     }
 
+    // Novo método com categoria e preço (para RF05)
+    public static Corrida novaComEnderecos(String emailPassageiro, String origemEndereco, 
+                                         String destinoEndereco, CategoriaVeiculo categoria, 
+                                         Double precoEstimado) {
+        return new Corrida(UUID.randomUUID().toString(), emailPassageiro,
+                origemEndereco, destinoEndereco, null, null, CorridaStatus.SOLICITADA,
+                categoria, precoEstimado);
+    }
+
+    public static Corrida novaComCoordenadas(String emailPassageiro, Localizacao origem, Localizacao destino) {
+        return new Corrida(UUID.randomUUID().toString(), emailPassageiro,
+                null, null, origem, destino, CorridaStatus.SOLICITADA,
+                null, null);
+    }
+
+    // Getters
     public String getId() { return id; }
     public String getEmailPassageiro() { return emailPassageiro; }
     public String getOrigemEndereco() { return origemEndereco; }
@@ -52,14 +73,20 @@ public class Corrida {
     public Localizacao getOrigem() { return origem; }
     public Localizacao getDestino() { return destino; }
     public CorridaStatus getStatus() { return status; }
-    public void setStatus(CorridaStatus status) { this.status = status; }
+    public CategoriaVeiculo getCategoria() { return categoria; }
+    public Double getPrecoEstimado() { return precoEstimado; }
 
-    // ===================== PersistÃªncia =====================
+    // Setters
+    public void setStatus(CorridaStatus status) { this.status = status; }
+    public void setCategoria(CategoriaVeiculo categoria) { this.categoria = categoria; }
+    public void setPrecoEstimado(Double precoEstimado) { this.precoEstimado = precoEstimado; }
+
+    // ===================== Persistência =====================
 
     private static final char SEP = '|';
     private static final char ESC = '\\';
 
-    /** Formato principal (pipe + escape). */
+    /** Formato principal (pipe + escape) com novos campos. */
     public String toStringParaPersistencia() {
         StringBuilder sb = new StringBuilder();
         sb.append(esc(id)).append(SEP)
@@ -70,7 +97,9 @@ public class Corrida {
           .append(origem  != null ? Double.toString(origem.latitude())  : "").append(SEP)
           .append(origem  != null ? Double.toString(origem.longitude()) : "").append(SEP)
           .append(destino != null ? Double.toString(destino.latitude()) : "").append(SEP)
-          .append(destino != null ? Double.toString(destino.longitude()): "");
+          .append(destino != null ? Double.toString(destino.longitude()): "").append(SEP)
+          .append(categoria != null ? esc(categoria.name()) : "").append(SEP)
+          .append(precoEstimado != null ? esc(precoEstimado.toString()) : "");
         return sb.toString();
     }
 
@@ -95,11 +124,32 @@ public class Corrida {
         if (p.length > 8 && !vazio(p[7]) && !vazio(p[8])) {
             d = new Localizacao(parseDouble(p[7]), parseDouble(p[8]));
         }
-        return new Corrida(id, email, oEnd, dEnd, o, d, st);
+
+        // Novos campos (RF05) - compatíveis com versões antigas
+        CategoriaVeiculo cat = null;
+        Double preco = null;
+        
+        if (p.length > 9 && !vazio(p[9])) {
+            try {
+                cat = CategoriaVeiculo.valueOf(unesc(p[9]));
+            } catch (IllegalArgumentException e) {
+                // Ignora se não reconhecer a categoria
+            }
+        }
+        
+        if (p.length > 10 && !vazio(p[10])) {
+            try {
+                preco = Double.parseDouble(unesc(p[10]));
+            } catch (NumberFormatException e) {
+                // Ignora se não for número válido
+            }
+        }
+
+        return new Corrida(id, email, oEnd, dEnd, o, d, st, cat, preco);
     }
 
     private static Corrida fromCSVAntigo(String linha) {
-        // id,email,origLat,origLon,destLat,destLon,status
+        // id,email,origLat,origLon,destLat,destLon,status (formato antigo)
         String[] p = linha.split(",", -1);
         String id = p[0];
         String email = p[1];
@@ -109,7 +159,8 @@ public class Corrida {
         double dLon = parseDouble(p[5]);
         CorridaStatus st = CorridaStatus.valueOf(p[6]);
         return new Corrida(id, email, null, null,
-                new Localizacao(oLat, oLon), new Localizacao(dLat, dLon), st);
+                new Localizacao(oLat, oLon), new Localizacao(dLat, dLon), st,
+                null, null);
     }
 
     // ===== helpers =====
@@ -121,6 +172,7 @@ public class Corrida {
         }
         return b.toString();
     }
+    
     private static String unesc(String s) {
         StringBuilder b = new StringBuilder();
         boolean e = false;
@@ -131,6 +183,7 @@ public class Corrida {
         }
         return b.toString();
     }
+    
     private static String[] splitComEscape(String s, char sep, char esc) {
         java.util.List<String> campos = new java.util.ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -144,9 +197,36 @@ public class Corrida {
         campos.add(cur.toString());
         return campos.toArray(new String[0]);
     }
+    
     private static boolean vazio(String s) { return s == null || s.isBlank(); }
+    
     private static double parseDouble(String s) {
         try { return Double.parseDouble(s); } catch (Exception e) { return 0.0; }
     }
+    
     private static String nvl(String s) { return s == null ? "" : s; }
+
+    // Novo método para exibição amigável
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Corrida ID: ").append(id)
+          .append(" | Passageiro: ").append(emailPassageiro)
+          .append(" | Status: ").append(status);
+        
+        if (origemEndereco != null) {
+            sb.append(" | Origem: ").append(origemEndereco);
+        }
+        if (destinoEndereco != null) {
+            sb.append(" | Destino: ").append(destinoEndereco);
+        }
+        if (categoria != null) {
+            sb.append(" | Categoria: ").append(categoria.getNome());
+        }
+        if (precoEstimado != null) {
+            sb.append(" | Preço: R$ ").append(String.format("%.2f", precoEstimado));
+        }
+        
+        return sb.toString();
+    }
 }

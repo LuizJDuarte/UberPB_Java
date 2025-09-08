@@ -1,24 +1,27 @@
 package com.uberpb.model;
 
 public enum CategoriaVeiculo {
-    UBERX("UberX", "Corrida mais econ√¥mica"),
-    COMFORT("Comfort", "Carros mais novos e espa√ßosos"),
-    BLACK("Black", "Ve√≠culos premium e motoristas de alta avalia√ß√£o"),
-    BAG("Bag", "Ve√≠culos com porta-malas maior"),
-    XL("XL", "Capacidade para mais passageiros");
+    UBERX("UberX", "Corrida mais econÙmica", 1.0),
+    COMFORT("Comfort", "Carros mais novos e espaÁosos", 1.3),
+    BLACK("Black", "VeÌculos premium e motoristas de alta avaliaÁ„o", 2.0),
+    BAG("Bag", "VeÌculos com porta-malas maior", 1.5),
+    XL("XL", "Capacidade para mais passageiros", 1.8);
 
     private final String nome;
     private final String descricao;
+    private final double multiplicadorPreco;
 
-    CategoriaVeiculo(String nome, String descricao) {
+    CategoriaVeiculo(String nome, String descricao, double multiplicadorPreco) {
         this.nome = nome;
         this.descricao = descricao;
+        this.multiplicadorPreco = multiplicadorPreco;
     }
 
     public String getNome() { return nome; }
     public String getDescricao() { return descricao; }
+    public double getMultiplicadorPreco() { return multiplicadorPreco; }
 
-    /** Converte a partir do nome de exibi√ß√£o (ex.: "UberX"). Retorna null se n√£o reconhecer. */
+    /** Converte a partir do nome de exibiÁ„o (ex.: "UberX"). Retorna null se n„o reconhecer. */
     public static CategoriaVeiculo fromString(String text) {
         if (text == null) return null;
         for (CategoriaVeiculo c : values()) {

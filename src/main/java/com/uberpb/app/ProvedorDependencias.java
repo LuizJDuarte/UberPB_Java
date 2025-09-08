@@ -1,5 +1,6 @@
 package com.uberpb.app;
 
+import static com.uberpb.app.ConsoleUI.*;
 import com.uberpb.model.Motorista;
 import com.uberpb.model.Passageiro;
 import com.uberpb.model.Usuario;
@@ -10,12 +11,8 @@ import com.uberpb.repository.RepositorioUsuario;
 import com.uberpb.service.ServicoAutenticacao;
 import com.uberpb.service.ServicoCadastro;
 import com.uberpb.service.ServicoCorrida;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-
-import static com.uberpb.app.ConsoleUI.*;
 
 public final class ProvedorDependencias {
     private ProvedorDependencias() {}
@@ -70,6 +67,7 @@ public final class ProvedorDependencias {
         comandos.add(new CadastrarMotoristaComando());
         comandos.add(new SolicitarCorridaComando());
         comandos.add(new VisualizarCorridaComando());
+        comandos.add(new EstimativaCorridaComando());
 
         // Comandos utilitários como "funcionais" — reduzem arquivos
         comandos.add(new ComandoFuncional(
