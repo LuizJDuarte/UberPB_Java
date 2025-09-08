@@ -1,7 +1,5 @@
 package com.uberpb.model;
 
-import java.io.Serializable; // Necessário para serialização em um futuro mais complexo, mas aqui é mais para conceito de 'dados'
-
 public abstract class Usuario {
     protected String email;
     protected String senhaHash; // Senha já hashed

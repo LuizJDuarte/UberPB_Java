@@ -1,0 +1,3 @@
+MOTORISTA,motoristateste@gmail.com,8312144bea75cf6713bef1f8777c16d51f231115fdb022aa099fbb4d3a16cb66,true,true,true,Toyota Etios|2023|ABC-1234|Preto|5|G|UberX;Comfort;Bag
+PASSAGEIRO,passageiro@gmail.com,b8feeaded4049cd018ea88700c48f35b3bd0ff77735aa1d9bde06d820033a9fc
+PASSAGEIRO,passageirot@gmail.com,6cfb69a1957996876d20c22d1b93fd744f24b394eaa458246939af24d1fc73b7

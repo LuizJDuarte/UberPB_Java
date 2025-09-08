@@ -1,0 +1,2 @@
+PASSAGEIRO,luizemailteste@gmai.com,5626d223b9a98041d83625cf376710c11a1d40cdd83a4d7979d25334635fb872
+MOTORISTA,motoristateste@gmail.com,8312144bea75cf6713bef1f8777c16d51f231115fdb022aa099fbb4d3a16cb66,false,false,false,Fiat Toro|2022|ABC-1234|Preto|5|G|UberX;Comfort;Bag

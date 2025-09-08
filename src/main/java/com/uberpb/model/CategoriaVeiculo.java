@@ -15,20 +15,15 @@ public enum CategoriaVeiculo {
         this.descricao = descricao;
     }
 
-    public String getNome() {
-        return nome;
-    }
+    public String getNome() { return nome; }
+    public String getDescricao() { return descricao; }
 
-    public String getDescricao() {
-        return descricao;
-    }
-
+    /** Converte a partir do nome de exibição (ex.: "UberX"). Retorna null se não reconhecer. */
     public static CategoriaVeiculo fromString(String text) {
-        for (CategoriaVeiculo b : CategoriaVeiculo.values()) {
-            if (b.nome.equalsIgnoreCase(text)) {
-                return b;
-            }
+        if (text == null) return null;
+        for (CategoriaVeiculo c : values()) {
+            if (c.nome.equalsIgnoreCase(text)) return c;
         }
-        return null; // Ou lançar uma exceção IllegalArgumentException
+        return null;
     }
 }

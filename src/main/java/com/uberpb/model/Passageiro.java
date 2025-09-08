@@ -1,5 +1,10 @@
 package com.uberpb.model;
 
+/**
+ * Mantém exatamente a assinatura usada no ServicoCadastro:
+ *   new Passageiro(email, senhaHash)
+ * Persistência: "PASSAGEIRO,email,senhaHash"
+ */
 public class Passageiro extends Usuario {
 
     public Passageiro(String email, String senhaHash) {

@@ -3,7 +3,6 @@ package com.uberpb.service;
 import com.uberpb.exceptions.EmailJaExistenteException;
 import com.uberpb.model.Motorista;
 import com.uberpb.model.Passageiro;
-import com.uberpb.model.Usuario;
 import com.uberpb.repository.RepositorioUsuario;
 import com.uberpb.util.PasswordUtil;
 

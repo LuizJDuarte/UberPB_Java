@@ -1,0 +1,15 @@
+/AplicacaoUberPB.class
+/Sessao.class
+/ContextoAplicacao.class
+/Comando.class
+/CadastrarPassageiroComando.class
+/CadastrarMotoristaComando.class
+/LoginComando.class
+/LogoutComando.class
+/ListarUsuariosComando.class
+/ConsoleUI.class
+/SolicitarCorridaComando.class
+/VisualizarCorridaComando.class
+/ProvedorDependencias.class
+/AplicacaoCLI.class
+/ComandoFuncional.class
