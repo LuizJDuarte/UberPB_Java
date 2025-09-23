@@ -1,0 +1,3 @@
+6bfa2897-ab3c-4591-94f7-12108885472b|41101463-20b9-446d-81ec-3dc86f4f045b|motoristateste@gmail.com|PENDENTE
+1d7e2dd9-4ea8-4523-aca3-b14a243acd8f|973c3b30-306d-460f-89e6-9ba6917f59ac|motoristateste@gmail.com|RECUSADA
+b1120c3c-4a5c-46c9-bb39-0bd8ec097ae4|973c3b30-306d-460f-89e6-9ba6917f59ac|mblack@gmail.com|ACEITA

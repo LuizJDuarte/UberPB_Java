@@ -4,16 +4,13 @@ import com.uberpb.model.CategoriaVeiculo;
 import com.uberpb.model.Corrida;
 import com.uberpb.model.Passageiro;
 import com.uberpb.model.Usuario;
-import com.uberpb.service.CalculadoraPrecoCorrida;
+import com.uberpb.service.EstimativaCorrida;
 
 import java.util.Scanner;
 
 public class SolicitarCorridaComando implements Comando {
 
-    @Override
-    public String nome() {
-        return "Solicitar Corrida";
-    }
+    @Override public String nome() { return "Solicitar Corrida (informar endere√ßos)"; }
 
     @Override
     public boolean visivelPara(Usuario usuarioAtualOuNull) {
@@ -22,71 +19,45 @@ public class SolicitarCorridaComando implements Comando {
 
     @Override
     public void executar(ContextoAplicacao contexto, Scanner entrada) {
-        System.out.println("=== SOLICITAR CORRIDA ===");
-        System.out.println("Informe os endereÁos:");
-        System.out.print("EndereÁo de ORIGEM: ");
-        String origem = entrada.nextLine().trim();
-        
-        System.out.print("EndereÁo de DESTINO: ");
-        String destino = entrada.nextLine().trim();
-        
-        if (origem.isEmpty() || destino.isEmpty()) {
-            System.out.println("Origem e destino s„o obrigatÛrios!");
+        System.out.println("Informe os endere√ßos. Ex.: \"Av. Epit√°cio Pessoa, 1000 - Tamba√∫\".");
+        System.out.print("Endere√ßo de ORIGEM: ");
+        String origem = entrada.nextLine();
+        System.out.print("Endere√ßo de DESTINO: ");
+        String destino = entrada.nextLine();
+
+        // Categoria (RF06)
+        CategoriaVeiculo[] cats = CategoriaVeiculo.values();
+        System.out.println("Escolha a categoria (digite o n√∫mero):");
+        for (int i = 0; i < cats.length; i++) System.out.printf("%d) %s%n", i+1, cats[i].name());
+        System.out.print("> ");
+        String s = entrada.nextLine().trim();
+        int idx = 0;
+        try { idx = Integer.parseInt(s) - 1; } catch (Exception e) { idx = 0; }
+        if (idx < 0 || idx >= cats.length) idx = 0;
+        CategoriaVeiculo categoriaEscolhida = cats[idx];
+
+        // Estimativa (RF05)
+        EstimativaCorrida est = contexto.servicoCorrida.estimarPorEnderecos(origem, destino, categoriaEscolhida);
+        System.out.printf("Estimativa: %.1f km ‚Ä¢ %d min ‚Ä¢ R$ %.2f%n",
+                est.getDistanciaKm(), est.getMinutos(), est.getPreco());
+
+        System.out.print("Confirmar solicita√ß√£o? (s/N): ");
+        String conf = entrada.nextLine().trim();
+        if (!conf.equalsIgnoreCase("s")) {
+            System.out.println("Solicita√ß√£o cancelada.");
             return;
         }
-        
-        if (origem.equalsIgnoreCase(destino)) {
-            System.out.println("Origem e destino n„o podem ser iguais!");
-            return;
-        }
-        
-        // Mostrar estimativa antes de confirmar
-        double distanciaEstimada = CalculadoraPrecoCorrida.estimarDistanciaKm(origem, destino);
-        double tempoEstimado = CalculadoraPrecoCorrida.estimarTempoMinutos(distanciaEstimada);
-        
-        System.out.println("\n--- ESTIMATIVA ---");
-        System.out.printf("Dist‚ncia: %.1f km | Tempo: %.0f min%n", distanciaEstimada, tempoEstimado);
-        
-        // Mostrar categorias disponÌveis
-        System.out.println("\nCategorias disponÌveis:");
-        CategoriaVeiculo[] categorias = CategoriaVeiculo.values();
-        for (int i = 0; i < categorias.length; i++) {
-            double preco = CalculadoraPrecoCorrida.calcularPreco(
-                distanciaEstimada, tempoEstimado, categorias[i]);
-            System.out.printf("%d) %-10s: R$ %.2f%n", 
-                i + 1, categorias[i].getNome(), preco);
-        }
-        
-        System.out.print("\nEscolha a categoria (1-" + categorias.length + "): ");
-        try {
-            int escolha = Integer.parseInt(entrada.nextLine().trim());
-            if (escolha < 1 || escolha > categorias.length) {
-                System.out.println("OpÁ„o inv·lida!");
-                return;
-            }
-            
-            CategoriaVeiculo categoriaEscolhida = categorias[escolha - 1];
-            double precoFinal = CalculadoraPrecoCorrida.calcularPreco(
-                distanciaEstimada, tempoEstimado, categoriaEscolhida);
-            
-            System.out.printf("\nConfirmar corrida %s por R$ %.2f? (s/n): ", 
-                categoriaEscolhida.getNome(), precoFinal);
-            
-            String confirmacao = entrada.nextLine().trim();
-            if (confirmacao.equalsIgnoreCase("s")) {
-                Corrida corrida = contexto.servicoCorrida
-                    .solicitarCorrida(contexto.sessao.getUsuarioAtual().getEmail(), origem, destino);
-                
-                System.out.println("? Corrida solicitada com sucesso!");
-                System.out.println("ID: " + corrida.getId());
-                System.out.printf("Categoria: %s | PreÁo: R$ %.2f%n", 
-                    categoriaEscolhida.getNome(), precoFinal);
-            } else {
-                System.out.println("? Corrida cancelada.");
-            }
-            
-        } catch (NumberFormatException e) {
-            System.out.println("Por favor, digite um n˙mero v·lido.");
-        }
+
+        // Solicita√ß√£o (RF04) com categoria (RF06) + notifica√ß√£o (RF07)
+        Corrida corrida = contexto.servicoCorrida
+                .solicitarCorrida(contexto.sessao.getUsuarioAtual().getEmail(), origem, destino, categoriaEscolhida);
+
+        System.out.println("Corrida criada! ID: " + corrida.getId());
+        int notificadas = 0;
+        try { notificadas = contexto.servicoOferta.criarOfertasParaCorrida(corrida); }
+        catch (Exception e) { System.err.println("Erro ao notificar motoristas: " + e.getMessage()); }
+        System.out.println("Ofertas enviadas para " + notificadas + " motoristas da categoria " +
+                (categoriaEscolhida != null ? categoriaEscolhida.name() : "(todas)"));
+        System.out.println("(Dados salvos em data/corridas.txt e data/ofertas.txt)");
     }
 }
