@@ -1,6 +1,9 @@
 package com.uberpb.model;
 
 public enum CorridaStatus {
-    SOLICITADA
-    // (depois futuramente: NOTIFICANDO, ACEITA, EM_ANDAMENTO, CONCLUIDA, CANCELADA...)
+    SOLICITADA,
+    EM_ANDAMENTO,    // Novo status
+    CONCLUIDA,       // Novo status  
+    CANCELADA,       // Novo status
+    ACEITA
 }

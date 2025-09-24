@@ -4,6 +4,11 @@ import com.uberpb.model.*;
 import com.uberpb.repository.RepositorioCorrida;
 import com.uberpb.repository.RepositorioUsuario;
 
+/**
+ * ServiÃ§o de Corrida â€” RF04..RF06.
+ * Aceita categoria escolhida e calcula estimativa.
+ * MantÃ©m wrappers sem categoria para compatibilidade.
+ */
 public class ServicoCorrida {
 
     private final RepositorioCorrida repositorioCorrida;
@@ -14,208 +19,98 @@ public class ServicoCorrida {
         this.repositorioUsuario = repositorioUsuario;
     }
 
-    /** RF04 por endereço (texto) - método original para compatibilidade. */
-    public Corrida solicitarCorrida(String emailPassageiro, String origemEndereco, String destinoEndereco) {
-        validarSolicitacaoBasica(emailPassageiro, origemEndereco, destinoEndereco);
-        
-        Corrida corrida = Corrida.novaComEnderecos(emailPassageiro, origemEndereco.trim(), destinoEndereco.trim());
-        repositorioCorrida.salvar(corrida);
-        return corrida;
-    }
+    // --------- NOVAS ASSINATURAS (com categoria) ---------
 
-    /** RF05 - Novo método com categoria e preço estimado. */
-    public Corrida solicitarCorridaComCategoria(String emailPassageiro, String origemEndereco, 
-                                              String destinoEndereco, CategoriaVeiculo categoria, 
-                                              Double precoEstimado) {
-        validarSolicitacaoBasica(emailPassageiro, origemEndereco, destinoEndereco);
-        
-        if (categoria == null) {
-            throw new IllegalArgumentException("Categoria é obrigatória.");
-        }
-        
-        if (precoEstimado == null || precoEstimado <= 0) {
-            throw new IllegalArgumentException("Preço estimado deve ser maior que zero.");
-        }
-
-        Corrida corrida = Corrida.novaComEnderecos(emailPassageiro, origemEndereco.trim(), 
-                                                 destinoEndereco.trim(), categoria, precoEstimado);
-        repositorioCorrida.salvar(corrida);
-        return corrida;
-    }
-
-    /** RF05 - Método para calcular estimativa sem criar corrida. */
-    public EstimativaCorrida calcularEstimativa(String origemEndereco, String destinoEndereco) {
-        if (origemEndereco == null || origemEndereco.isBlank() || 
-            destinoEndereco == null || destinoEndereco.isBlank()) {
-            throw new IllegalArgumentException("Origem e destino são obrigatórios.");
-        }
-
-        if (origemEndereco.trim().equalsIgnoreCase(destinoEndereco.trim())) {
-            throw new IllegalArgumentException("Origem e destino não podem ser iguais.");
-        }
-
-        double distanciaEstimada = CalculadoraPrecoCorrida.estimarDistanciaKm(origemEndereco, destinoEndereco);
-        double tempoEstimado = CalculadoraPrecoCorrida.estimarTempoMinutos(distanciaEstimada);
-
-        EstimativaCorrida estimativa = new EstimativaCorrida(
-            origemEndereco.trim(), 
-            destinoEndereco.trim(),
-            distanciaEstimada,
-            tempoEstimado
-        );
-
-        // Calcular preços para todas as categorias
-        for (CategoriaVeiculo categoria : CategoriaVeiculo.values()) {
-            double preco = CalculadoraPrecoCorrida.calcularPreco(distanciaEstimada, tempoEstimado, categoria);
-            estimativa.adicionarPrecoCategoria(categoria, preco);
-        }
-
-        return estimativa;
-    }
-
-    /** Mantido para futuros usos: por coordenadas. */
-    public Corrida solicitarCorrida(String emailPassageiro, Localizacao origem, Localizacao destino) {
-        if (emailPassageiro == null || emailPassageiro.isBlank()) {
-            throw new IllegalArgumentException("Passageiro inválido.");
-        }
-        
-        if (origem == null || destino == null) {
-            throw new IllegalArgumentException("Origem e destino são obrigatórios.");
-        }
+    /** RF04 + RF06: por endereÃ§os com categoria */
+    public Corrida solicitarCorrida(String emailPassageiro, String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria) {
+        if (emailPassageiro == null || emailPassageiro.isBlank())
+            throw new IllegalArgumentException("Passageiro invÃ¡lido.");
+        if (origemEndereco == null || origemEndereco.isBlank()
+                || destinoEndereco == null || destinoEndereco.isBlank())
+            throw new IllegalArgumentException("Origem e destino sÃ£o obrigatÃ³rios.");
 
         Usuario u = repositorioUsuario.buscarPorEmail(emailPassageiro);
-        if (!(u instanceof Passageiro)) {
+        if (!(u instanceof Passageiro))
             throw new IllegalArgumentException("Apenas passageiros podem solicitar corridas.");
-        }
+
+        if (origemEndereco.trim().equalsIgnoreCase(destinoEndereco.trim()))
+            throw new IllegalArgumentException("Origem e destino nÃ£o podem ser iguais.");
+
+        Corrida corrida = Corrida.novaComEnderecos(emailPassageiro, origemEndereco.trim(), destinoEndereco.trim(), categoria);
+        repositorioCorrida.salvar(corrida);
+        return corrida;
+    }
+
+    /** RF04 + RF06: por coordenadas com categoria */
+    public Corrida solicitarCorrida(String emailPassageiro, Localizacao origem, Localizacao destino, CategoriaVeiculo categoria) {
+        if (emailPassageiro == null || emailPassageiro.isBlank())
+            throw new IllegalArgumentException("Passageiro invÃ¡lido.");
+        if (origem == null || destino == null)
+            throw new IllegalArgumentException("Origem e destino sÃ£o obrigatÃ³rios.");
+
+        Usuario u = repositorioUsuario.buscarPorEmail(emailPassageiro);
+        if (!(u instanceof Passageiro))
+            throw new IllegalArgumentException("Apenas passageiros podem solicitar corridas.");
 
         if (Double.compare(origem.latitude(), destino.latitude()) == 0 &&
-            Double.compare(origem.longitude(), destino.longitude()) == 0) {
-            throw new IllegalArgumentException("Origem e destino não podem ser iguais.");
-        }
+            Double.compare(origem.longitude(), destino.longitude()) == 0)
+            throw new IllegalArgumentException("Origem e destino nÃ£o podem ser iguais.");
 
-        Corrida corrida = Corrida.novaComCoordenadas(emailPassageiro, origem, destino);
+        Corrida corrida = Corrida.novaComCoordenadas(emailPassageiro, origem, destino, categoria);
         repositorioCorrida.salvar(corrida);
         return corrida;
     }
 
-    /** RF05 - Método auxiliar para validações comuns. */
-    private void validarSolicitacaoBasica(String emailPassageiro, String origemEndereco, String destinoEndereco) {
-        if (emailPassageiro == null || emailPassageiro.isBlank()) {
-            throw new IllegalArgumentException("Passageiro inválido.");
-        }
-        
-        if (origemEndereco == null || origemEndereco.isBlank() || 
-            destinoEndereco == null || destinoEndereco.isBlank()) {
-            throw new IllegalArgumentException("Origem e destino são obrigatórios.");
-        }
+    // --------- Wrappers de compatibilidade (sem categoria) ---------
 
-        Usuario u = repositorioUsuario.buscarPorEmail(emailPassageiro);
-        if (!(u instanceof Passageiro)) {
-            throw new IllegalArgumentException("Apenas passageiros podem solicitar corridas.");
-        }
-
-        if (origemEndereco.trim().equalsIgnoreCase(destinoEndereco.trim())) {
-            throw new IllegalArgumentException("Origem e destino não podem ser iguais.");
-        }
+    public Corrida solicitarCorrida(String emailPassageiro, String origemEndereco, String destinoEndereco) {
+        return solicitarCorrida(emailPassageiro, origemEndereco, destinoEndereco, null);
     }
 
-    /** RF05 - Classe interna para representar estimativas de corrida. */
-    public static class EstimativaCorrida {
-        private final String origem;
-        private final String destino;
-        private final double distanciaKm;
-        private final double tempoMinutos;
-        private final java.util.Map<CategoriaVeiculo, Double> precosPorCategoria;
-
-        public EstimativaCorrida(String origem, String destino, double distanciaKm, double tempoMinutos) {
-            this.origem = origem;
-            this.destino = destino;
-            this.distanciaKm = distanciaKm;
-            this.tempoMinutos = tempoMinutos;
-            this.precosPorCategoria = new java.util.HashMap<>();
-        }
-
-        public void adicionarPrecoCategoria(CategoriaVeiculo categoria, double preco) {
-            precosPorCategoria.put(categoria, preco);
-        }
-
-        public double getPrecoCategoria(CategoriaVeiculo categoria) {
-            return precosPorCategoria.getOrDefault(categoria, 0.0);
-        }
-
-        public java.util.Map<CategoriaVeiculo, Double> getPrecosPorCategoria() {
-            return new java.util.HashMap<>(precosPorCategoria);
-        }
-
-        public String getOrigem() { return origem; }
-        public String getDestino() { return destino; }
-        public double getDistanciaKm() { return distanciaKm; }
-        public double getTempoMinutos() { return tempoMinutos; }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Estimativa de Corrida:\n")
-              .append("? Origem: ").append(origem).append("\n")
-              .append("? Destino: ").append(destino).append("\n")
-              .append("? Distância: ").append(String.format("%.1f", distanciaKm)).append(" km\n")
-              .append("? Tempo estimado: ").append(String.format("%.0f", tempoMinutos)).append(" minutos\n\n")
-              .append("Preços por categoria:\n");
-            
-            for (java.util.Map.Entry<CategoriaVeiculo, Double> entry : precosPorCategoria.entrySet()) {
-                sb.append("? ").append(entry.getKey().getNome())
-                  .append(": R$ ").append(String.format("%.2f", entry.getValue()))
-                  .append(" - ").append(entry.getKey().getDescricao()).append("\n");
-            }
-            
-            return sb.toString();
-        }
+    public Corrida solicitarCorrida(String emailPassageiro, Localizacao origem, Localizacao destino) {
+        return solicitarCorrida(emailPassageiro, origem, destino, null);
     }
 
-    /** RF05 - Método para buscar corridas por passageiro com informações completas. */
-    public java.util.List<Corrida> buscarCorridasCompletasPorPassageiro(String emailPassageiro) {
-        if (emailPassageiro == null || emailPassageiro.isBlank()) {
-            throw new IllegalArgumentException("Email do passageiro é obrigatório.");
-        }
+    // --------- RF05: Estimativa (tempo e preÃ§o) ---------
 
-        return repositorioCorrida.buscarPorPassageiro(emailPassageiro);
+    public EstimativaCorrida estimarPorEnderecos(String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria) {
+        double distanciaKm = estimarDistanciaHeuristica(origemEndereco, destinoEndereco);
+        return calcularEstimativa(distanciaKm, categoria);
     }
 
-    /** RF05 - Método para atualizar preço de uma corrida existente. */
-    public void atualizarPrecoCorrida(String idCorrida, Double novoPreco) {
-        if (idCorrida == null || idCorrida.isBlank()) {
-            throw new IllegalArgumentException("ID da corrida é obrigatório.");
-        }
-        
-        if (novoPreco == null || novoPreco <= 0) {
-            throw new IllegalArgumentException("Preço deve ser maior que zero.");
-        }
-
-        Corrida corrida = repositorioCorrida.buscarPorId(idCorrida);
-        if (corrida == null) {
-            throw new IllegalArgumentException("Corrida não encontrada: " + idCorrida);
-        }
-
-        corrida.setPrecoEstimado(novoPreco);
-        repositorioCorrida.atualizar(corrida);
+    public EstimativaCorrida estimarPorCoordenadas(Localizacao origem, Localizacao destino, CategoriaVeiculo categoria) {
+        double distanciaKm = distanciaGeodesicaAproximada(origem, destino);
+        return calcularEstimativa(distanciaKm, categoria);
     }
 
-    /** RF05 - Método para atualizar categoria de uma corrida existente. */
-    public void atualizarCategoriaCorrida(String idCorrida, CategoriaVeiculo novaCategoria) {
-        if (idCorrida == null || idCorrida.isBlank()) {
-            throw new IllegalArgumentException("ID da corrida é obrigatório.");
-        }
-        
-        if (novaCategoria == null) {
-            throw new IllegalArgumentException("Categoria é obrigatória.");
+    // ===== helpers de estimativa =====
+
+    private double estimarDistanciaHeuristica(String o, String d) {
+        int h = Math.abs((o + "|" + d).hashCode());
+        int delta = (h % 10);     // 0..9
+        return 4.0 + delta;       // 4..13 km (heurÃ­stico)
+    }
+
+    private double distanciaGeodesicaAproximada(Localizacao o, Localizacao d) {
+        double dx = o.latitude() - d.latitude();
+        double dy = o.longitude() - d.longitude();
+        return Math.sqrt(dx*dx + dy*dy) * 111.0; // ~km por grau
+    }
+
+    private EstimativaCorrida calcularEstimativa(double distanciaKm, CategoriaVeiculo cat) {
+        int minutos = (int) Math.round(distanciaKm * 3.0);
+
+        double base = 3.50, porKm = 1.20, porMin = 0.50; // UberX
+        if (cat != null) {
+            String nome = cat.name().toUpperCase();
+            if (nome.contains("COMFORT")) { base = 4.50; porKm = 1.60; porMin = 0.60; }
+            else if (nome.contains("BLACK")) { base = 7.00; porKm = 2.40; porMin = 0.80; }
+            else if (nome.contains("BAG"))   { base*=1.10; porKm*=1.10; porMin*=1.10; }
+            else if (nome.contains("XL"))    { base*=1.30; porKm*=1.30; porMin*=1.30; }
         }
 
-        Corrida corrida = repositorioCorrida.buscarPorId(idCorrida);
-        if (corrida == null) {
-            throw new IllegalArgumentException("Corrida não encontrada: " + idCorrida);
-        }
-
-        corrida.setCategoria(novaCategoria);
-        repositorioCorrida.atualizar(corrida);
+        double preco = base + porKm * distanciaKm + porMin * minutos;
+        preco = Math.round(preco * 100.0) / 100.0;
+        return new EstimativaCorrida(distanciaKm, minutos, preco);
     }
 }

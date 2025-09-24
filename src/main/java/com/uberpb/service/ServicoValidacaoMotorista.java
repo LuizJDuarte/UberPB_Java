@@ -2,89 +2,94 @@ package com.uberpb.service;
 
 import com.uberpb.model.CategoriaVeiculo;
 import com.uberpb.model.Motorista;
+import com.uberpb.model.Usuario;
 import com.uberpb.model.Veiculo;
 import com.uberpb.repository.RepositorioUsuario;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+/**
+ * RF02: valida documentos do motorista e define as categorias do veículo.
+ * Regras simples (ajuste depois se quiser):
+ *  - UberX: todo veículo válido entra.
+ *  - Comfort: ano >= 2018 e capacidade >= 4.
+ *  - Black: ano >= 2020 e cor preta (ou "preto"/"black").
+ *  - Bag: porta-malas "G".
+ *  - XL: capacidade >= 6.
+ * Conta fica ATIVA se CNH & CRLV forem válidos e houver ao menos 1 categoria.
+ */
 public class ServicoValidacaoMotorista {
 
-    private RepositorioUsuario repositorioUsuario;
+    private final RepositorioUsuario repositorioUsuario;
 
     public ServicoValidacaoMotorista(RepositorioUsuario repositorioUsuario) {
         this.repositorioUsuario = repositorioUsuario;
     }
 
-    /**
-     * Realiza a validação dos documentos e do veículo de um motorista, definindo suas categorias de atuação.
-     * @param motorista O objeto Motorista a ser validado.
-     * @param veiculo Os dados do veículo.
-     * @param possuiCnhValida true se o motorista possuir CNH válida.
-     * @param possuiCrlvValido true se o veículo possuir CRLV válido.
-     * @return O motorista atualizado com as categorias de veículo e status de ativação.
-     * @throws IllegalArgumentException Se as informações básicas de CNH/CRLV não forem válidas.
-     */
-    public Motorista validarVeiculoEDocumentos(Motorista motorista, Veiculo veiculo, boolean possuiCnhValida, boolean possuiCrlvValido) {
-        if (motorista == null) {
-            throw new IllegalArgumentException("Motorista não pode ser nulo.");
-        }
-        if (!possuiCnhValida || !possuiCrlvValido) {
-            motorista.setCnhValida(false);
-            motorista.setCrlvValido(false);
-            motorista.setContaAtiva(false);
-            repositorioUsuario.atualizar(motorista);
-            throw new IllegalArgumentException("Motorista e/ou veículo não possuem documentação válida. Conta não ativada.");
-        }
+    /** Passo único para completar cadastro do motorista. */
+    public Motorista registrarDocumentosEVeiculo(String emailMotorista,
+                                                 boolean cnhValida,
+                                                 boolean crlvValido,
+                                                 Veiculo veiculo) {
+        Usuario u = repositorioUsuario.buscarPorEmail(emailMotorista);
+        if (!(u instanceof Motorista))
+            throw new IllegalArgumentException("Usuário não é motorista.");
 
-        motorista.setCnhValida(possuiCnhValida);
-        motorista.setCrlvValido(possuiCrlvValido);
-        motorista.setVeiculo(veiculo);
+        Motorista m = (Motorista) u;
 
-        List<CategoriaVeiculo> categoriasQualificadas = new ArrayList<>();
+        // Define documentos
+        m.setCnhValida(cnhValida);
+        m.setCrlvValido(crlvValido);
 
-        // Lógica para determinar as categorias com base nos dados do veículo (RF06)
-        // UberX: Requisito básico, sempre incluído se o veículo for válido.
-        categoriasQualificadas.add(CategoriaVeiculo.UBERX);
+        // Calcula categorias do veículo e injeta no objeto
+        var categorias = derivarCategorias(veiculo);
+        veiculo.setCategoriasDisponiveis(categorias);
+        m.setVeiculo(veiculo);
 
-        // Uber Comfort: Carros mais novos e espaçosos
-        if (veiculo.getAno() >= 2018 && veiculo.getCapacidadePassageiros() >= 4) {
-            categoriasQualificadas.add(CategoriaVeiculo.COMFORT);
-        }
+        // Ativa conta se documentos ok e tem categoria
+        boolean podeAtivar = cnhValida && crlvValido && !categorias.isEmpty();
+        m.setContaAtiva(podeAtivar);
 
-        // Uber Black: Veículos premium e motoristas de alta avaliação
-        // Para simplificar, consideramos "premium" por ano e alguns modelos de exemplo.
-        // Motoristas de alta avaliação seria um RF17 futuro, aqui simulamos pela qualificação do veículo.
-        List<String> modelosPremium = Arrays.asList("Mercedes-Benz", "Audi", "BMW", "Volvo", "Lexus");
-        if (veiculo.getAno() >= 2020 && veiculo.getCapacidadePassageiros() >= 4 &&
-            (veiculo.getCor().equalsIgnoreCase("preto") || veiculo.getCor().equalsIgnoreCase("cinza")) &&
-            modelosPremium.stream().anyMatch(model -> veiculo.getModelo().toLowerCase().contains(model.toLowerCase()))) {
-            categoriasQualificadas.add(CategoriaVeiculo.BLACK);
+        repositorioUsuario.atualizar(m);
+        return m;
+    }
+
+    /** Regras determinísticas para categorias. */
+    private List<CategoriaVeiculo> derivarCategorias(Veiculo v) {
+        List<CategoriaVeiculo> cats = new ArrayList<>();
+        if (v == null) return cats;
+
+        // UberX – sempre que tiver veículo
+        cats.add(CategoriaVeiculo.UBERX);
+
+        // Comfort – ano >= 2018 e 4+ lugares
+        if (v.getAno() >= 2018 && v.getCapacidadePassageiros() >= 4) {
+            adicionarSeNaoTem(cats, CategoriaVeiculo.COMFORT);
         }
 
-        // Uber Bag: Veículos com porta-malas maior
-        if (veiculo.getTamanhoPortaMalas().equalsIgnoreCase("G")) {
-            categoriasQualificadas.add(CategoriaVeiculo.BAG);
+        // Black – ano >= 2020 e cor "preto"/"black"
+        String cor = v.getCor() == null ? "" : v.getCor().toLowerCase();
+        if (v.getAno() >= 2020 && (cor.contains("preto") || cor.contains("black"))) {
+            adicionarSeNaoTem(cats, CategoriaVeiculo.BLACK);
         }
 
-        // Uber XL: Capacidade para mais passageiros
-        if (veiculo.getCapacidadePassageiros() >= 6) {
-            categoriasQualificadas.add(CategoriaVeiculo.XL);
+        // Bag – porta-malas "G"
+        String malas = v.getTamanhoPortaMalas() == null ? "" : v.getTamanhoPortaMalas().toUpperCase();
+        if (malas.equals("G")) {
+            adicionarSeNaoTem(cats, CategoriaVeiculo.BAG);
         }
 
-        veiculo.setCategoriasDisponiveis(categoriasQualificadas);
-
-        // Se o motorista tem CNH/CRLV válidos e o veículo se qualifica para pelo menos UberX, a conta é ativada.
-        if (possuiCnhValida && possuiCrlvValido && !categoriasQualificadas.isEmpty()) {
-            motorista.setContaAtiva(true);
-            System.out.println("Motorista " + motorista.getEmail() + " ativado com sucesso para as categorias: " + categoriasQualificadas);
-        } else {
-            motorista.setContaAtiva(false);
-            System.out.println("Motorista " + motorista.getEmail() + " não pôde ser ativado. Verifique os dados do veículo e documentos.");
+        // XL – 6+ lugares
+        if (v.getCapacidadePassageiros() >= 6) {
+            adicionarSeNaoTem(cats, CategoriaVeiculo.XL);
         }
 
-        repositorioUsuario.atualizar(motorista);
-        return motorista;
+        return cats;
+    }
+
+    private void adicionarSeNaoTem(List<CategoriaVeiculo> l, CategoriaVeiculo c) {
+        for (CategoriaVeiculo e : l) if (e == c) return;
+        l.add(c);
     }
 }

@@ -1,1 +1,4 @@
-204580f2-41ba-4c44-8bd2-9049d4ef2a2b|passageiro@gmail.com|SOLICITADA|Rua Luiza Bezerra Motta, 120 - Catole|Rua Indios Cariris, 100 - Centro||||
+204580f2-41ba-4c44-8bd2-9049d4ef2a2b|passageiro@gmail.com|SOLICITADA|Rua Luiza Bezerra Motta, 120 - Catole|Rua Indios Cariris, 100 - Centro||||||
+7690eb96-4e38-425b-ae1a-ffd713730b8a|passageiro@gmail.com|SOLICITADA|Rua Luiza motta, 400|Rua Treze de maio, 520||||||
+41101463-20b9-446d-81ec-3dc86f4f045b|passageiro@gmail.com|SOLICITADA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 8000 - Tambaú|||||BLACK|
+973c3b30-306d-460f-89e6-9ba6917f59ac|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||UBERX|mblack@gmail.com
