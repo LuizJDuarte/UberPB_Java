@@ -51,7 +51,7 @@ public final class ProvedorDependencias {
         return new ServicoValidacaoMotorista(rUsuario); 
     }
 
-    // ===== NOVOS SERVIÇOS =====
+    // ===== SERVIÇOS DE DIRECIONAMENTO E LOCALIZAÇÃO =====
     private static ServicoDirecionamentoCorrida servicoDirecionamentoCorrida(
             RepositorioCorrida rCorrida, RepositorioUsuario rUsuario) {
         return new ServicoDirecionamentoCorrida(rCorrida, rUsuario);
@@ -59,6 +59,11 @@ public final class ProvedorDependencias {
     
     private static ServicoLocalizacao servicoLocalizacao(RepositorioCorrida rCorrida) {
         return new ServicoLocalizacao(rCorrida);
+    }
+
+    // ===== NOVO SERVIÇO DE OTIMIZAÇÃO DE ROTA =====
+    private static ServicoOtimizacaoRota servicoOtimizacaoRota() {
+        return new ServicoOtimizacaoRota();
     }
 
     // ===== CONTEXTO PRINCIPAL =====
@@ -75,9 +80,12 @@ public final class ProvedorDependencias {
         ServicoOferta sOferta = servicoOferta(rOferta, rUsuario, rCorrida);
         ServicoValidacaoMotorista sValidacao = servicoValidacaoMotorista(rUsuario);
 
-        // Inicializar NOVOS serviços
+        // Inicializar serviços de direcionamento e localização
         ServicoDirecionamentoCorrida sDirecionamento = servicoDirecionamentoCorrida(rCorrida, rUsuario);
         ServicoLocalizacao sLocalizacao = servicoLocalizacao(rCorrida);
+
+        // INICIALIZAR NOVO SERVIÇO DE OTIMIZAÇÃO
+        ServicoOtimizacaoRota sOtimizacao = servicoOtimizacaoRota();
 
         Sessao sessao = new Sessao();
 
@@ -91,8 +99,9 @@ public final class ProvedorDependencias {
             rOferta, 
             sOferta, 
             sValidacao,
-            sDirecionamento,  // NOVO
-            sLocalizacao      // NOVO
+            sDirecionamento,
+            sLocalizacao,
+            sOtimizacao  // NOVO SERVIÇO
         );
     }
 
@@ -108,11 +117,14 @@ public final class ProvedorDependencias {
         // Comandos de corrida (passageiro)
         comandos.add(new SolicitarCorridaComando());
         comandos.add(new VisualizarCorridaComando());
-        comandos.add(new AcompanharCorridaComando()); // NOVO COMANDO
+        comandos.add(new AcompanharCorridaComando()); // COMANDO MELHORADO
         
         // Comandos de motorista
         comandos.add(new MotoristaVerOfertasComando());
         comandos.add(new CompletarCadastroMotoristaComando());
+
+        // NOVO COMANDO: Otimizar Rota
+        comandos.add(new OtimizarRotaComando());
 
         // Comando funcional: Listar Usuários
         comandos.add(new ComandoFuncional(
@@ -154,7 +166,7 @@ public final class ProvedorDependencias {
                 }
         ));
 
-        // NOVO: Comando para testar direcionamento automático (apenas para desenvolvimento)
+        // Comando para testar direcionamento automático (apenas para desenvolvimento)
         comandos.add(new ComandoFuncional(
                 "[DEV] Testar Direcionamento", 
                 u -> u instanceof Passageiro, // apenas passageiros
