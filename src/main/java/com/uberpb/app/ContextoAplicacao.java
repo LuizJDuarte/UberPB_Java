@@ -19,9 +19,12 @@ public class ContextoAplicacao {
 
     public final ServicoValidacaoMotorista servicoValidacaoMotorista;
 
-    // NOVOS SERVIÇOS PARA DIRECIONAMENTO E LOCALIZAÇÃO
+    // SERVIÇOS PARA DIRECIONAMENTO E LOCALIZAÇÃO
     public final ServicoDirecionamentoCorrida servicoDirecionamentoCorrida;
     public final ServicoLocalizacao servicoLocalizacao;
+
+    // NOVO SERVIÇO PARA OTIMIZAÇÃO DE ROTA
+    public final ServicoOtimizacaoRota servicoOtimizacaoRota;
 
     public ContextoAplicacao(Sessao sessao,
                              RepositorioUsuario repositorioUsuario,
@@ -32,8 +35,9 @@ public class ContextoAplicacao {
                              RepositorioOferta repositorioOferta,
                              ServicoOferta servicoOferta,
                              ServicoValidacaoMotorista servicoValidacaoMotorista,
-                             ServicoDirecionamentoCorrida servicoDirecionamentoCorrida, // NOVO
-                             ServicoLocalizacao servicoLocalizacao) { // NOVO
+                             ServicoDirecionamentoCorrida servicoDirecionamentoCorrida,
+                             ServicoLocalizacao servicoLocalizacao,
+                             ServicoOtimizacaoRota servicoOtimizacaoRota) { // NOVO PARÂMETRO
         this.sessao = sessao;
         this.repositorioUsuario = repositorioUsuario;
         this.servicoCadastro = servicoCadastro;
@@ -45,5 +49,6 @@ public class ContextoAplicacao {
         this.servicoValidacaoMotorista = servicoValidacaoMotorista;
         this.servicoDirecionamentoCorrida = servicoDirecionamentoCorrida;
         this.servicoLocalizacao = servicoLocalizacao;
+        this.servicoOtimizacaoRota = servicoOtimizacaoRota; // NOVA INICIALIZAÇÃO
     }
 }
