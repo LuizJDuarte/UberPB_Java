@@ -22,7 +22,7 @@ public class ServicoCorrida {
     // --------- NOVAS ASSINATURAS (com categoria) ---------
 
     /** RF04 + RF06: por endereços com categoria */
-    public Corrida solicitarCorrida(String emailPassageiro, String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria) {
+    public Corrida solicitarCorrida(String emailPassageiro, String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria, MetodoPagamento metodoPagamento) {
         if (emailPassageiro == null || emailPassageiro.isBlank())
             throw new IllegalArgumentException("Passageiro inválido.");
         if (origemEndereco == null || origemEndereco.isBlank()
@@ -36,13 +36,13 @@ public class ServicoCorrida {
         if (origemEndereco.trim().equalsIgnoreCase(destinoEndereco.trim()))
             throw new IllegalArgumentException("Origem e destino não podem ser iguais.");
 
-        Corrida corrida = Corrida.novaComEnderecos(emailPassageiro, origemEndereco.trim(), destinoEndereco.trim(), categoria);
+        Corrida corrida = Corrida.novaComEnderecos(emailPassageiro, origemEndereco.trim(), destinoEndereco.trim(), categoria, metodoPagamento);
         repositorioCorrida.salvar(corrida);
         return corrida;
     }
 
     /** RF04 + RF06: por coordenadas com categoria */
-    public Corrida solicitarCorrida(String emailPassageiro, Localizacao origem, Localizacao destino, CategoriaVeiculo categoria) {
+    public Corrida solicitarCorrida(String emailPassageiro, Localizacao origem, Localizacao destino, CategoriaVeiculo categoria, MetodoPagamento metodoPagamento) {
         if (emailPassageiro == null || emailPassageiro.isBlank())
             throw new IllegalArgumentException("Passageiro inválido.");
         if (origem == null || destino == null)
@@ -56,7 +56,7 @@ public class ServicoCorrida {
             Double.compare(origem.longitude(), destino.longitude()) == 0)
             throw new IllegalArgumentException("Origem e destino não podem ser iguais.");
 
-        Corrida corrida = Corrida.novaComCoordenadas(emailPassageiro, origem, destino, categoria);
+        Corrida corrida = Corrida.novaComCoordenadas(emailPassageiro, origem, destino, categoria, metodoPagamento);
         repositorioCorrida.salvar(corrida);
         return corrida;
     }
@@ -64,11 +64,11 @@ public class ServicoCorrida {
     // --------- Wrappers de compatibilidade (sem categoria) ---------
 
     public Corrida solicitarCorrida(String emailPassageiro, String origemEndereco, String destinoEndereco) {
-        return solicitarCorrida(emailPassageiro, origemEndereco, destinoEndereco, null);
+        return solicitarCorrida(emailPassageiro, origemEndereco, destinoEndereco, null, MetodoPagamento.DINHEIRO);
     }
 
     public Corrida solicitarCorrida(String emailPassageiro, Localizacao origem, Localizacao destino) {
-        return solicitarCorrida(emailPassageiro, origem, destino, null);
+        return solicitarCorrida(emailPassageiro, origem, destino, null, MetodoPagamento.DINHEIRO);
     }
 
     // --------- RF05: Estimativa (tempo e preço) ---------
