@@ -13,6 +13,7 @@ public class Corrida {
     private final Localizacao destino;
 
     private final CategoriaVeiculo categoriaEscolhida;
+    private final MetodoPagamento metodoPagamento;
     private String motoristaAlocado;
 
     private CorridaStatus status;
@@ -24,6 +25,7 @@ public class Corrida {
                    Localizacao origem,
                    Localizacao destino,
                    CategoriaVeiculo categoriaEscolhida,
+                   MetodoPagamento metodoPagamento,
                    String motoristaAlocado,
                    CorridaStatus status) {
         this.id = Objects.requireNonNull(id);
@@ -33,18 +35,19 @@ public class Corrida {
         this.origem = origem;
         this.destino = destino;
         this.categoriaEscolhida = categoriaEscolhida;
+        this.metodoPagamento = metodoPagamento;
         this.motoristaAlocado = motoristaAlocado;
         this.status = Objects.requireNonNull(status);
     }
 
-    public static Corrida novaComEnderecos(String emailPassageiro, String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria) {
+    public static Corrida novaComEnderecos(String emailPassageiro, String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria, MetodoPagamento metodoPagamento) {
         return new Corrida(UUID.randomUUID().toString(), emailPassageiro,
-                origemEndereco, destinoEndereco, null, null, categoria, null, CorridaStatus.SOLICITADA);
+                origemEndereco, destinoEndereco, null, null, categoria, metodoPagamento, null, CorridaStatus.SOLICITADA);
     }
 
-    public static Corrida novaComCoordenadas(String emailPassageiro, Localizacao origem, Localizacao destino, CategoriaVeiculo categoria) {
+    public static Corrida novaComCoordenadas(String emailPassageiro, Localizacao origem, Localizacao destino, CategoriaVeiculo categoria, MetodoPagamento metodoPagamento) {
         return new Corrida(UUID.randomUUID().toString(), emailPassageiro,
-                null, null, origem, destino, categoria, null, CorridaStatus.SOLICITADA);
+                null, null, origem, destino, categoria, metodoPagamento, null, CorridaStatus.SOLICITADA);
     }
 
     public String getId() { return id; }
@@ -54,6 +57,7 @@ public class Corrida {
     public Localizacao getOrigem() { return origem; }
     public Localizacao getDestino() { return destino; }
     public CategoriaVeiculo getCategoriaEscolhida() { return categoriaEscolhida; }
+    public MetodoPagamento getMetodoPagamento() { return metodoPagamento; }
     public String getMotoristaAlocado() { return motoristaAlocado; }
     public CorridaStatus getStatus() { return status; }
     public void setStatus(CorridaStatus status) { this.status = status; }
@@ -74,6 +78,7 @@ public class Corrida {
           .append(destino != null ? Double.toString(destino.latitude()) : "").append(SEP)
           .append(destino != null ? Double.toString(destino.longitude()): "").append(SEP)
           .append(esc(nvl(categoriaEscolhida != null ? categoriaEscolhida.name() : ""))).append(SEP)
+          .append(esc(nvl(metodoPagamento != null ? metodoPagamento.name() : ""))).append(SEP)
           .append(esc(nvl(motoristaAlocado)));
         return sb.toString();
     }
@@ -100,11 +105,17 @@ public class Corrida {
         }
 
         CategoriaVeiculo categoria = null;
-        if (p.length > 10 && !vazio(p[9])) {
+        if (p.length > 9 && !vazio(p[9])) {
             try { categoria = CategoriaVeiculo.valueOf(unesc(p[9])); } catch (Exception ignored) {}
         }
-        String motorista = (p.length > 10 ? unesc(p[10]) : null);
-        return new Corrida(id, email, oEnd, dEnd, o, d, categoria, motorista, st);
+
+        MetodoPagamento metodoPagamento = null;
+        if (p.length > 10 && !vazio(p[10])) {
+            try { metodoPagamento = MetodoPagamento.valueOf(unesc(p[10])); } catch (Exception ignored) {}
+        }
+
+        String motorista = (p.length > 11 ? unesc(p[11]) : null);
+        return new Corrida(id, email, oEnd, dEnd, o, d, categoria, metodoPagamento, motorista, st);
     }
 
     private static Corrida fromCSVAntigo(String linha) {
@@ -117,7 +128,7 @@ public class Corrida {
         double dLon = parseDouble(p[5]);
         CorridaStatus st = CorridaStatus.valueOf(p[6]);
         return new Corrida(id, email, null, null,
-                new Localizacao(oLat, oLon), new Localizacao(dLat, dLon), null, null, st);
+                new Localizacao(oLat, oLon), new Localizacao(dLat, dLon), null, null, null, st);
     }
 
     private static String esc(String s) {

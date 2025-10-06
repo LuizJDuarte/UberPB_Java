@@ -2,6 +2,7 @@ package com.uberpb.app;
 
 import com.uberpb.model.CategoriaVeiculo;
 import com.uberpb.model.Corrida;
+import com.uberpb.model.MetodoPagamento;
 import com.uberpb.model.Passageiro;
 import com.uberpb.model.Usuario;
 import com.uberpb.service.EstimativaCorrida;
@@ -36,6 +37,25 @@ public class SolicitarCorridaComando implements Comando {
         if (idx < 0 || idx >= cats.length) idx = 0;
         CategoriaVeiculo categoriaEscolhida = cats[idx];
 
+        // Metodo de Pagamento
+        System.out.println("Escolha o método de pagamento (digite o número):");
+        MetodoPagamento[] metodos = MetodoPagamento.values();
+        for (int i = 0; i < metodos.length; i++) {
+            System.out.printf("%d) %s%n", i + 1, metodos[i].name());
+        }
+        System.out.print("> ");
+        String sPagamento = entrada.nextLine().trim();
+        int idxPagamento;
+        try {
+            idxPagamento = Integer.parseInt(sPagamento) - 1;
+        } catch (Exception e) {
+            idxPagamento = 3; // Default DINHEIRO
+        }
+        if (idxPagamento < 0 || idxPagamento >= metodos.length) {
+            idxPagamento = 3;
+        }
+        MetodoPagamento metodoEscolhido = metodos[idxPagamento];
+
         // Estimativa (RF05)
         EstimativaCorrida est = contexto.servicoCorrida.estimarPorEnderecos(origem, destino, categoriaEscolhida);
         System.out.printf("Estimativa: %.1f km • %d min • R$ %.2f%n",
@@ -50,7 +70,7 @@ public class SolicitarCorridaComando implements Comando {
 
         // Solicitação (RF04) com categoria (RF06) + notificação (RF07)
         Corrida corrida = contexto.servicoCorrida
-                .solicitarCorrida(contexto.sessao.getUsuarioAtual().getEmail(), origem, destino, categoriaEscolhida);
+                .solicitarCorrida(contexto.sessao.getUsuarioAtual().getEmail(), origem, destino, categoriaEscolhida, metodoEscolhido);
 
         System.out.println("Corrida criada! ID: " + corrida.getId());
         int notificadas = 0;
