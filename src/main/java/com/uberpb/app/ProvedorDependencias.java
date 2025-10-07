@@ -4,9 +4,11 @@ import static com.uberpb.app.ConsoleUI.*;
 import com.uberpb.model.Motorista;
 import com.uberpb.model.Passageiro;
 import com.uberpb.model.Usuario;
+import com.uberpb.repository.ImplRepositorioAvaliacaoArquivo;
 import com.uberpb.repository.ImplRepositorioCorridaArquivo;
 import com.uberpb.repository.ImplRepositorioOfertaArquivo;
 import com.uberpb.repository.ImplRepositorioUsuarioArquivo;
+import com.uberpb.repository.RepositorioAvaliacao;
 import com.uberpb.repository.RepositorioCorrida;
 import com.uberpb.repository.RepositorioOferta;
 import com.uberpb.repository.RepositorioUsuario;
@@ -28,6 +30,11 @@ public final class ProvedorDependencias {
     
     private static RepositorioOferta repoOferta() { 
         return new ImplRepositorioOfertaArquivo(); 
+    }
+
+    // ✅ NOVO REPOSITÓRIO DE AVALIAÇÕES
+    private static RepositorioAvaliacao repoAvaliacao() { 
+        return new ImplRepositorioAvaliacaoArquivo(); 
     }
 
     // ===== SERVIÇOS EXISTENTES =====
@@ -61,9 +68,16 @@ public final class ProvedorDependencias {
         return new ServicoLocalizacao(rCorrida);
     }
 
-    // ===== NOVO SERVIÇO DE OTIMIZAÇÃO DE ROTA =====
+    // ===== SERVIÇO DE OTIMIZAÇÃO DE ROTA =====
     private static ServicoOtimizacaoRota servicoOtimizacaoRota() {
         return new ServicoOtimizacaoRota();
+    }
+
+    // ✅ NOVO SERVIÇO DE AVALIAÇÃO
+    private static ServicoAvaliacao servicoAvaliacao(RepositorioAvaliacao rAvaliacao, 
+                                                    RepositorioCorrida rCorrida,
+                                                    RepositorioUsuario rUsuario) {
+        return new ServicoAvaliacao(rAvaliacao, rCorrida, rUsuario);
     }
 
     // ===== CONTEXTO PRINCIPAL =====
@@ -72,6 +86,7 @@ public final class ProvedorDependencias {
         RepositorioUsuario rUsuario = repoUsuario();
         RepositorioCorrida rCorrida = repoCorrida();
         RepositorioOferta rOferta = repoOferta();
+        RepositorioAvaliacao rAvaliacao = repoAvaliacao(); // ✅ NOVO REPOSITÓRIO
 
         // Inicializar serviços existentes
         ServicoCadastro sCadastro = servicoCadastro(rUsuario);
@@ -84,8 +99,11 @@ public final class ProvedorDependencias {
         ServicoDirecionamentoCorrida sDirecionamento = servicoDirecionamentoCorrida(rCorrida, rUsuario);
         ServicoLocalizacao sLocalizacao = servicoLocalizacao(rCorrida);
 
-        // INICIALIZAR NOVO SERVIÇO DE OTIMIZAÇÃO
+        // Inicializar serviço de otimização
         ServicoOtimizacaoRota sOtimizacao = servicoOtimizacaoRota();
+
+        // ✅ INICIALIZAR NOVO SERVIÇO DE AVALIAÇÃO
+        ServicoAvaliacao sAvaliacao = servicoAvaliacao(rAvaliacao, rCorrida, rUsuario);
 
         Sessao sessao = new Sessao();
 
@@ -101,7 +119,8 @@ public final class ProvedorDependencias {
             sValidacao,
             sDirecionamento,
             sLocalizacao,
-            sOtimizacao  // NOVO SERVIÇO
+            sOtimizacao,
+            sAvaliacao  // ✅ NOVO SERVIÇO
         );
     }
 
@@ -117,19 +136,24 @@ public final class ProvedorDependencias {
         // Comandos de corrida (passageiro)
         comandos.add(new SolicitarCorridaComando());
         comandos.add(new VisualizarCorridaComando());
-        comandos.add(new AcompanharCorridaComando()); // COMANDO MELHORADO
+        comandos.add(new AcompanharCorridaComando());
+        comandos.add(new ConcluirCorridaComando()); // ✅ NOVO COMANDO
         
         // Comandos de motorista
         comandos.add(new MotoristaVerOfertasComando());
         comandos.add(new CompletarCadastroMotoristaComando());
 
-        // NOVO COMANDO: Otimizar Rota
+        // Comando de otimização de rota
         comandos.add(new OtimizarRotaComando());
+
+        // ✅ NOVOS COMANDOS DE AVALIAÇÃO
+        comandos.add(new AvaliarCorridaComando());
+        comandos.add(new VisualizarAvaliacoesComando());
 
         // Comando funcional: Listar Usuários
         comandos.add(new ComandoFuncional(
                 "Listar Usuários", 
-                u -> u != null, // visível apenas para logados
+                u -> u != null,
                 (ctx, in) -> {
                     var lista = ctx.repositorioUsuario.buscarTodos();
                     if (lista.isEmpty()) { 
@@ -142,13 +166,20 @@ public final class ProvedorDependencias {
                             String cats = (m.getVeiculo() != null && m.getVeiculo().getCategoriasDisponiveis() != null)
                                     ? m.getVeiculo().getCategoriasDisponiveis().toString()
                                     : "[]";
+                            String rating = m.getTotalAvaliacoes() > 0 ? 
+                                String.format("⭐ %.1f (%d)", m.getRatingMedio(), m.getTotalAvaliacoes()) : 
+                                "⭐ Sem avaliações";
                             System.out.println("[MOTORISTA] " + m.getEmail()
                                     + " | CNH: " + m.isCnhValida()
                                     + " | CRLV: " + m.isCrlvValido()
                                     + " | " + status
+                                    + " | " + rating
                                     + " | Categorias: " + cats);
-                        } else if (u2 instanceof Passageiro) {
-                            System.out.println("[PASSAGEIRO] " + u2.getEmail());
+                        } else if (u2 instanceof Passageiro p) {
+                            String rating = p.getTotalAvaliacoes() > 0 ? 
+                                String.format("⭐ %.1f (%d)", p.getRatingMedio(), p.getTotalAvaliacoes()) : 
+                                "⭐ Sem avaliações";
+                            System.out.println("[PASSAGEIRO] " + p.getEmail() + " | " + rating);
                         } else {
                             System.out.println("[USUARIO] " + u2.getEmail());
                         }
@@ -159,7 +190,7 @@ public final class ProvedorDependencias {
         // Comando funcional: Logout
         comandos.add(new ComandoFuncional(
                 "Logout", 
-                u -> u != null, // visível apenas para logados
+                u -> u != null,
                 (ctx, in) -> { 
                     ctx.sessao.deslogar(); 
                     ok("Sessão encerrada."); 
@@ -169,7 +200,7 @@ public final class ProvedorDependencias {
         // Comando para testar direcionamento automático (apenas para desenvolvimento)
         comandos.add(new ComandoFuncional(
                 "[DEV] Testar Direcionamento", 
-                u -> u instanceof Passageiro, // apenas passageiros
+                u -> u instanceof Passageiro,
                 (ctx, in) -> {
                     try {
                         System.out.print("ID da corrida para direcionar: ");
@@ -183,6 +214,50 @@ public final class ProvedorDependencias {
                         }
                     } catch (Exception e) {
                         erro("Erro ao direcionar corrida: " + e.getMessage());
+                    }
+                }
+        ));
+
+        // ✅ NOVO COMANDO: Testar Sistema de Avaliação
+        comandos.add(new ComandoFuncional(
+                "[DEV] Testar Sistema de Avaliação", 
+                u -> u != null,
+                (ctx, in) -> {
+                    try {
+                        System.out.println("🚀 INICIANDO TESTE DO SISTEMA DE AVALIAÇÃO");
+                        System.out.println("===========================================");
+                        
+                        // Criar corrida de teste
+                        var corrida = ctx.servicoCorrida.solicitarCorrida(
+                            ctx.sessao.getUsuarioAtual().getEmail(),
+                            "Av. Teste, 123",
+                            "Rua Exemplo, 456", 
+                            com.uberpb.model.CategoriaVeiculo.UBERX,
+                            com.uberpb.model.MetodoPagamento.CARTAO
+                        );
+                        
+                        // Simular motorista
+                        corrida.setMotoristaAlocado("motorista_teste@email.com");
+                        corrida.setStatus(com.uberpb.model.CorridaStatus.CONCLUIDA);
+                        ctx.repositorioCorrida.atualizar(corrida);
+                        
+                        System.out.println("✅ Corrida de teste criada: " + corrida.getId().substring(0, 8));
+                        
+                        // Testar avaliação
+                        if (ctx.sessao.getUsuarioAtual() instanceof com.uberpb.model.Passageiro) {
+                            ctx.servicoAvaliacao.avaliarMotorista(
+                                corrida.getId(),
+                                ctx.sessao.getUsuarioAtual().getEmail(),
+                                5,
+                                "Excelente serviço! Motorista muito atencioso."
+                            );
+                            System.out.println("✅ Avaliação do motorista registrada com sucesso!");
+                        }
+                        
+                        ok("Teste do sistema de avaliação concluído com sucesso!");
+                        
+                    } catch (Exception e) {
+                        erro("Erro no teste: " + e.getMessage());
                     }
                 }
         ));

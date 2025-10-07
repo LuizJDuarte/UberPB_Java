@@ -1,7 +1,6 @@
 package com.uberpb.service;
 
 import com.uberpb.model.CategoriaVeiculo;
-import com.uberpb.model.Corrida;
 import com.uberpb.model.Localizacao;
 
 public class CalculadoraPrecoCorrida {
@@ -9,7 +8,7 @@ public class CalculadoraPrecoCorrida {
     private static final double TAXA_BASE = 5.0;
     private static final double PRECO_POR_KM = 2.5;
     private static final double PRECO_POR_MINUTO = 0.5;
-    private static final double VELOCIDADE_MEDIA_KMH = 30.0; // Velocidade mÈdia em ·rea urbana
+    private static final double VELOCIDADE_MEDIA_KMH = 30.0; // Velocidade m√©dia em √°rea urbana
     
     public static double calcularPreco(double distanciaKm, double tempoMinutos, CategoriaVeiculo categoria) {
         double precoBase = TAXA_BASE + (distanciaKm * PRECO_POR_KM) + (tempoMinutos * PRECO_POR_MINUTO);
@@ -19,26 +18,26 @@ public class CalculadoraPrecoCorrida {
     }
     
     public static double estimarTempoMinutos(double distanciaKm) {
-        // Considerando velocidade mÈdia de 30 km/h em ·rea urbana
+        // Considerando velocidade m√©dia de 30 km/h em √°rea urbana
         return (distanciaKm / VELOCIDADE_MEDIA_KMH) * 60; // Converter para minutos
     }
     
     /**
-     * MÈtodo simplificado para estimar dist‚ncia entre dois endereÁos
-     * Em um sistema real, isso seria integrado com API de geolocalizaÁ„o
+     * M√©todo simplificado para estimar dist√¢ncia entre dois endere√ßos
+     * Em um sistema real, isso seria integrado com API de geolocaliza√ß√£o
      */
     public static double estimarDistanciaKm(String origem, String destino) {
-        // SimulaÁ„o simples baseada no comprimento dos endereÁos
-        // Em um sistema real, usarÌamos coordenadas geogr·ficas
+        // Simula√ß√£o simples baseada no comprimento dos endere√ßos
+        // Em um sistema real, usar√≠amos coordenadas geogr√°ficas
         int diff = Math.abs(origem.length() - destino.length());
         return 5.0 + (diff * 0.5); // Entre 5 e 15 km
     }
     
     /**
-     * MÈtodo para c·lculo com coordenadas geogr·ficas (futuro)
+     * M√©todo para c√°lculo com coordenadas geogr√°ficas (futuro)
      */
     public static double calcularDistanciaKm(Localizacao origem, Localizacao destino) {
-        // FÛrmula de Haversine para calcular dist‚ncia entre coordenadas
+        // F√≥rmula de Haversine para calcular dist√¢ncia entre coordenadas
         final int R = 6371; // Raio da Terra em km
         
         double lat1 = Math.toRadians(origem.latitude());

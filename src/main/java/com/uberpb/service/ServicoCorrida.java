@@ -1,8 +1,16 @@
 package com.uberpb.service;
 
-import com.uberpb.model.*;
+import com.uberpb.model.CategoriaVeiculo;
+import com.uberpb.model.Corrida;
+import com.uberpb.model.CorridaStatus;
+import com.uberpb.model.Localizacao;
+import com.uberpb.model.MetodoPagamento;
+import com.uberpb.model.Passageiro;
+import com.uberpb.model.Usuario;
 import com.uberpb.repository.RepositorioCorrida;
 import com.uberpb.repository.RepositorioUsuario;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Serviço de Corrida — RF04..RF06.
@@ -112,5 +120,98 @@ public class ServicoCorrida {
         double preco = base + porKm * distanciaKm + porMin * minutos;
         preco = Math.round(preco * 100.0) / 100.0;
         return new EstimativaCorrida(distanciaKm, minutos, preco);
+    }
+
+    /**
+     * ✅ NOVO MÉTODO: Concluir uma corrida (para permitir avaliação)
+     */
+    public void concluirCorrida(String corridaId, String usuarioEmail) {
+        Corrida corrida = repositorioCorrida.buscarPorId(corridaId);
+        if (corrida == null) {
+            throw new IllegalArgumentException("Corrida não encontrada: " + corridaId);
+        }
+
+        // Verificar se o usuário tem permissão para concluir a corrida
+        boolean isPassageiro = corrida.getEmailPassageiro().equals(usuarioEmail);
+        boolean isMotorista = corrida.getMotoristaAlocado() != null && 
+                              corrida.getMotoristaAlocado().equals(usuarioEmail);
+
+        if (!isPassageiro && !isMotorista) {
+            throw new IllegalArgumentException("Apenas o passageiro ou motorista da corrida podem concluí-la.");
+        }
+
+        if (corrida.getStatus() != CorridaStatus.EM_ANDAMENTO) {
+            throw new IllegalArgumentException("Apenas corridas em andamento podem ser concluídas.");
+        }
+
+        corrida.setStatus(CorridaStatus.CONCLUIDA);
+        repositorioCorrida.atualizar(corrida);
+
+        System.out.println("✅ Corrida " + corridaId.substring(0, 8) + " concluída com sucesso!");
+        System.out.println("📝 Agora você pode avaliar a corrida no menu 'Avaliar Corrida'.");
+    }
+
+    /**
+     * ✅ NOVO MÉTODO: Obter corridas concluídas de um usuário
+     */
+    public List<Corrida> getCorridasConcluidas(String usuarioEmail) {
+        List<Corrida> todasCorridas = repositorioCorrida.buscarTodas();
+        List<Corrida> concluidas = new ArrayList<>();
+
+        for (Corrida corrida : todasCorridas) {
+            boolean isUsuarioDaCorrida = corrida.getEmailPassageiro().equals(usuarioEmail) ||
+                                        (corrida.getMotoristaAlocado() != null && 
+                                         corrida.getMotoristaAlocado().equals(usuarioEmail));
+            
+            if (isUsuarioDaCorrida && corrida.getStatus() == CorridaStatus.CONCLUIDA) {
+                concluidas.add(corrida);
+            }
+        }
+
+        return concluidas;
+    }
+
+    /**
+     * ✅ NOVO MÉTODO: Cancelar uma corrida
+     */
+    public void cancelarCorrida(String corridaId, String usuarioEmail) {
+        Corrida corrida = repositorioCorrida.buscarPorId(corridaId);
+        if (corrida == null) {
+            throw new IllegalArgumentException("Corrida não encontrada: " + corridaId);
+        }
+
+        if (!corrida.getEmailPassageiro().equals(usuarioEmail)) {
+            throw new IllegalArgumentException("Apenas o passageiro da corrida pode cancelá-la.");
+        }
+
+        if (corrida.getStatus() != CorridaStatus.SOLICITADA && 
+            corrida.getStatus() != CorridaStatus.EM_ANDAMENTO) {
+            throw new IllegalArgumentException("Não é possível cancelar uma corrida " + corrida.getStatus());
+        }
+
+        corrida.setStatus(CorridaStatus.CANCELADA);
+        repositorioCorrida.atualizar(corrida);
+
+        System.out.println("❌ Corrida " + corridaId.substring(0, 8) + " cancelada.");
+    }
+
+    /**
+     * ✅ NOVO MÉTODO: Obter corridas em andamento de um usuário
+     */
+    public List<Corrida> getCorridasEmAndamento(String usuarioEmail) {
+        List<Corrida> todasCorridas = repositorioCorrida.buscarTodas();
+        List<Corrida> emAndamento = new ArrayList<>();
+
+        for (Corrida corrida : todasCorridas) {
+            boolean isUsuarioDaCorrida = corrida.getEmailPassageiro().equals(usuarioEmail) ||
+                                        (corrida.getMotoristaAlocado() != null && 
+                                         corrida.getMotoristaAlocado().equals(usuarioEmail));
+            
+            if (isUsuarioDaCorrida && corrida.getStatus() == CorridaStatus.EM_ANDAMENTO) {
+                emAndamento.add(corrida);
+            }
+        }
+
+        return emAndamento;
     }
 }

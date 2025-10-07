@@ -15,6 +15,7 @@ public class Corrida {
     private final CategoriaVeiculo categoriaEscolhida;
     private final MetodoPagamento metodoPagamento;
     private String motoristaAlocado;
+    private boolean avaliada;
 
     private CorridaStatus status;
 
@@ -38,6 +39,7 @@ public class Corrida {
         this.metodoPagamento = metodoPagamento;
         this.motoristaAlocado = motoristaAlocado;
         this.status = Objects.requireNonNull(status);
+        this.avaliada = false;
     }
 
     public static Corrida novaComEnderecos(String emailPassageiro, String origemEndereco, String destinoEndereco, CategoriaVeiculo categoria, MetodoPagamento metodoPagamento) {
@@ -62,6 +64,8 @@ public class Corrida {
     public CorridaStatus getStatus() { return status; }
     public void setStatus(CorridaStatus status) { this.status = status; }
     public void setMotoristaAlocado(String motoristaEmail) { this.motoristaAlocado = motoristaEmail; }
+    public boolean isAvaliada() { return avaliada; }
+    public void setAvaliada(boolean avaliada) { this.avaliada = avaliada; }
 
     private static final char SEP = '|';
     private static final char ESC = '\\';
@@ -79,7 +83,8 @@ public class Corrida {
           .append(destino != null ? Double.toString(destino.longitude()): "").append(SEP)
           .append(esc(nvl(categoriaEscolhida != null ? categoriaEscolhida.name() : ""))).append(SEP)
           .append(esc(nvl(metodoPagamento != null ? metodoPagamento.name() : ""))).append(SEP)
-          .append(esc(nvl(motoristaAlocado)));
+          .append(esc(nvl(motoristaAlocado)))
+          .append(avaliada ? "1" : "0");
         return sb.toString();
     }
 
@@ -89,34 +94,40 @@ public class Corrida {
     }
 
     private static Corrida fromPipe(String linha) {
-        String[] p = splitComEscape(linha, SEP, ESC);
-        String id = unesc(p[0]);
-        String email = unesc(p[1]);
-        CorridaStatus st = CorridaStatus.valueOf(unesc(p[2]));
-        String oEnd = p.length > 3 ? unesc(p[3]) : null;
-        String dEnd = p.length > 4 ? unesc(p[4]) : null;
+    String[] p = splitComEscape(linha, SEP, ESC);
+    String id = unesc(p[0]);
+    String email = unesc(p[1]);
+    CorridaStatus st = CorridaStatus.valueOf(unesc(p[2]));
+    String oEnd = p.length > 3 ? unesc(p[3]) : null;
+    String dEnd = p.length > 4 ? unesc(p[4]) : null;
 
-        Localizacao o = null, d = null;
-        if (p.length > 6 && !vazio(p[5]) && !vazio(p[6])) {
-            o = new Localizacao(parseDouble(p[5]), parseDouble(p[6]));
-        }
-        if (p.length > 8 && !vazio(p[7]) && !vazio(p[8])) {
-            d = new Localizacao(parseDouble(p[7]), parseDouble(p[8]));
-        }
-
-        CategoriaVeiculo categoria = null;
-        if (p.length > 9 && !vazio(p[9])) {
-            try { categoria = CategoriaVeiculo.valueOf(unesc(p[9])); } catch (Exception ignored) {}
-        }
-
-        MetodoPagamento metodoPagamento = null;
-        if (p.length > 10 && !vazio(p[10])) {
-            try { metodoPagamento = MetodoPagamento.valueOf(unesc(p[10])); } catch (Exception ignored) {}
-        }
-
-        String motorista = (p.length > 11 ? unesc(p[11]) : null);
-        return new Corrida(id, email, oEnd, dEnd, o, d, categoria, metodoPagamento, motorista, st);
+    Localizacao o = null, d = null;
+    if (p.length > 6 && !vazio(p[5]) && !vazio(p[6])) {
+        o = new Localizacao(parseDouble(p[5]), parseDouble(p[6]));
     }
+    if (p.length > 8 && !vazio(p[7]) && !vazio(p[8])) {
+        d = new Localizacao(parseDouble(p[7]), parseDouble(p[8]));
+    }
+
+    CategoriaVeiculo categoria = null;
+    if (p.length > 9 && !vazio(p[9])) {
+        try { categoria = CategoriaVeiculo.valueOf(unesc(p[9])); } catch (Exception ignored) {}
+    }
+
+    MetodoPagamento metodoPagamento = null;
+    if (p.length > 10 && !vazio(p[10])) {
+        try { metodoPagamento = MetodoPagamento.valueOf(unesc(p[10])); } catch (Exception ignored) {}
+    }
+
+    String motorista = (p.length > 11 ? unesc(p[11]) : null);
+    
+    Corrida corrida = new Corrida(id, email, oEnd, dEnd, o, d, categoria, metodoPagamento, motorista, st);
+    
+    boolean avaliada = p.length > 12 && "1".equals(p[12]);
+    corrida.setAvaliada(avaliada);
+    
+    return corrida;
+}
 
     private static Corrida fromCSVAntigo(String linha) {
         String[] p = linha.split(",", -1);

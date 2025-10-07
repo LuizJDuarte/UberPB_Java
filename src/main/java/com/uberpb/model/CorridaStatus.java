@@ -5,5 +5,6 @@ public enum CorridaStatus {
     EM_ANDAMENTO,    // Novo status
     CONCLUIDA,       // Novo status  
     CANCELADA,       // Novo status
-    ACEITA
+    ACEITA,
+    AVALIADA  // Novo status
 }

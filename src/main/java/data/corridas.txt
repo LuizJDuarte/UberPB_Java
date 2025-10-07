@@ -1,2 +1,3 @@
-70cfa8c0-6596-47bb-b5d3-5c8242167561|rodrigo@email.com|SOLICITADA|Av. Epit�cio Pessoa, 1000 - Tamba�|Av. Epit�cio Pessoa, 800 - Tamba�|||||UBERX|
-a823de21-c310-4a6f-93ca-e1ed80c18c76|rodrigo@email.com|SOLICITADA|Av. Epit�cio Pessoa, 1000 - Tamba�|R. Empresario Jo�o Jos� Moreira Net, 56 - Mumbaba|||||UBERX|
+70cfa8c0-6596-47bb-b5d3-5c8242167561|rodrigo@email.com|SOLICITADA|Av. Epit�cio Pessoa, 1000 - Tamba�|Av. Epit�cio Pessoa, 800 - Tamba�|||||UBERX||0
+a823de21-c310-4a6f-93ca-e1ed80c18c76|rodrigo@email.com|SOLICITADA|Av. Epit�cio Pessoa, 1000 - Tamba�|R. Empresario Jo�o Jos� Moreira Net, 56 - Mumbaba|||||UBERX||0
+2001a356-a875-4136-8a73-c06f09373c2e|rodrigo@email.com|CONCLUIDA|Av. Teste, 123|Rua Exemplo, 456|||||UBERX|CARTAO|motorista_teste@email.com1
