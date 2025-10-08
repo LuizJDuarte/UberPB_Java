@@ -1,6 +1,6 @@
 package com.uberpb.app;
 
-import com.uberpb.repository.RepositorioCorrida; // ✅ NOVO IMPORT
+import com.uberpb.repository.RepositorioCorrida;
 import com.uberpb.repository.RepositorioOferta;
 import com.uberpb.repository.RepositorioUsuario;
 import com.uberpb.service.*;
@@ -26,8 +26,11 @@ public class ContextoAplicacao {
     // SERVIÇO PARA OTIMIZAÇÃO DE ROTA
     public final ServicoOtimizacaoRota servicoOtimizacaoRota;
 
-    // ✅ NOVO SERVIÇO DE AVALIAÇÃO
+    // SERVIÇO DE AVALIAÇÃO
     public final ServicoAvaliacao servicoAvaliacao;
+
+    // ✅ NOVO SERVIÇO DE PAGAMENTO
+    public final ServicoPagamento servicoPagamento;
 
     public ContextoAplicacao(Sessao sessao,
                              RepositorioUsuario repositorioUsuario,
@@ -41,7 +44,8 @@ public class ContextoAplicacao {
                              ServicoDirecionamentoCorrida servicoDirecionamentoCorrida,
                              ServicoLocalizacao servicoLocalizacao,
                              ServicoOtimizacaoRota servicoOtimizacaoRota,
-                             ServicoAvaliacao servicoAvaliacao) { // ✅ NOVO PARÂMETRO
+                             ServicoAvaliacao servicoAvaliacao,
+                             ServicoPagamento servicoPagamento) { // ✅ NOVO PARÂMETRO
         this.sessao = sessao;
         this.repositorioUsuario = repositorioUsuario;
         this.servicoCadastro = servicoCadastro;
@@ -54,6 +58,7 @@ public class ContextoAplicacao {
         this.servicoDirecionamentoCorrida = servicoDirecionamentoCorrida;
         this.servicoLocalizacao = servicoLocalizacao;
         this.servicoOtimizacaoRota = servicoOtimizacaoRota;
-        this.servicoAvaliacao = servicoAvaliacao; // ✅ NOVA INICIALIZAÇÃO
+        this.servicoAvaliacao = servicoAvaliacao;
+        this.servicoPagamento = servicoPagamento; // ✅ NOVA INICIALIZAÇÃO
     }
 }

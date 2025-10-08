@@ -32,7 +32,6 @@ public final class ProvedorDependencias {
         return new ImplRepositorioOfertaArquivo(); 
     }
 
-    // ✅ NOVO REPOSITÓRIO DE AVALIAÇÕES
     private static RepositorioAvaliacao repoAvaliacao() { 
         return new ImplRepositorioAvaliacaoArquivo(); 
     }
@@ -73,11 +72,16 @@ public final class ProvedorDependencias {
         return new ServicoOtimizacaoRota();
     }
 
-    // ✅ NOVO SERVIÇO DE AVALIAÇÃO
+    // SERVIÇO DE AVALIAÇÃO
     private static ServicoAvaliacao servicoAvaliacao(RepositorioAvaliacao rAvaliacao, 
                                                     RepositorioCorrida rCorrida,
                                                     RepositorioUsuario rUsuario) {
         return new ServicoAvaliacao(rAvaliacao, rCorrida, rUsuario);
+    }
+
+    // ✅ NOVO SERVIÇO DE PAGAMENTO
+    private static ServicoPagamento servicoPagamento() {
+        return new ServicoPagamento();
     }
 
     // ===== CONTEXTO PRINCIPAL =====
@@ -86,7 +90,7 @@ public final class ProvedorDependencias {
         RepositorioUsuario rUsuario = repoUsuario();
         RepositorioCorrida rCorrida = repoCorrida();
         RepositorioOferta rOferta = repoOferta();
-        RepositorioAvaliacao rAvaliacao = repoAvaliacao(); // ✅ NOVO REPOSITÓRIO
+        RepositorioAvaliacao rAvaliacao = repoAvaliacao();
 
         // Inicializar serviços existentes
         ServicoCadastro sCadastro = servicoCadastro(rUsuario);
@@ -102,8 +106,11 @@ public final class ProvedorDependencias {
         // Inicializar serviço de otimização
         ServicoOtimizacaoRota sOtimizacao = servicoOtimizacaoRota();
 
-        // ✅ INICIALIZAR NOVO SERVIÇO DE AVALIAÇÃO
+        // Inicializar serviço de avaliação
         ServicoAvaliacao sAvaliacao = servicoAvaliacao(rAvaliacao, rCorrida, rUsuario);
+
+        // ✅ INICIALIZAR NOVO SERVIÇO DE PAGAMENTO
+        ServicoPagamento sPagamento = servicoPagamento();
 
         Sessao sessao = new Sessao();
 
@@ -120,7 +127,8 @@ public final class ProvedorDependencias {
             sDirecionamento,
             sLocalizacao,
             sOtimizacao,
-            sAvaliacao  // ✅ NOVO SERVIÇO
+            sAvaliacao,
+            sPagamento  // ✅ NOVO SERVIÇO
         );
     }
 
@@ -137,7 +145,10 @@ public final class ProvedorDependencias {
         comandos.add(new SolicitarCorridaComando());
         comandos.add(new VisualizarCorridaComando());
         comandos.add(new AcompanharCorridaComando());
-        comandos.add(new ConcluirCorridaComando()); // ✅ NOVO COMANDO
+        comandos.add(new ConcluirCorridaComando());
+        
+        // ✅ NOVO COMANDO DE DETALHES DE PAGAMENTO
+        comandos.add(new DetalhesPagamentoComando());
         
         // Comandos de motorista
         comandos.add(new MotoristaVerOfertasComando());
@@ -146,7 +157,7 @@ public final class ProvedorDependencias {
         // Comando de otimização de rota
         comandos.add(new OtimizarRotaComando());
 
-        // ✅ NOVOS COMANDOS DE AVALIAÇÃO
+        // Comandos de avaliação
         comandos.add(new AvaliarCorridaComando());
         comandos.add(new VisualizarAvaliacoesComando());
 
@@ -206,62 +217,4 @@ public final class ProvedorDependencias {
                         System.out.print("ID da corrida para direcionar: ");
                         String corridaId = in.nextLine().trim();
                         
-                        boolean sucesso = ctx.servicoOferta.direcionarCorridaAutomaticamente(corridaId);
-                        if (sucesso) {
-                            ok("Corrida direcionada com sucesso!");
-                        } else {
-                            erro("Nenhum motorista disponível para esta corrida.");
-                        }
-                    } catch (Exception e) {
-                        erro("Erro ao direcionar corrida: " + e.getMessage());
-                    }
-                }
-        ));
-
-        // ✅ NOVO COMANDO: Testar Sistema de Avaliação
-        comandos.add(new ComandoFuncional(
-                "[DEV] Testar Sistema de Avaliação", 
-                u -> u != null,
-                (ctx, in) -> {
-                    try {
-                        System.out.println("🚀 INICIANDO TESTE DO SISTEMA DE AVALIAÇÃO");
-                        System.out.println("===========================================");
-                        
-                        // Criar corrida de teste
-                        var corrida = ctx.servicoCorrida.solicitarCorrida(
-                            ctx.sessao.getUsuarioAtual().getEmail(),
-                            "Av. Teste, 123",
-                            "Rua Exemplo, 456", 
-                            com.uberpb.model.CategoriaVeiculo.UBERX,
-                            com.uberpb.model.MetodoPagamento.CARTAO
-                        );
-                        
-                        // Simular motorista
-                        corrida.setMotoristaAlocado("motorista_teste@email.com");
-                        corrida.setStatus(com.uberpb.model.CorridaStatus.CONCLUIDA);
-                        ctx.repositorioCorrida.atualizar(corrida);
-                        
-                        System.out.println("✅ Corrida de teste criada: " + corrida.getId().substring(0, 8));
-                        
-                        // Testar avaliação
-                        if (ctx.sessao.getUsuarioAtual() instanceof com.uberpb.model.Passageiro) {
-                            ctx.servicoAvaliacao.avaliarMotorista(
-                                corrida.getId(),
-                                ctx.sessao.getUsuarioAtual().getEmail(),
-                                5,
-                                "Excelente serviço! Motorista muito atencioso."
-                            );
-                            System.out.println("✅ Avaliação do motorista registrada com sucesso!");
-                        }
-                        
-                        ok("Teste do sistema de avaliação concluído com sucesso!");
-                        
-                    } catch (Exception e) {
-                        erro("Erro no teste: " + e.getMessage());
-                    }
-                }
-        ));
-
-        return comandos;
-    }
-}
+                        boolean sucesso = ctx.servicoOferta.d
