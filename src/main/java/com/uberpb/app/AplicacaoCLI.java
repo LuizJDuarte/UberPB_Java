@@ -1,9 +1,12 @@
 package com.uberpb.app;
 
+import static com.uberpb.app.ConsoleUI.cabecalho;
+import static com.uberpb.app.ConsoleUI.dicaAjuda;
+import static com.uberpb.app.ConsoleUI.erro;
+import static com.uberpb.app.ConsoleUI.ok;
+
 import java.util.List;
 import java.util.Scanner;
-
-import static com.uberpb.app.ConsoleUI.*;
 
 /**
  * Orquestra o loop do CLI. As dependências vêm do ProvedorDependencias.

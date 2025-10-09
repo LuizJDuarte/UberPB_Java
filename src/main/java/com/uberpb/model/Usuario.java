@@ -35,4 +35,11 @@ public abstract class Usuario {
     public String toString() {
         return "Email: " + email;
     }
+    
+    public TipoUsuario getTipo() {
+        if (this instanceof Administrador) return TipoUsuario.ADMIN;
+        if (this instanceof Motorista)     return TipoUsuario.MOTORISTA;
+        return TipoUsuario.PASSAGEIRO;
+    }
+
 }

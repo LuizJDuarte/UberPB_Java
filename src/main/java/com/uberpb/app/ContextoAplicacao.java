@@ -7,6 +7,7 @@ import com.uberpb.service.*;
 
 public class ContextoAplicacao {
     public final Sessao sessao;
+
     public final RepositorioUsuario repositorioUsuario;
     public final ServicoCadastro servicoCadastro;
     public final ServicoAutenticacao servicoAutenticacao;
@@ -18,19 +19,16 @@ public class ContextoAplicacao {
     public final ServicoOferta servicoOferta;
 
     public final ServicoValidacaoMotorista servicoValidacaoMotorista;
-
-    // SERVIÇOS PARA DIRECIONAMENTO E LOCALIZAÇÃO
-    public final ServicoDirecionamentoCorrida servicoDirecionamentoCorrida;
-    public final ServicoLocalizacao servicoLocalizacao;
-
-    // SERVIÇO PARA OTIMIZAÇÃO DE ROTA
-    public final ServicoOtimizacaoRota servicoOtimizacaoRota;
-
-    // SERVIÇO DE AVALIAÇÃO
+    public final ServicoPagamento servicoPagamento;
     public final ServicoAvaliacao servicoAvaliacao;
 
-    // ✅ NOVO SERVIÇO DE PAGAMENTO
-    public final ServicoPagamento servicoPagamento;
+    public final ServicoOtimizacaoRota servicoOtimizacaoRota; // nome usado pelos comandos
+    public final ServicoLocalizacao servicoLocalizacao;
+    public final ServicoDirecionamentoCorrida servicoDirecionamento;
+    public final EstimativaChegada servicoEstimativaChegada;
+
+    public final ServicoAdmin servicoAdmin;
+    public final GerenciadorCorridasAtivas gerenciadorCorridas;
 
     public ContextoAplicacao(Sessao sessao,
                              RepositorioUsuario repositorioUsuario,
@@ -41,11 +39,14 @@ public class ContextoAplicacao {
                              RepositorioOferta repositorioOferta,
                              ServicoOferta servicoOferta,
                              ServicoValidacaoMotorista servicoValidacaoMotorista,
-                             ServicoDirecionamentoCorrida servicoDirecionamentoCorrida,
-                             ServicoLocalizacao servicoLocalizacao,
-                             ServicoOtimizacaoRota servicoOtimizacaoRota,
+                             ServicoPagamento servicoPagamento,
                              ServicoAvaliacao servicoAvaliacao,
-                             ServicoPagamento servicoPagamento) { // ✅ NOVO PARÂMETRO
+                             ServicoOtimizacaoRota servicoOtimizacaoRota,
+                             ServicoLocalizacao servicoLocalizacao,
+                             ServicoDirecionamentoCorrida servicoDirecionamento,
+                             EstimativaChegada servicoEstimativaChegada,
+                             ServicoAdmin servicoAdmin,
+                             GerenciadorCorridasAtivas gerenciadorCorridas) {
         this.sessao = sessao;
         this.repositorioUsuario = repositorioUsuario;
         this.servicoCadastro = servicoCadastro;
@@ -55,10 +56,13 @@ public class ContextoAplicacao {
         this.repositorioOferta = repositorioOferta;
         this.servicoOferta = servicoOferta;
         this.servicoValidacaoMotorista = servicoValidacaoMotorista;
-        this.servicoDirecionamentoCorrida = servicoDirecionamentoCorrida;
-        this.servicoLocalizacao = servicoLocalizacao;
-        this.servicoOtimizacaoRota = servicoOtimizacaoRota;
+        this.servicoPagamento = servicoPagamento;
         this.servicoAvaliacao = servicoAvaliacao;
-        this.servicoPagamento = servicoPagamento; // ✅ NOVA INICIALIZAÇÃO
+        this.servicoOtimizacaoRota = servicoOtimizacaoRota;
+        this.servicoLocalizacao = servicoLocalizacao;
+        this.servicoDirecionamento = servicoDirecionamento;
+        this.servicoEstimativaChegada = servicoEstimativaChegada;
+        this.servicoAdmin = servicoAdmin;
+        this.gerenciadorCorridas = gerenciadorCorridas;
     }
 }

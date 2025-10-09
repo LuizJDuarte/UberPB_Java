@@ -2,3 +2,4 @@
 7690eb96-4e38-425b-ae1a-ffd713730b8a|passageiro@gmail.com|SOLICITADA|Rua Luiza motta, 400|Rua Treze de maio, 520||||||
 41101463-20b9-446d-81ec-3dc86f4f045b|passageiro@gmail.com|SOLICITADA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 8000 - Tambaú|||||BLACK|
 973c3b30-306d-460f-89e6-9ba6917f59ac|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||UBERX|mblack@gmail.com
+d0a3006d-cbfd-4fd1-a6f4-bb641d9c2901|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||BLACK|mblack@gmail.com

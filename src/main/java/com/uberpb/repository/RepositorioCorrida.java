@@ -9,4 +9,5 @@ public interface RepositorioCorrida {
     Corrida buscarPorId(String id);
     List<Corrida> buscarPorPassageiro(String emailPassageiro);
     List<Corrida> buscarTodas();
+    void remover(String id);
 }

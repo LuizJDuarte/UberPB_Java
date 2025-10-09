@@ -4,3 +4,4 @@ PASSAGEIRO,passageirot@gmail.com,6cfb69a1957996876d20c22d1b93fd744f24b394eaa4582
 MOTORISTA,motorista@gmail.com,8312144bea75cf6713bef1f8777c16d51f231115fdb022aa099fbb4d3a16cb66,false,false,false,null
 MOTORISTA,teste@gmail.com,40b159d201cb068b2da25ad775207960561b1d8b7cc384ca6fa024b9605fcb3b,false,false,false,null
 MOTORISTA,mblack@gmail.com,aa9c3621bf8c6d3b977842db55f08ab559be0e882a04f2181d67101aabdce611,true,true,true,Versa Black|2025|ATR2T85|Black|5|G|UberX;Comfort;Black;Bag
+PASSAGEIRO,rodrigo@email.com,223e781527acd14b15c77fae54091c1c6cfd0e577dab0a8a9d88c551173373cf

@@ -33,6 +33,13 @@ public class ImplRepositorioCorridaArquivo extends BaseRepositorioArquivo implem
         }
         throw new IllegalArgumentException("Corrida não encontrada: " + corrida.getId());
     }
+    
+    @Override
+    public synchronized void remover(String id) {
+        cache.removeIf(c -> c.getId().equals(id));
+        gravar();
+    }
+
 
     @Override
     public synchronized Corrida buscarPorId(String id) {

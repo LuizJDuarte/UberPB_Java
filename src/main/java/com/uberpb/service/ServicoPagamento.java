@@ -2,11 +2,17 @@ package com.uberpb.service;
 
 import com.uberpb.model.Corrida;
 import com.uberpb.model.MetodoPagamento;
+import com.uberpb.repository.RepositorioCorrida;
+import com.uberpb.repository.RepositorioUsuario;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ServicoPagamento {
     
+	public ServicoPagamento(RepositorioCorrida rc, RepositorioUsuario ru) { }
+
+	
     private final Map<String, Corrida> transacoesPendentes = new HashMap<>();
     
     /**

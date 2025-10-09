@@ -28,6 +28,13 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
         cache.add(usuario);
         gravar();
     }
+    
+    @Override
+    public synchronized void remover(String email) {
+        cache.removeIf(u -> u.getEmail().equalsIgnoreCase(email));
+        gravar();
+    }
+
 
     @Override
     public synchronized Usuario buscarPorEmail(String email) {
