@@ -96,7 +96,14 @@ Navegue até o diretório src/main/java e execute o comando de compilação.
 
 `javac com/uberpb/app/AplicacaoUberPB.java com/uberpb/exceptions/*.java com/uberpb/model/*.java com/uberpb/util/*.java com/uberpb/repository/*.java com/uberpb/service/*.java`
 
+Caso a compilação apresente algum erro execute o seguinte comando:
+
+`Get-ChildItem -Path . -Include *.class -Recurse | Remove-Item`
+
+Esse comando irá limpar qualquer compilação anterior e irá permitir que o código seja executado com sucesso.
+
 **Observação:** Certifique-se de que não há erros de compilação. Se houver, verifique as correções de escape de caracteres (\. e \|) nos arquivos PasswordUtil.java e Veiculo.java.
+
 Execute a Aplicação: Após a compilação bem-sucedida, execute a classe principal AplicacaoUberPB a partir do mesmo diretório, especificando o classpath.
 
 `java -cp . com.uberpb.app.AplicacaoUberPB`
