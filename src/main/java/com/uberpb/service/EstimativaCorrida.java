@@ -29,6 +29,12 @@ public class EstimativaCorrida {
 
     // ==== cálculo por endereços (geocodificação offline deterministic) ====
     public EstimativaCorrida calcularPorEnderecos(String origem, String destino, CategoriaVeiculo cat) {
+        // CORREÇÃO: Garantir que endereços não sejam nulos
+        if (origem == null || destino == null) {
+            System.out.println("⚠️  Endereços nulos, usando valores padrão");
+            return new EstimativaCorrida(5.0, 10, 25.0);
+        }
+        
         Localizacao o = geocodeOffline(origem);
         Localizacao d = geocodeOffline(destino);
         double dKm = distanciaHaversineKm(o.latitude(), o.longitude(), d.latitude(), d.longitude());
@@ -36,7 +42,10 @@ public class EstimativaCorrida {
     }
 
     private EstimativaCorrida calcular(double distanciaKm, CategoriaVeiculo cat) {
-        int minutos = (int) Math.max(1, Math.round(distanciaKm * 3)); // ~20km/h
+        // CORREÇÃO: Garantir valores mínimos realistas
+        double distancia = Math.max(1.0, distanciaKm); // Mínimo 1km
+        int minutos = (int) Math.max(5, Math.round(distancia * 3)); // ~20km/h (mínimo 5min)
+        
         double fator = switch (cat) {
             case UBERX   -> 1.0;
             case COMFORT -> 1.2;
@@ -45,8 +54,9 @@ public class EstimativaCorrida {
             case XL      -> 1.5;
             default      -> 1.0;
         };
-        double preco = Math.max(8.0, distanciaKm * 5.0 * fator);
-        return new EstimativaCorrida(distanciaKm, minutos, preco);
+        
+        double preco = Math.max(8.0, distancia * 2.5 * fator); // Preço base mais realista
+        return new EstimativaCorrida(distancia, minutos, preco);
     }
 
     private static double distanciaHaversineKm(double lat1, double lon1, double lat2, double lon2) {
@@ -57,7 +67,7 @@ public class EstimativaCorrida {
                  + Math.cos(Math.toRadians(lat1))*Math.cos(Math.toRadians(lat2))
                  * Math.sin(dLon/2)*Math.sin(dLon/2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return Math.max(0.1, R * c);
+        return Math.max(0.1, R * c); // Mínimo 100 metros
     }
 
     private static Localizacao geocodeOffline(String s) {

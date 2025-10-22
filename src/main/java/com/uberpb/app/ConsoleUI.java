@@ -61,21 +61,26 @@ public final class ConsoleUI {
 
     /** “Mapa” textual simples: carro anda em uma linha pontilhada entre rótulos. */
     public static String mapaLinha(int percentual, String origem, String destino) {
-        int total = 60;
-        int pos = Math.max(0, Math.min(total, (percentual * total) / 100));
-        StringBuilder sb = new StringBuilder();
-        sb.append(origem).append(' ');
+    int total = 60;
+    int pos = Math.max(0, Math.min(total, (percentual * total) / 100));
+    StringBuilder sb = new StringBuilder();
+    
+    // CORREÇÃO: Origem alinhada
+    sb.append(String.format("%-15s", origem.length() > 15 ? origem.substring(0, 12) + "..." : origem));
+    sb.append(' ');
 
-        for (int i = 0; i < total; i++) {
-            if (i == pos) {
-                // 🚗 (carro) — precisa ser code point, não char
-                sb.appendCodePoint(0x1F697);
-            } else {
-                sb.append('·'); // ponto médio é char simples
-            }
+    for (int i = 0; i < total; i++) {
+        if (i == pos) {
+            // 🚗 (carro) na posição correta
+            sb.append("🚗");
+        } else {
+            sb.append('·'); // ponto médio
         }
-
-        sb.append(' ').append(destino);
-        return sb.toString();
     }
+
+    sb.append(' ');
+    // CORREÇÃO: Destino alinhado
+    sb.append(String.format("%-15s", destino.length() > 15 ? destino.substring(0, 12) + "..." : destino));
+    return sb.toString();
+}
 }
