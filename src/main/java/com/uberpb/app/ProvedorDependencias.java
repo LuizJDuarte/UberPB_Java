@@ -1,89 +1,127 @@
 package com.uberpb.app;
 
-import com.uberpb.model.Motorista;
-import com.uberpb.model.Passageiro;
-import com.uberpb.model.Usuario;
-import com.uberpb.repository.*;
+import com.uberpb.repository.ImplRepositorioCorridaArquivo;
+import com.uberpb.repository.ImplRepositorioOfertaArquivo;
+import com.uberpb.repository.ImplRepositorioUsuarioArquivo;
+import com.uberpb.repository.RepositorioCorrida;
+import com.uberpb.repository.RepositorioOferta;
+import com.uberpb.repository.RepositorioUsuario;
 import com.uberpb.service.*;
+import com.uberpb.model.Administrador;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.uberpb.app.ConsoleUI.ok;
 
 public final class ProvedorDependencias {
     private ProvedorDependencias() {}
 
-    private static RepositorioUsuario rUsuario() { return new ImplRepositorioUsuarioArquivo(); }
-    private static RepositorioCorrida rCorrida() { return new ImplRepositorioCorridaArquivo(); }
-    private static RepositorioOferta rOferta()   { return new ImplRepositorioOfertaArquivo(); }
-    private static RepositorioAvaliacao rAval()  { return new ImplRepositorioAvaliacaoArquivo(); }
-
     public static ContextoAplicacao fornecerContexto() {
-        var ru = rUsuario();
-        var rc = rCorrida();
-        var ro = rOferta();
-        var ra = rAval();
+        // Repositórios
+        RepositorioUsuario repoUsuario = new ImplRepositorioUsuarioArquivo();
+        RepositorioCorrida repoCorrida = new ImplRepositorioCorridaArquivo();
+        RepositorioOferta  repoOferta  = new ImplRepositorioOfertaArquivo();
 
-        var sCadastro = new ServicoCadastro(ru);
-        var sAuth     = new ServicoAutenticacao(ru);
-        var sCorrida  = new ServicoCorrida(rc, ru);
-        var sOferta   = new ServicoOferta(ro, ru, rc);
-        var sValMot   = new ServicoValidacaoMotorista(ru);
-        var sPagto    = new ServicoPagamento(rc, ru);            // construtor incluído
-        var sAval     = new ServicoAvaliacao(ra, rc, ru);
-        var sOtim     = new ServicoOtimizacaoRota();             // construtor padrão
-        var sLocal    = new ServicoLocalizacao();                // construtor padrão
-        var sDir      = new ServicoDirecionamentoCorrida(ru, rc);// construtor incluído
-        var sEta      = new EstimativaChegada();                 // construtor padrão
-        var sAdmin    = new ServicoAdmin(ru, rc);
-        var ger       = new GerenciadorCorridasAtivas();
+        // Seed admin
+        semearAdminSePreciso(repoUsuario);
 
-        var sessao = new Sessao();
+        // Serviços auxiliares
+        // Atenção: ServicoCorrida usa EstimativaCorrida e ServicoLocalizacao (não confundir com EstimativaChegada)
+        EstimativaCorrida  estimativaCorrida = new EstimativaCorrida(0, 0, 0);
+        ServicoLocalizacao servLoc           = new ServicoLocalizacao();
 
-        return new ContextoAplicacao(sessao, ru, sCadastro, sAuth,
-                rc, sCorrida, ro, sOferta, sValMot, sPagto, sAval,
-                sOtim, sLocal, sDir, sEta, sAdmin, ger);
+        // Serviços de negócio existentes (ajuste se necessário)
+        ServicoCadastro     servCadastro = new ServicoCadastro(repoUsuario); // sua versão que existe
+        ServicoAutenticacao servAuth     = new ServicoAutenticacao(repoUsuario);
+        ServicoCorrida      servCorrida  = new ServicoCorrida(repoCorrida, repoUsuario, estimativaCorrida, servLoc);
+        ServicoOferta       servOferta   = new ServicoOferta(repoOferta, repoUsuario, repoCorrida);
+        ServicoPagamento    servPagto    = new ServicoPagamento(repoCorrida, repoUsuario);
+        GerenciadorCorridasAtivas ger    = new GerenciadorCorridasAtivas();
+        Sessao sessao = new Sessao();
+
+        // Serviços opcionais (ainda não usados ou ausentes na sua base): deixamos null
+        ServicoValidacaoMotorista servValid = null;
+        ServicoAvaliacao          servAval  = null;
+        ServicoOtimizacaoRota     servOpt   = null;
+        ServicoDirecionamentoCorrida servDirec = null;
+        EstimativaChegada         servEta   = null;
+        ServicoAdmin              servAdmin = null;
+
+        // Constrói o contexto com o CONSTRUTOR COMPLETO
+        return new ContextoAplicacao(
+                sessao,
+                repoUsuario,
+                servCadastro,
+                servAuth,
+                repoCorrida,
+                servCorrida,
+                repoOferta,
+                servOferta,
+                servValid,     // ServicoValidacaoMotorista (null por ora)
+                servPagto,
+                servAval,      // ServicoAvaliacao (null)
+                servOpt,       // ServicoOtimizacaoRota (null)
+                servLoc,
+                servDirec,     // ServicoDirecionamentoCorrida (null)
+                servEta,       // EstimativaChegada (null)
+                servAdmin,     // ServicoAdmin (null)
+                ger
+        );
     }
 
+    /** Compatível com AplicacaoCLI que chama sem args; monta lista baseada no seu conjunto atual de comandos. */
     public static List<Comando> fornecerComandosPadrao() {
-        List<Comando> c = new ArrayList<>();
-        c.add(new LoginComando());
-        c.add(new CadastrarPassageiroComando());
-        c.add(new CadastrarMotoristaComando());
-        c.add(new CompletarCadastroMotoristaComando());
-        c.add(new SolicitarCorridaComando());
-        c.add(new MotoristaVerOfertasComando());
-        c.add(new AcompanharCorridaComando());
-        c.add(new OtimizarRotaComando());
-        c.add(new ConcluirCorridaComando());
-        c.add(new DetalhesPagamentoComando());
-        c.add(new AvaliarCorridaComando());
-        c.add(new VisualizarAvaliacoesComando());
-        c.add(new VisualizarCorridaComando());
-        c.add(new VisualizarHistoricoComando());
-        c.add(new AdminComando());
-        c.add(new ComandoFuncional("Logout", u -> u != null, (ctx,in)-> { ctx.sessao.deslogar(); ok("Sessão encerrada."); }));
+        ContextoAplicacao ctx = fornecerContexto();
+        return fornecerComandosPadrao(ctx);
+    }
 
-        // utilitário simples p/ listagem rápida (mantido)
-        c.add(new ComandoFuncional("Listar Usuários", u -> u != null, (ctx, in) -> {
-            var lista = ctx.repositorioUsuario.buscarTodos();
-            for (Usuario u2 : lista) {
-                if (u2 instanceof Motorista m) {
-                    var cats = (m.getVeiculo()!=null && m.getVeiculo().getCategoriasDisponiveis()!=null)
-                            ? m.getVeiculo().getCategoriasDisponiveis().toString() : "[]";
-                    System.out.println("[MOTORISTA] " + m.getEmail()
-                            + " | CNH: " + m.isCnhValida()
-                            + " | CRLV: " + m.isCrlvValido()
-                            + " | " + (m.isContaAtiva() ? "Ativo" : "Inativo")
-                            + " | Categorias: " + cats);
-                } else if (u2 instanceof Passageiro) {
-                    System.out.println("[PASSAGEIRO] " + u2.getEmail());
-                } else {
-                    System.out.println("[USUARIO] " + u2.getEmail());
-                }
-            }
-        }));
-        return c;
+    /** Ajuste a lista aos comandos que você REALMENTE tem. */
+    public static List<Comando> fornecerComandosPadrao(ContextoAplicacao ctx) {
+        List<Comando> lista = new ArrayList<>();
+        // Telas iniciais
+        lista.add(new LoginComando());
+        lista.add(new CadastrarPassageiroComando());
+        lista.add(new CadastrarMotoristaComando());
+
+        // Passageiro
+        lista.add(new SolicitarCorridaComando());
+        lista.add(new AcompanharCorridaComando());
+        lista.add(new ConcluirCorridaComando());
+        lista.add(new VisualizarCorridaComando());
+        // Se existirem no seu projeto, descomente:
+        // lista.add(new VerPagamentoComando());
+        // lista.add(new AvaliarCorridaComando());
+        // lista.add(new VisualizarMinhasAvaliacoesComando());
+        // lista.add(new HistoricoFiltradoComando());
+
+        // Motorista
+        lista.add(new MotoristaVerOfertasComando());
+
+        // Admin — se tiver comandos específicos, adicione-os e use visivelPara() para restringir
+        // lista.add(new AdminPainelComando());
+
+        return lista;
+    }
+
+    // ============ Seed Admin ============
+    private static void semearAdminSePreciso(RepositorioUsuario ru) {
+        var existente = ru.buscarPorEmail("admin@uberpb.com");
+        if (existente != null) return;
+        String senhaHash = sha256Hex("admin123");
+        var admin = new Administrador("admin@uberpb.com", senhaHash);
+        ru.salvar(admin);
+    }
+
+    private static String sha256Hex(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] dig = md.digest(s.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(dig.length * 2);
+            for (byte b : dig) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao calcular SHA-256", e);
+        }
     }
 }

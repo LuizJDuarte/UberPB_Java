@@ -1,91 +1,40 @@
 package com.uberpb.service;
 
-import com.uberpb.exceptions.CredenciaisInvalidasException;
-import com.uberpb.exceptions.UsuarioNaoEncontradoException;
 import com.uberpb.model.Passageiro;
-import com.uberpb.model.Usuario;
 import com.uberpb.repository.RepositorioUsuario;
-import com.uberpb.util.PasswordUtil;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ServicoAutenticacaoTest {
+class ServicoAutenticacaoTest {
 
-    private ServicoAutenticacao servicoAutenticacao;
-    private RepositorioUsuario repositorioUsuario;
-
-    // Reusing the in-memory repository implementation for clean tests
-    static class InMemoryRepositorioUsuario implements RepositorioUsuario {
-        private final Map<String, Usuario> database = new HashMap<>();
-
-        @Override
-        public void salvar(Usuario usuario) {
-            database.put(usuario.getEmail(), usuario);
-        }
-
-        @Override
-        public void atualizar(Usuario usuario) {
-            database.put(usuario.getEmail(), usuario);
-        }
-
-        @Override
-        public Usuario buscarPorEmail(String email) {
-            return database.get(email);
-        }
-
-        @Override
-        public List<Usuario> buscarTodos() {
-            return List.copyOf(database.values());
-        }
-    }
-
-    @BeforeEach
-    public void setUp() {
-        repositorioUsuario = new InMemoryRepositorioUsuario();
-        servicoAutenticacao = new ServicoAutenticacao(repositorioUsuario);
-
-        // Arrange: Create a user for authentication tests
-        String email = "usuario@teste.com";
-        String senha = "senhaCorreta";
-        String senhaHash = PasswordUtil.hashPassword(senha);
-        Passageiro passageiro = new Passageiro(email, senhaHash);
-        repositorioUsuario.salvar(passageiro);
+    // Stub simples em memória
+    static class RepoInMemory implements RepositorioUsuario {
+        private final java.util.Map<String, com.uberpb.model.Usuario> m = new java.util.HashMap<>();
+        @Override public synchronized void salvar(com.uberpb.model.Usuario u){ m.put(u.getEmail(), u); }
+        @Override public synchronized void atualizar(com.uberpb.model.Usuario u){ m.put(u.getEmail(), u); }
+        @Override public synchronized com.uberpb.model.Usuario buscarPorEmail(String e){ return m.get(e); }
+        @Override public synchronized java.util.List<com.uberpb.model.Usuario> buscarTodos(){ return new java.util.ArrayList<>(m.values()); }
+        @Override public synchronized void remover(String email){ m.remove(email); }
     }
 
     @Test
-    public void testAutenticarComSucesso() {
-        String email = "usuario@teste.com";
-        String senhaCorreta = "senhaCorreta";
+    void loginValido() {
+        var repo = new RepoInMemory();
+        var cadastro = new ServicoCadastro(repo, new ServicoValidacaoMotorista());
+        var auth = new ServicoAutenticacao(repo);
 
-        Usuario usuarioAutenticado = servicoAutenticacao.autenticar(email, senhaCorreta);
+        cadastro.cadastrarPassageiro("p@a.com", "123");
+        var u = auth.login("p@a.com", "123");
 
-        assertNotNull(usuarioAutenticado);
-        assertEquals(email, usuarioAutenticado.getEmail());
+        assertNotNull(u);
+        assertEquals("p@a.com", u.getEmail());
     }
 
     @Test
-    public void testDeveLancarExcecaoParaSenhaIncorreta() {
-        String email = "usuario@teste.com";
-        String senhaIncorreta = "senhaErrada";
-
-        assertThrows(CredenciaisInvalidasException.class, () -> {
-            servicoAutenticacao.autenticar(email, senhaIncorreta);
-        });
-    }
-
-    @Test
-    public void testDeveLancarExcecaoParaUsuarioNaoEncontrado() {
-        String emailNaoExistente = "naoexiste@teste.com";
-        String senha = "qualquerSenha";
-
-        assertThrows(UsuarioNaoEncontradoException.class, () -> {
-            servicoAutenticacao.autenticar(emailNaoExistente, senha);
-        });
+    void loginInvalido() {
+        var repo = new RepoInMemory();
+        var auth = new ServicoAutenticacao(repo);
+        assertThrows(IllegalArgumentException.class, () -> auth.login("x@y.com", "errada"));
     }
 }

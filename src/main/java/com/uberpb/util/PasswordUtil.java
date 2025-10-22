@@ -58,4 +58,6 @@ public class PasswordUtil {
         Matcher matcher = EMAIL_PATTERN.matcher(email);
         return matcher.matches();
     }
+    
+    
 }
