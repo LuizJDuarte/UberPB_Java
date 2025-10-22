@@ -22,20 +22,20 @@ public class EstimativaCorridaComando implements Comando {
     @Override
     public void executar(ContextoAplicacao contexto, Scanner entrada) {
         System.out.println("=== ESTIMATIVA DE CORRIDA ===");
-        System.out.println("Informe os endereços para calcular a estimativa:");
-        System.out.print("Endereço de ORIGEM: ");
+        System.out.println("Informe os endereï¿½os para calcular a estimativa:");
+        System.out.print("Endereï¿½o de ORIGEM: ");
         String origem = entrada.nextLine().trim();
         
-        System.out.print("Endereço de DESTINO: ");
+        System.out.print("Endereï¿½o de DESTINO: ");
         String destino = entrada.nextLine().trim();
         
         if (origem.isEmpty() || destino.isEmpty()) {
-            System.out.println("Origem e destino são obrigatórios!");
+            System.out.println("Origem e destino sï¿½o obrigatï¿½rios!");
             return;
         }
         
         if (origem.equalsIgnoreCase(destino)) {
-            System.out.println("Origem e destino não podem ser iguais!");
+            System.out.println("Origem e destino nï¿½o podem ser iguais!");
             return;
         }
         
@@ -44,9 +44,9 @@ public class EstimativaCorridaComando implements Comando {
         double tempoEstimado = CalculadoraPrecoCorrida.estimarTempoMinutos(distanciaEstimada);
         
         System.out.println("\n--- RESULTADO DA ESTIMATIVA ---");
-        System.out.printf("? Distância estimada: %.1f km%n", distanciaEstimada);
+        System.out.printf("? Distï¿½ncia estimada: %.1f km%n", distanciaEstimada);
         System.out.printf("? Tempo estimado: %.0f minutos%n", tempoEstimado);
-        System.out.println("\n? Preços por categoria:");
+        System.out.println("\n? Preï¿½os por categoria:");
         System.out.println("-----------------------------");
         
         for (CategoriaVeiculo categoria : CategoriaVeiculo.values()) {
@@ -57,6 +57,6 @@ public class EstimativaCorridaComando implements Comando {
         }
         
         System.out.println("-----------------------------");
-        System.out.println("Observação: Valores estimados podem variar.");
+        System.out.println("Observaï¿½ï¿½o: Valores estimados podem variar.");
     }
 }

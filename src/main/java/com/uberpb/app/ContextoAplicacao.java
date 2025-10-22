@@ -30,6 +30,27 @@ public class ContextoAplicacao {
     public final ServicoAdmin servicoAdmin;
     public final GerenciadorCorridasAtivas gerenciadorCorridas;
 
+    // Construtor vazio: inicializa todos os 'final' (pode ficar nulo; o provedor usa o construtor completo)
+    public ContextoAplicacao() {
+        this.sessao = null;
+        this.repositorioUsuario = null;
+        this.servicoCadastro = null;
+        this.servicoAutenticacao = null;
+        this.repositorioCorrida = null;
+        this.servicoCorrida = null;
+        this.repositorioOferta = null;
+        this.servicoOferta = null;
+        this.servicoValidacaoMotorista = null;
+        this.servicoPagamento = null;
+        this.servicoAvaliacao = null;
+        this.servicoOtimizacaoRota = null;
+        this.servicoLocalizacao = null;
+        this.servicoDirecionamento = null;
+        this.servicoEstimativaChegada = null;
+        this.servicoAdmin = null;
+        this.gerenciadorCorridas = null;
+    }
+
     public ContextoAplicacao(Sessao sessao,
                              RepositorioUsuario repositorioUsuario,
                              ServicoCadastro servicoCadastro,

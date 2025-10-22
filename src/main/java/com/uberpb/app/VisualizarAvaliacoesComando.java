@@ -10,7 +10,6 @@ import com.uberpb.model.Usuario;
 import java.util.List;
 import java.util.Scanner;
 
-import static com.uberpb.app.ConsoleUI.*;
 
 public class VisualizarAvaliacoesComando implements Comando {
 

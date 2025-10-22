@@ -1,48 +1,71 @@
 package com.uberpb.app;
 
 import com.uberpb.model.Corrida;
-import com.uberpb.model.ProgressoCorrida;
+import com.uberpb.model.Motorista;
+import com.uberpb.model.Passageiro;
 import com.uberpb.model.Usuario;
+import com.uberpb.service.GerenciadorCorridasAtivas;
 
 import java.util.List;
 import java.util.Scanner;
 
+import static com.uberpb.app.ConsoleUI.*;
+
 public class AcompanharCorridaComando implements Comando {
+
     @Override public String nome() { return "Acompanhar Corrida (tempo real)"; }
-    @Override public boolean visivelPara(Usuario u) { return u != null; }
+
+    @Override
+    public boolean visivelPara(Usuario u) { return u instanceof Passageiro || u instanceof Motorista; }
 
     @Override
     public void executar(ContextoAplicacao ctx, Scanner in) {
-        List<Corrida> minhas = ctx.repositorioCorrida.buscarPorPassageiro(ctx.sessao.getUsuarioAtual().getEmail());
-        if (minhas.isEmpty()) { System.out.println("(sem corridas)"); return; }
+        String email = ctx.sessao.getUsuarioAtual().getEmail();
+        List<Corrida> candidatas =
+                (ctx.sessao.getUsuarioAtual() instanceof Passageiro)
+                        ? ctx.repositorioCorrida.buscarPorPassageiro(email)
+                        : ctx.repositorioCorrida.buscarTodas(); // motorista vê as que aceitou
 
-        System.out.println("Escolha a corrida:");
-        for (int i = 0; i < minhas.size(); i++) {
-            System.out.printf("%d) %s (%s -> %s)%n", i+1, minhas.get(i).getId(),
-                    minhas.get(i).getOrigemEndereco(), minhas.get(i).getDestinoEndereco());
-        }
+        if (candidatas.isEmpty()) { erro("(sem corridas)"); return; }
+
+        System.out.println("Selecione a corrida para acompanhar:");
+        for (int i = 0; i < candidatas.size(); i++)
+            System.out.printf("%d) %s%n", i + 1, candidatas.get(i).getId());
         System.out.print("> ");
-        int idx;
-        try { idx = Integer.parseInt(in.nextLine().trim()) - 1; } catch (Exception e) { return; }
-        if (idx < 0 || idx >= minhas.size()) return;
+        String s = in.nextLine().trim();
+        if (s.isBlank()) return;
 
-        String id = minhas.get(idx).getId();
-        ProgressoCorrida p = ctx.gerenciadorCorridas.progresso(id);
-        if (p == null) { System.out.println("Corrida ainda não iniciou (aguardando aceite)."); return; }
+        int idx; try { idx = Integer.parseInt(s) - 1; } catch (Exception e) { erro("inválido"); return; }
+        if (idx < 0 || idx >= candidatas.size()) { erro("inválido"); return; }
+        Corrida c = candidatas.get(idx);
 
-        // Loop curto de acompanhamento
-        for (int t = 0; t < 10; t++) {
-            p = ctx.gerenciadorCorridas.progresso(id);
-            if (p == null) { System.out.println("Corrida não encontrada."); return; }
+        // Garante que a simulação esteja ativa
+        ctx.servicoCorrida.iniciarSeAceita(c, ctx.gerenciadorCorridas);
 
-            int perc = p.percentual();
-            String barra = "[" + "#".repeat(perc/10) + " ".repeat(10 - perc/10) + "]";
-            System.out.printf("%s %3d%%  %.1f/%.1f km  %d/%d min%n",
-                    barra, perc, p.getKmPercorridos(), p.getDistanciaTotalKm(),
-                    p.getMinutosDecorridos(), p.getMinutosEstimados());
+        // Loop de atualização a cada Enter (1s entre prints para dar “vida”)
+        while (true) {
+            cabecalho("Progresso da corrida", ctx.sessao);
+            var p = ctx.servicoCorrida.progresso(c.getId(), ctx.gerenciadorCorridas);
 
-            if (p.isConcluida()) { System.out.println("Corrida concluída (tempo/rota)."); break; }
+            ConsoleUI.barra(p.percentual);
+            System.out.printf("Restante: %d min • %.1f km%n", p.minutosRestantes, p.distanciaRestanteKm);
+
+            // mapa textual sempre (geocodifica se só houver endereços)
+            String o = (c.getOrigemEndereco() != null) ? c.getOrigemEndereco() : "Origem";
+            String d = (c.getDestinoEndereco() != null) ? c.getDestinoEndereco() : "Destino";
+            System.out.println(ConsoleUI.GRAY + ConsoleUI.mapaLinha(p.percentual, "Origem", "Destino") + ConsoleUI.RESET);
+
+            System.out.println();
+            System.out.println("[Enter] para atualizar, 'q' para sair");
             try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+
+            if (p.concluida) {
+                ok("Corrida concluída!");
+                ctx.servicoCorrida.encerrarSeConcluida(c.getId(), ctx.gerenciadorCorridas);
+                return;
+            }
+            String cmd = in.nextLine().trim();
+            if (cmd.equalsIgnoreCase("q")) return;
         }
     }
 }

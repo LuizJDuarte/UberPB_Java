@@ -58,4 +58,24 @@ public final class ConsoleUI {
         sb.append("] ").append(p).append('%');
         System.out.println(sb);
     }
+
+    /** “Mapa” textual simples: carro anda em uma linha pontilhada entre rótulos. */
+    public static String mapaLinha(int percentual, String origem, String destino) {
+        int total = 60;
+        int pos = Math.max(0, Math.min(total, (percentual * total) / 100));
+        StringBuilder sb = new StringBuilder();
+        sb.append(origem).append(' ');
+
+        for (int i = 0; i < total; i++) {
+            if (i == pos) {
+                // 🚗 (carro) — precisa ser code point, não char
+                sb.appendCodePoint(0x1F697);
+            } else {
+                sb.append('·'); // ponto médio é char simples
+            }
+        }
+
+        sb.append(' ').append(destino);
+        return sb.toString();
+    }
 }

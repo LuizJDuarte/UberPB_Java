@@ -1,5 +1,8 @@
-204580f2-41ba-4c44-8bd2-9049d4ef2a2b|passageiro@gmail.com|SOLICITADA|Rua Luiza Bezerra Motta, 120 - Catole|Rua Indios Cariris, 100 - Centro||||||
-7690eb96-4e38-425b-ae1a-ffd713730b8a|passageiro@gmail.com|SOLICITADA|Rua Luiza motta, 400|Rua Treze de maio, 520||||||
-41101463-20b9-446d-81ec-3dc86f4f045b|passageiro@gmail.com|SOLICITADA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 8000 - Tambaú|||||BLACK|
-973c3b30-306d-460f-89e6-9ba6917f59ac|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||UBERX|mblack@gmail.com
-d0a3006d-cbfd-4fd1-a6f4-bb641d9c2901|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||BLACK|mblack@gmail.com
+204580f2-41ba-4c44-8bd2-9049d4ef2a2b|passageiro@gmail.com|SOLICITADA|Rua Luiza Bezerra Motta, 120 - Catole|Rua Indios Cariris, 100 - Centro|||||||0000
+7690eb96-4e38-425b-ae1a-ffd713730b8a|passageiro@gmail.com|SOLICITADA|Rua Luiza motta, 400|Rua Treze de maio, 520|||||||0000
+41101463-20b9-446d-81ec-3dc86f4f045b|passageiro@gmail.com|SOLICITADA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 8000 - Tambaú|||||BLACK||0000
+973c3b30-306d-460f-89e6-9ba6917f59ac|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||UBERX||0000
+d0a3006d-cbfd-4fd1-a6f4-bb641d9c2901|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||BLACK||0000
+b8c30b30-15b5-4781-b88c-333a38cbed25|passageiro@gmail.com|SOLICITADA|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 5000 - Tambaú|||||BLACK|PIX|0000
+4da205fa-58aa-4310-a362-bcdbe9a5a46e|passageiro@gmail.com|ACEITA|Av. Epitácio Pessoa, 1009 - Tambaú|Av. Epitácio Pessoa, 9000 - Tambaú|||||BLACK|DINHEIRO|mblack@gmail.com000
+4c820c69-9553-4519-8caf-e48e614892bb|passageiro@gmail.com|EM_ANDAMENTO|Av. Epitácio Pessoa, 1000 - Tambaú|Av. Epitácio Pessoa, 10000 - Tambaú|||||BLACK|CARTAO|mblack@gmail.com0
