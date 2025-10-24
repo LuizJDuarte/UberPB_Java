@@ -43,7 +43,13 @@ public class ServicoCadastroTest {
             return List.copyOf(database.values());
         }
 
-        public void clear() {
+        @Override
+        public void remover(String email) {
+            database.remove(email);
+        }
+
+        @Override
+        public void limpar() {
             database.clear();
         }
     }

@@ -15,8 +15,14 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
     private final Path caminho = prepararArquivoEmData(ARQUIVO);
     private final List<Usuario> cache = new ArrayList<>();
 
-    public ImplRepositorioUsuarioArquivo() {
+    private static final ImplRepositorioUsuarioArquivo INSTANCE = new ImplRepositorioUsuarioArquivo();
+
+    private ImplRepositorioUsuarioArquivo() {
         carregar();
+    }
+
+    public static ImplRepositorioUsuarioArquivo getInstance() {
+        return INSTANCE;
     }
 
     @Override
@@ -54,6 +60,12 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
         salvar(usuario);
     }
 
+    @Override
+    public synchronized void limpar() {
+        cache.clear();
+        gravar();
+    }
+
     // ===== IO =====
 
     private void carregar() {
@@ -72,8 +84,8 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
 
         if ("PASSAGEIRO".equalsIgnoreCase(tipo)) {
             Passageiro passageiro = new Passageiro(email, senhaHash);
-            
-            // ✅ CARREGAR DADOS DE AVALIAÇÃO DO PASSAGEIRO
+
+            // Carrega dados de avaliação
             if (parts.length > 3 && !parts[3].isEmpty()) {
                 try {
                     passageiro.setRatingMedio(Double.parseDouble(parts[3]));
@@ -88,6 +100,9 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
                     passageiro.setTotalAvaliacoes(0);
                 }
             }
+            // Carrega o novo campo contaAtiva. Se o campo não existir (legado), o padrão é 'true'.
+            boolean contaAtiva = parts.length <= 5 || Boolean.parseBoolean(parts[5]);
+            passageiro.setContaAtiva(contaAtiva);
             
             cache.add(passageiro);
             return;
@@ -118,9 +133,14 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
                 }
             }
 
-            // ✅ CARREGAR VEÍCULO (agora na posição 8 devido aos novos campos)
-            if (parts.length > 8 && !parts[8].isEmpty() && !"null".equals(parts[8])) {
-                Veiculo veiculo = Veiculo.fromStringParaPersistencia(parts[8]);
+            // Carrega o status de disponibilidade (novo campo). Padrão 'false' se ausente.
+            if (parts.length > 8 && !parts[8].isEmpty()) {
+                motorista.setDisponivel(Boolean.parseBoolean(parts[8]));
+            }
+
+            // Carrega o veículo (agora na posição 9).
+            if (parts.length > 9 && !parts[9].isEmpty() && !"null".equals(parts[9])) {
+                Veiculo veiculo = Veiculo.fromStringParaPersistencia(parts[9]);
                 motorista.setVeiculo(veiculo);
             }
             

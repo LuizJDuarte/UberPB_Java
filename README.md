@@ -78,7 +78,18 @@ uberpb/
 
 ## Como Compilar e Executar
 
+**Melhoria de Persistência:** O sistema foi refatorado para garantir que todas as alterações (novos usuários, corridas, etc.) sejam salvas e carregadas em tempo real, eliminando a necessidade de reiniciar o aplicativo para visualizar as atualizações.
+
 Para compilar e rodar o projeto, você precisará do Java Development Kit (JDK) instalado em sua máquina.
+
+### Acesso Administrativo
+
+Para facilitar a gestão e teste do sistema, um usuário administrador é criado automaticamente na primeira vez que a aplicação é executada.
+
+- **Login:** `admin@uberpb.com`
+- **Senha:** `admin123`
+
+Após o login, o administrador tem acesso a comandos exclusivos, como a listagem e remoção de usuários.
 
 ### Clone o Repositório:
 

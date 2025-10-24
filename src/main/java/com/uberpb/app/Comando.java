@@ -9,8 +9,16 @@ import java.util.Scanner;
  */
 public interface Comando {
 
-    /** Nome exibido no menu. */
+    /** Nome exibido no menu (pode ser dinâmico). */
     String nome();
+
+    /**
+     * Permite que o nome do comando seja dinâmico com base no estado do usuário.
+     * O padrão é retornar o nome estático.
+     */
+    default String nomeParaExibicao(Usuario usuario) {
+        return nome();
+    }
 
     /**
      * Indica se o comando deve aparecer no menu, dado o usuário atual (ou null).

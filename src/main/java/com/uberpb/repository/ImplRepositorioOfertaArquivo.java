@@ -12,7 +12,13 @@ public class ImplRepositorioOfertaArquivo extends BaseRepositorioArquivo impleme
     private final Path caminho = prepararArquivoEmData(ARQUIVO);
     private final List<OfertaCorrida> cache = new ArrayList<>();
 
-    public ImplRepositorioOfertaArquivo() { carregar(); }
+    private static final ImplRepositorioOfertaArquivo INSTANCE = new ImplRepositorioOfertaArquivo();
+
+    private ImplRepositorioOfertaArquivo() { carregar(); }
+
+    public static ImplRepositorioOfertaArquivo getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public synchronized void salvar(OfertaCorrida oferta) {
@@ -57,4 +63,10 @@ public class ImplRepositorioOfertaArquivo extends BaseRepositorioArquivo impleme
     private void carregar() { lerLinhas(caminho, linha -> cache.add(OfertaCorrida.fromStringParaPersistencia(linha))); }
 
     private void gravar() { gravarAtomico(caminho, cache, OfertaCorrida::toStringParaPersistencia); }
+
+    @Override
+    public synchronized void limpar() {
+        cache.clear();
+        gravar();
+    }
 }

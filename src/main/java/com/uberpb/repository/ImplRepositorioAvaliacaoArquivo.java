@@ -13,8 +13,14 @@ public class ImplRepositorioAvaliacaoArquivo extends BaseRepositorioArquivo impl
     private final Path caminho = prepararArquivoEmData(ARQUIVO);
     private final List<Avaliacao> cache = new ArrayList<>();
 
-    public ImplRepositorioAvaliacaoArquivo() {
+    private static final ImplRepositorioAvaliacaoArquivo INSTANCE = new ImplRepositorioAvaliacaoArquivo();
+
+    private ImplRepositorioAvaliacaoArquivo() {
         carregar();
+    }
+
+    public static ImplRepositorioAvaliacaoArquivo getInstance() {
+        return INSTANCE;
     }
 
     @Override
@@ -82,5 +88,11 @@ public class ImplRepositorioAvaliacaoArquivo extends BaseRepositorioArquivo impl
         } else if (linha.startsWith("MOTORISTA_TO_PASSAGEIRO")) {
             cache.add(AvaliacaoMotorista.fromStringParaPersistencia(linha));
         }
+    }
+
+    @Override
+    public synchronized void limpar() {
+        cache.clear();
+        gravar();
     }
 }

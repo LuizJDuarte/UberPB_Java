@@ -14,7 +14,7 @@ import com.uberpb.repository.RepositorioUsuario;
 
 import java.util.List;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 public class ServicoOferta {
 
@@ -71,7 +71,7 @@ public class ServicoOferta {
         return repositorioOferta.buscarPorMotorista(motoristaEmail);
     }
 
-    public void aceitarOferta(String ofertaId, String motoristaEmail) {
+    public synchronized void aceitarOferta(String ofertaId, String motoristaEmail) {
         OfertaCorrida oferta = repositorioOferta.buscarPorId(ofertaId);
         if (oferta == null) throw new IllegalArgumentException("Oferta não encontrada.");
         if (!oferta.getMotoristaEmail().equalsIgnoreCase(motoristaEmail))
@@ -79,11 +79,14 @@ public class ServicoOferta {
         if (oferta.getStatus() != OfertaStatus.PENDENTE)
             throw new IllegalArgumentException("Oferta já foi respondida.");
 
-        oferta.setStatus(OfertaStatus.ACEITA);
-        repositorioOferta.atualizar(oferta);
-
         Corrida corrida = repositorioCorrida.buscarPorId(oferta.getCorridaId());
         if (corrida == null) throw new IllegalStateException("Corrida da oferta não encontrada.");
+        if (corrida.getMotoristaAlocado() != null) {
+            throw new IllegalStateException("Corrida já foi alocada a outro motorista.");
+        }
+
+        oferta.setStatus(OfertaStatus.ACEITA);
+        repositorioOferta.atualizar(oferta);
 
         corrida.setMotoristaAlocado(motoristaEmail);
         corrida.setStatus(CorridaStatus.EM_ANDAMENTO);
@@ -109,6 +112,11 @@ public class ServicoOferta {
 
         oferta.setStatus(OfertaStatus.RECUSADA);
         repositorioOferta.atualizar(oferta);
+
+        Corrida corrida = repositorioCorrida.buscarPorId(oferta.getCorridaId());
+        if (corrida != null && corrida.getStatus() == CorridaStatus.SOLICITADA) {
+            criarOfertasParaCorrida(corrida);
+        }
     }
 
     // ==== utilitários que você já usava ====

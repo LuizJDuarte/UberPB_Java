@@ -10,4 +10,5 @@ public interface RepositorioAvaliacao {
     List<Avaliacao> buscarPorCorrida(String corridaId);
     List<Avaliacao> buscarTodas();
     boolean corridaFoiAvaliada(String corridaId);
+    void limpar();
 }

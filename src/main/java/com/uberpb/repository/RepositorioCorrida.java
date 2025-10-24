@@ -8,6 +8,8 @@ public interface RepositorioCorrida {
     void atualizar(Corrida corrida);
     Corrida buscarPorId(String id);
     List<Corrida> buscarPorPassageiro(String emailPassageiro);
+    Corrida buscarCorridaAtivaPorPassageiro(String email);
     List<Corrida> buscarTodas();
     void remover(String id);
+    void limpar();
 }

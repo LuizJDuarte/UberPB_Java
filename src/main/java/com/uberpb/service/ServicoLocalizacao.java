@@ -2,28 +2,39 @@ package com.uberpb.service;
 
 import com.uberpb.model.Localizacao;
 
+/**
+ * Serviço de localização/“geocoding” local, sem dependências externas.
+ * - geocodificar(String) => mapeia texto para coordenadas estáveis (hash).
+ * - distanciaKm(Localizacao, Localizacao) => distância euclidiana aproximada.
+ * - obterLocalizacaoAtual(String) => posição “mockada” do usuário.
+ */
 public class ServicoLocalizacao {
 
-    public ServicoLocalizacao() {}
+    public ServicoLocalizacao() { }
 
     public Localizacao geocodificar(String endereco) {
-        int h = endereco == null ? 0 : endereco.hashCode();
-        double lat = -7.12 + ((h & 0x7FFF) / 32767.0) * 0.20;
-        double lon = -34.90 + (((h>>>15) & 0x7FFF) / 32767.0) * 0.20;
+        if (endereco == null || endereco.isBlank()) return new Localizacao(0,0);
+        int h = Math.abs(endereco.hashCode());
+        double lat = (h % 18000) / 100.0 - 90.0;      // [-90, 90)
+        double lon = ((h / 18000) % 36000) / 100.0 - 180.0; // [-180, 180)
         return new Localizacao(lat, lon);
     }
 
+    /** Distância “flat” em km (boa o suficiente para ordenação). */
     public double distanciaKm(Localizacao a, Localizacao b) {
-        double R = 6371.0;
-        double dLat = Math.toRadians(b.latitude() - a.latitude());
-        double dLon = Math.toRadians(b.longitude() - a.longitude());
-        double s1 = Math.sin(dLat/2), s2 = Math.sin(dLon/2);
-        double aa = s1*s1 + Math.cos(Math.toRadians(a.latitude()))*Math.cos(Math.toRadians(b.latitude()))*s2*s2;
-        double c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1-aa));
-        return Math.max(0.1, R*c);
+        if (a == null || b == null) return 0;
+        double dx = a.latitude() - b.latitude();
+        double dy = a.longitude() - b.longitude();
+        // 1 grau ~ 111 km, aproximação
+        return Math.sqrt(dx*dx + dy*dy) * 111.0;
     }
 
-    public Localizacao obterLocalizacaoAtual(String emailUsuario) {
-        return geocodificar(emailUsuario);
+    /** Posição aproximada do usuário (mock estável por email). */
+    public Localizacao obterLocalizacaoAtual(String email) {
+        if (email == null) return new Localizacao(0,0);
+        int h = Math.abs(email.hashCode());
+        double lat = (h % 9000) / 100.0 - 45.0;
+        double lon = ((h / 9000) % 18000) / 100.0 - 90.0;
+        return new Localizacao(lat, lon);
     }
 }

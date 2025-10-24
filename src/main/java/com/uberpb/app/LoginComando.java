@@ -26,6 +26,11 @@ public class LoginComando implements Comando {
         System.out.print("Email: ");
         String email = entrada.nextLine();
 
+        if (contexto.repositorioUsuario.buscarPorEmail(email) == null) {
+            ConsoleUI.erro("Usuário não encontrado.");
+            return;
+        }
+
         System.out.print("Senha: ");
         String senha = entrada.nextLine();
 

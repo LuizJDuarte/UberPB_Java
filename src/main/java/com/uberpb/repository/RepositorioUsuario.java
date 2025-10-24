@@ -10,4 +10,5 @@ public interface RepositorioUsuario {
   Usuario buscarPorEmail(String email);
   List<Usuario> buscarTodos();
   void remover(String email);
+  void limpar();
 }

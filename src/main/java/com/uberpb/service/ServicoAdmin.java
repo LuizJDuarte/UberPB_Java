@@ -38,4 +38,9 @@ public class ServicoAdmin {
             repositorioCorrida.remover(corridaId);
         }
     }
+
+    public void limparDados() {
+        repositorioUsuario.limpar();
+        repositorioCorrida.limpar();
+    }
 }

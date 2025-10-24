@@ -1,40 +1,66 @@
 package com.uberpb.service;
 
+import com.uberpb.model.Usuario;
 import com.uberpb.model.Passageiro;
 import com.uberpb.repository.RepositorioUsuario;
+import com.uberpb.util.PasswordUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-class ServicoAutenticacaoTest {
+public class ServicoAutenticacaoTest {
 
-    // Stub simples em memória
-    static class RepoInMemory implements RepositorioUsuario {
-        private final java.util.Map<String, com.uberpb.model.Usuario> m = new java.util.HashMap<>();
-        @Override public synchronized void salvar(com.uberpb.model.Usuario u){ m.put(u.getEmail(), u); }
-        @Override public synchronized void atualizar(com.uberpb.model.Usuario u){ m.put(u.getEmail(), u); }
-        @Override public synchronized com.uberpb.model.Usuario buscarPorEmail(String e){ return m.get(e); }
-        @Override public synchronized java.util.List<com.uberpb.model.Usuario> buscarTodos(){ return new java.util.ArrayList<>(m.values()); }
-        @Override public synchronized void remover(String email){ m.remove(email); }
+    private RepositorioUsuario repositorioUsuario;
+    private ServicoAutenticacao servicoAutenticacao;
+
+    @BeforeEach
+    public void setUp() {
+        repositorioUsuario = mock(RepositorioUsuario.class);
+        servicoAutenticacao = new ServicoAutenticacao(repositorioUsuario);
     }
 
     @Test
-    void loginValido() {
-        var repo = new RepoInMemory();
-        var cadastro = new ServicoCadastro(repo, new ServicoValidacaoMotorista());
-        var auth = new ServicoAutenticacao(repo);
+    public void testAutenticarComSucesso() {
+        String email = "teste@uberpb.com";
+        String senha = "senha123";
+        String senhaHash = PasswordUtil.hashPassword(senha);
+        Usuario usuario = new Passageiro(email, senhaHash);
 
-        cadastro.cadastrarPassageiro("p@a.com", "123");
-        var u = auth.login("p@a.com", "123");
+        when(repositorioUsuario.buscarPorEmail(email)).thenReturn(usuario);
 
-        assertNotNull(u);
-        assertEquals("p@a.com", u.getEmail());
+        Usuario usuarioAutenticado = servicoAutenticacao.autenticar(email, senha);
+        assertNotNull(usuarioAutenticado);
+        assertEquals(email, usuarioAutenticado.getEmail());
     }
 
     @Test
-    void loginInvalido() {
-        var repo = new RepoInMemory();
-        var auth = new ServicoAutenticacao(repo);
-        assertThrows(IllegalArgumentException.class, () -> auth.login("x@y.com", "errada"));
+    public void testAutenticarFalhaUsuarioNaoEncontrado() {
+        when(repositorioUsuario.buscarPorEmail("naoexiste@uberpb.com")).thenReturn(null);
+
+        Exception exception = assertThrows(com.uberpb.exceptions.UsuarioNaoEncontradoException.class, () -> {
+            servicoAutenticacao.autenticar("naoexiste@uberpb.com", "senha123");
+        });
+
+        assertEquals("E-mail não cadastrado.", exception.getMessage());
+    }
+
+    @Test
+    public void testAutenticarFalhaSenhaIncorreta() {
+        String email = "teste@uberpb.com";
+        String senhaCorreta = "senha123";
+        String senhaIncorreta = "senha-errada";
+        String senhaHash = PasswordUtil.hashPassword(senhaCorreta);
+        Usuario usuario = new Passageiro(email, senhaHash);
+
+        when(repositorioUsuario.buscarPorEmail(email)).thenReturn(usuario);
+
+        Exception exception = assertThrows(com.uberpb.exceptions.CredenciaisInvalidasException.class, () -> {
+            servicoAutenticacao.autenticar(email, senhaIncorreta);
+        });
+
+        assertEquals("Senha incorreta.", exception.getMessage());
     }
 }

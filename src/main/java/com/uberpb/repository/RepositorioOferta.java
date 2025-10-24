@@ -11,4 +11,5 @@ public interface RepositorioOferta {
     List<OfertaCorrida> buscarPorCorrida(String corridaId);
     List<OfertaCorrida> buscarPorMotorista(String motoristaEmail);
     List<OfertaCorrida> buscarTodas();
+    void limpar();
 }

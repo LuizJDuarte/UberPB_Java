@@ -13,6 +13,7 @@ public class Motorista extends Usuario {
     private boolean cnhValida;   // validação de CNH
     private boolean crlvValido;  // validação de CRLV
     private boolean contaAtiva;  // ativado após validações (RF02)
+    private boolean disponivel;  // se está online para receber corridas
 
     private double ratingMedio = 0.0;
     private int totalAvaliacoes = 0;
@@ -22,6 +23,7 @@ public class Motorista extends Usuario {
         this.contaAtiva = false;
         this.cnhValida = false;
         this.crlvValido = false;
+        this.disponivel = false; // Começa offline por padrão
     }
 
     // Getters/Setters usados por serviços e repositório
@@ -37,8 +39,11 @@ public class Motorista extends Usuario {
     public boolean isContaAtiva() { return contaAtiva; }
     public void setContaAtiva(boolean contaAtiva) { this.contaAtiva = contaAtiva; }
 
+    public boolean isDisponivel() { return disponivel; }
+    public void setDisponivel(boolean disponivel) { this.disponivel = disponivel; }
+
     public double getRatingMedio() { return ratingMedio; }
-    public void setRatingMedio(double ratingMedio) { 
+    public void setRatingMedio(double ratingMedio) {
         this.ratingMedio = Math.round(ratingMedio * 10.0) / 10.0;
     }
     
@@ -62,28 +67,30 @@ public class Motorista extends Usuario {
           .append(cnhValida).append(",")
           .append(crlvValido).append(",")
           .append(contaAtiva).append(",")
-          .append(ratingMedio).append(",") 
-          .append(totalAvaliacoes).append(","); 
+          .append(ratingMedio).append(",")
+          .append(totalAvaliacoes).append(",")
+          .append(disponivel).append(","); // Novo campo
         if (veiculo != null) {
             sb.append(veiculo.toStringParaPersistencia());
         } else {
-            sb.append("null");
+            sb.append("null"); // Apenas 'null', sem vírgula antes
         }
         return sb.toString();
     }
 
     @Override
     public String toString() {
-        String status = contaAtiva ? "Ativa" : "Inativa";
-        String ratingInfo = totalAvaliacoes > 0 ? 
-            String.format("⭐ %.1f (%d avaliações)", ratingMedio, totalAvaliacoes) : 
+        String statusConta = contaAtiva ? "Ativa" : "Inativa";
+        String statusOnline = disponivel ? "Online" : "Offline";
+        String ratingInfo = totalAvaliacoes > 0 ?
+            String.format("⭐ %.1f (%d avaliações)", ratingMedio, totalAvaliacoes) :
             "⭐ Sem avaliações";
-            
+
         return "Motorista - " + super.toString() +
-               ", CNH Válida: " + cnhValida +
-               ", CRLV Válido: " + crlvValido +
-               ", Status: " + status +
+               ", Status: " + statusConta + " | " + statusOnline +
+               ", CNH: " + (cnhValida ? "OK" : "Pendente") +
+               ", CRLV: " + (crlvValido ? "OK" : "Pendente") +
                ", " + ratingInfo +
-               (veiculo != null ? ", " + veiculo.toString() : ", Sem veículo cadastrado");
+               (veiculo != null ? ", " + veiculo.toString() : ", Sem veículo");
     }
 }

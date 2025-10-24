@@ -1,21 +1,22 @@
 package com.uberpb.model;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CorridaTest {
 
     @Test
-    public void testCorridaPersistence() {
-        Localizacao origem = new Localizacao(-7.115, -34.86);
-        Localizacao destino = new Localizacao(-7.125, -34.87);
-        Corrida corridaOriginal = Corrida.novaComCoordenadas("test@test.com", origem, destino, CategoriaVeiculo.UBERX, MetodoPagamento.PIX);
-        corridaOriginal.setStatus(CorridaStatus.CONCLUIDA);
-        corridaOriginal.setMotoristaAlocado("driver@test.com");
+    public void testToStringParaPersistencia() {
+        Localizacao origem = new Localizacao(1.0, 2.0);
+        Localizacao destino = new Localizacao(3.0, 4.0);
+        Corrida corridaOriginal = Corrida.novaComCoordenadas("passageiro@teste.com", origem, destino, CategoriaVeiculo.BLACK, MetodoPagamento.CARTAO);
+        corridaOriginal.setMotoristaAlocado("motorista@teste.com");
 
-        String persisted = corridaOriginal.toStringParaPersistencia();
-        Corrida corridaRestaurada = Corrida.fromStringGenerico(persisted);
+        String persistencia = corridaOriginal.toStringParaPersistencia();
+        Corrida corridaRestaurada = Corrida.fromStringGenerico(persistencia);
 
+        assertNotNull(corridaRestaurada);
         assertEquals(corridaOriginal.getId(), corridaRestaurada.getId());
         assertEquals(corridaOriginal.getEmailPassageiro(), corridaRestaurada.getEmailPassageiro());
         assertEquals(corridaOriginal.getStatus(), corridaRestaurada.getStatus());

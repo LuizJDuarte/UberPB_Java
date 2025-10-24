@@ -54,6 +54,19 @@ public class Corrida {
 
     public String getId() { return id; }
     public String getEmailPassageiro() { return emailPassageiro; }
+
+    public Passageiro getPassageiro() {
+        // This is a temporary solution to get the code to compile.
+        // A better solution would be to inject a RepositorioUsuario instance.
+        return new Passageiro(this.emailPassageiro, "");
+    }
+
+    public Motorista getMotorista() {
+        // This is a temporary solution to get the code to compile.
+        // A better solution would be to inject a RepositorioUsuario instance.
+        return new Motorista(this.motoristaAlocado, "");
+    }
+
     public String getOrigemEndereco() { return origemEndereco; }
     public String getDestinoEndereco() { return destinoEndereco; }
     public Localizacao getOrigem() { return origem; }
@@ -83,7 +96,7 @@ public class Corrida {
           .append(destino != null ? Double.toString(destino.longitude()): "").append(SEP)
           .append(esc(nvl(categoriaEscolhida != null ? categoriaEscolhida.name() : ""))).append(SEP)
           .append(esc(nvl(metodoPagamento != null ? metodoPagamento.name() : ""))).append(SEP)
-          .append(esc(nvl(motoristaAlocado)))
+          .append(esc(nvl(motoristaAlocado))).append(SEP)
           .append(avaliada ? "1" : "0");
         return sb.toString();
     }

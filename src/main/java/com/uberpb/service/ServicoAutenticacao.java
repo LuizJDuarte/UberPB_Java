@@ -34,6 +34,18 @@ public class ServicoAutenticacao {
             throw new CredenciaisInvalidasException("Senha incorreta.");
         }
 
+        // RF02 & RF-Admin: Verifica se a conta do usuário está ativa antes de permitir o login.
+        boolean isAtivo = true;
+        if (usuario instanceof com.uberpb.model.Motorista motorista) {
+            isAtivo = motorista.isContaAtiva();
+        } else if (usuario instanceof com.uberpb.model.Passageiro passageiro) {
+            isAtivo = passageiro.isContaAtiva();
+        }
+
+        if (!isAtivo) {
+            throw new CredenciaisInvalidasException("Esta conta está desativada ou pendente de aprovação.");
+        }
+
         return usuario; // Retorna o usuário autenticado
     }
 }

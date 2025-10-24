@@ -12,8 +12,14 @@ public class ImplRepositorioCorridaArquivo extends BaseRepositorioArquivo implem
     private final Path caminho = prepararArquivoEmData(ARQUIVO);
     private final List<Corrida> cache = new ArrayList<>();
 
-    public ImplRepositorioCorridaArquivo() {
+    private static final ImplRepositorioCorridaArquivo INSTANCE = new ImplRepositorioCorridaArquivo();
+
+    private ImplRepositorioCorridaArquivo() {
         carregar();
+    }
+
+    public static ImplRepositorioCorridaArquivo getInstance() {
+        return INSTANCE;
     }
 
     @Override
@@ -58,6 +64,26 @@ public class ImplRepositorioCorridaArquivo extends BaseRepositorioArquivo implem
         return new ArrayList<>(cache);
     }
 
+    @Override
+    public void limpar() {
+        cache.clear();
+        gravar();
+    }
+
+    @Override
+    public synchronized Corrida buscarCorridaAtivaPorPassageiro(String email) {
+        return cache.stream()
+            .filter(c -> c.getEmailPassageiro().equalsIgnoreCase(email))
+            .filter(c -> {
+                var status = c.getStatus();
+                return status == com.uberpb.model.CorridaStatus.SOLICITADA ||
+                       status == com.uberpb.model.CorridaStatus.ACEITA ||
+                       status == com.uberpb.model.CorridaStatus.EM_ANDAMENTO;
+            })
+            .findFirst()
+            .orElse(null);
+    }
+
     // ===== IO =====
 
     private void carregar() {
@@ -67,4 +93,5 @@ public class ImplRepositorioCorridaArquivo extends BaseRepositorioArquivo implem
     private void gravar() {
         gravarAtomico(caminho, cache, Corrida::toStringParaPersistencia);
     }
+
 }

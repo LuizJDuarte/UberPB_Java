@@ -1,14 +1,8 @@
 package com.uberpb.app;
 
-import com.uberpb.repository.ImplRepositorioCorridaArquivo;
-import com.uberpb.repository.ImplRepositorioOfertaArquivo;
-import com.uberpb.repository.ImplRepositorioUsuarioArquivo;
-import com.uberpb.repository.RepositorioCorrida;
-import com.uberpb.repository.RepositorioOferta;
-import com.uberpb.repository.RepositorioUsuario;
-import com.uberpb.service.*;
 import com.uberpb.model.Administrador;
-
+import com.uberpb.repository.*;
+import com.uberpb.service.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -19,92 +13,91 @@ public final class ProvedorDependencias {
 
     public static ContextoAplicacao fornecerContexto() {
         // Repositórios
-        RepositorioUsuario repoUsuario = new ImplRepositorioUsuarioArquivo();
-        RepositorioCorrida repoCorrida = new ImplRepositorioCorridaArquivo();
-        RepositorioOferta  repoOferta  = new ImplRepositorioOfertaArquivo();
+        RepositorioUsuario repoUsuario = ImplRepositorioUsuarioArquivo.getInstance();
+        RepositorioCorrida repoCorrida = ImplRepositorioCorridaArquivo.getInstance();
+        RepositorioOferta repoOferta = ImplRepositorioOfertaArquivo.getInstance();
+        RepositorioAvaliacao repoAvaliacao = ImplRepositorioAvaliacaoArquivo.getInstance();
 
         // Seed admin
         semearAdminSePreciso(repoUsuario);
 
         // Serviços auxiliares
-        // Atenção: ServicoCorrida usa EstimativaCorrida e ServicoLocalizacao (não confundir com EstimativaChegada)
-        EstimativaCorrida  estimativaCorrida = new EstimativaCorrida(0, 0, 0);
-        ServicoLocalizacao servLoc           = new ServicoLocalizacao();
+        EstimativaCorrida estimativaCorrida = new EstimativaCorrida(0, 0, 0);
+        ServicoLocalizacao servLoc = new ServicoLocalizacao();
 
-        // Serviços de negócio existentes (ajuste se necessário)
-        ServicoCadastro     servCadastro = new ServicoCadastro(repoUsuario); // sua versão que existe
-        ServicoAutenticacao servAuth     = new ServicoAutenticacao(repoUsuario);
-        ServicoCorrida      servCorrida  = new ServicoCorrida(repoCorrida, repoUsuario, estimativaCorrida, servLoc);
-        ServicoOferta       servOferta   = new ServicoOferta(repoOferta, repoUsuario, repoCorrida);
-        ServicoPagamento    servPagto    = new ServicoPagamento(repoCorrida, repoUsuario);
-        GerenciadorCorridasAtivas ger    = new GerenciadorCorridasAtivas();
+        // Serviços de negócio
+        ServicoCadastro servCadastro = new ServicoCadastro(repoUsuario);
+        ServicoAutenticacao servAuth = new ServicoAutenticacao(repoUsuario);
+        ServicoCorrida servCorrida = new ServicoCorrida(repoCorrida, repoUsuario, estimativaCorrida, servLoc);
+        ServicoOferta servOferta = new ServicoOferta(repoOferta, repoUsuario, repoCorrida);
+        ServicoPagamento servPagto = new ServicoPagamento(repoCorrida, repoUsuario);
+        ServicoAvaliacao servAval = new ServicoAvaliacao(repoAvaliacao, repoCorrida, repoUsuario);
+        GerenciadorCorridasAtivas ger = new GerenciadorCorridasAtivas();
         Sessao sessao = new Sessao();
 
         // Serviços opcionais (ainda não usados ou ausentes na sua base): deixamos null
         ServicoValidacaoMotorista servValid = null;
-        ServicoAvaliacao          servAval  = null;
-        ServicoOtimizacaoRota     servOpt   = null;
+        ServicoOtimizacaoRota servOpt = null;
         ServicoDirecionamentoCorrida servDirec = null;
-        EstimativaChegada         servEta   = null;
-        ServicoAdmin              servAdmin = null;
+        EstimativaChegada servEta = null;
+        ServicoAdmin servAdmin = null;
 
         // Constrói o contexto com o CONSTRUTOR COMPLETO
         return new ContextoAplicacao(
-                sessao,
-                repoUsuario,
-                servCadastro,
-                servAuth,
-                repoCorrida,
-                servCorrida,
-                repoOferta,
-                servOferta,
-                servValid,     // ServicoValidacaoMotorista (null por ora)
-                servPagto,
-                servAval,      // ServicoAvaliacao (null)
-                servOpt,       // ServicoOtimizacaoRota (null)
-                servLoc,
-                servDirec,     // ServicoDirecionamentoCorrida (null)
-                servEta,       // EstimativaChegada (null)
-                servAdmin,     // ServicoAdmin (null)
-                ger
-        );
+            sessao,
+            repoUsuario,
+            servCadastro,
+            servAuth,
+            repoCorrida,
+            servCorrida,
+            repoOferta,
+            repoAvaliacao, 
+            servOferta,
+            servValid,
+            servPagto,
+            servAval,
+            servOpt,
+            servLoc,
+            servDirec,
+            servEta,
+            servAdmin,
+            ger);
     }
 
-    /** Compatível com AplicacaoCLI que chama sem args; monta lista baseada no seu conjunto atual de comandos. */
-    public static List<Comando> fornecerComandosPadrao() {
-        ContextoAplicacao ctx = fornecerContexto();
-        return fornecerComandosPadrao(ctx);
-    }
-
-    /** Ajuste a lista aos comandos que você REALMENTE tem. */
-    public static List<Comando> fornecerComandosPadrao(ContextoAplicacao ctx) {
+    public static List<Comando> fornecerComandos() {
+        // Retorna todos os comandos possíveis
         List<Comando> lista = new ArrayList<>();
-        // Telas iniciais
+
+        // Comandos de Sessão
         lista.add(new LoginComando());
+        lista.add(new LogoutComando());
+
+        // Cadastro
         lista.add(new CadastrarPassageiroComando());
         lista.add(new CadastrarMotoristaComando());
+        lista.add(new CompletarCadastroMotoristaComando());
+        lista.add(new VerificarStatusAprovacaoComando()); // Para motoristas pendentes
 
         // Passageiro
         lista.add(new SolicitarCorridaComando());
-        lista.add(new AcompanharCorridaComando());
-        lista.add(new ConcluirCorridaComando());
-        lista.add(new VisualizarCorridaComando());
-        // Se existirem no seu projeto, descomente:
-        // lista.add(new VerPagamentoComando());
-        // lista.add(new AvaliarCorridaComando());
-        // lista.add(new VisualizarMinhasAvaliacoesComando());
-        // lista.add(new HistoricoFiltradoComando());
+        lista.add(new CancelarCorridaComando());
+        lista.add(new AvaliarMotoristaComando());
 
         // Motorista
+        lista.add(new FicarOnlineOfflineComando());
         lista.add(new MotoristaVerOfertasComando());
+        lista.add(new AtualizarLocalizacaoComando());
+        // Adicione aceitar/recusar, iniciar, concluir...
 
-        // Admin — se tiver comandos específicos, adicione-os e use visivelPara() para restringir
-        // lista.add(new AdminPainelComando());
+        // Geral
+        lista.add(new VisualizarHistoricoComando());
+
+        // Admin
+        lista.add(new MenuAdminComando());
 
         return lista;
     }
 
-    // ============ Seed Admin ============
     private static void semearAdminSePreciso(RepositorioUsuario ru) {
         var existente = ru.buscarPorEmail("admin@uberpb.com");
         if (existente != null) return;
