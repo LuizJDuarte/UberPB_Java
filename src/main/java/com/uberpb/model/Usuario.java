@@ -39,6 +39,8 @@ public abstract class Usuario {
     public TipoUsuario getTipo() {
         if (this instanceof Administrador) return TipoUsuario.ADMIN;
         if (this instanceof Motorista)     return TipoUsuario.MOTORISTA;
+        if (this instanceof Entregador)    return TipoUsuario.ENTREGADOR;
+        if (this instanceof Restaurante)   return TipoUsuario.RESTAURANTE;
         return TipoUsuario.PASSAGEIRO;
     }
 

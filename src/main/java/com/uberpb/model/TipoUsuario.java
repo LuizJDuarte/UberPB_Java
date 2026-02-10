@@ -1,7 +1,9 @@
 package com.uberpb.model;
 
 public enum TipoUsuario {
-	 PASSAGEIRO, 
-	 MOTORISTA, 
-	 ADMIN 
+ 	PASSAGEIRO,
+ 	MOTORISTA,
+ 	ENTREGADOR,
+ 	RESTAURANTE,
+ 	ADMIN
 }

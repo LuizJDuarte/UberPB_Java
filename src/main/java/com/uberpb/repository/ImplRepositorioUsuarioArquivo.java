@@ -2,6 +2,8 @@ package com.uberpb.repository;
 
 import com.uberpb.model.Motorista;
 import com.uberpb.model.Passageiro;
+import com.uberpb.model.Entregador;
+import com.uberpb.model.Restaurante;
 import com.uberpb.model.Usuario;
 import com.uberpb.model.Veiculo;
 import java.nio.file.Path;
@@ -145,6 +147,37 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
             }
             
             cache.add(motorista);
+            return;
+        }
+        if ("ENTREGADOR".equalsIgnoreCase(tipo)) {
+            // Format: ENTREGADOR,email,senhaHash,cnhNumero,cpfNumero,cnhValida,docIdentidadeValido,contaAtiva
+            String cnhNumero = parts.length > 3 ? parts[3] : "";
+            String cpfNumero = parts.length > 4 ? parts[4] : "";
+            boolean cnhValida = parts.length > 5 && Boolean.parseBoolean(parts[5]);
+            boolean docIdentidadeValido = parts.length > 6 && Boolean.parseBoolean(parts[6]);
+            boolean contaAtiva = parts.length > 7 && Boolean.parseBoolean(parts[7]);
+
+            Entregador entregador = new Entregador(email, senhaHash);
+            entregador.setCnhNumero(cnhNumero);
+            entregador.setCpfNumero(cpfNumero);
+            entregador.setCnhValida(cnhValida);
+            entregador.setDocIdentidadeValido(docIdentidadeValido);
+            entregador.setContaAtiva(contaAtiva);
+            cache.add(entregador);
+            return;
+        }
+        if ("RESTAURANTE".equalsIgnoreCase(tipo)) {
+            // Format: RESTAURANTE,email,senhaHash,nomeFantasia,cnpj,contaAtiva
+            String nomeFantasia = parts.length > 3 ? parts[3] : "";
+            String cnpj = parts.length > 4 ? parts[4] : "";
+            boolean contaAtiva = parts.length > 5 && Boolean.parseBoolean(parts[5]);
+
+            Restaurante restaurante = new Restaurante(email, senhaHash);
+            restaurante.setNomeFantasia(nomeFantasia);
+            restaurante.setCnpj(cnpj);
+            restaurante.setContaAtiva(contaAtiva);
+            cache.add(restaurante);
+            return;
         }
     }
 }

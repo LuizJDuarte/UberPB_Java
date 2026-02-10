@@ -75,6 +75,8 @@ public final class ProvedorDependencias {
         // Cadastro
         lista.add(new CadastrarPassageiroComando());
         lista.add(new CadastrarMotoristaComando());
+        lista.add(new CadastrarEntregadorComando());
+        lista.add(new CadastrarRestauranteComando());
         lista.add(new CompletarCadastroMotoristaComando());
         lista.add(new VerificarStatusAprovacaoComando()); // Para motoristas pendentes
 

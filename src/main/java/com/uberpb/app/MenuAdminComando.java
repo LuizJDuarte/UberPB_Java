@@ -66,6 +66,8 @@ public class MenuAdminComando implements Comando {
             // Comandos de Gestão de Motoristas
             new ListarMotoristasPendentesComando(),
             new AprovarDocumentosMotoristaComando(),
+            new AprovarDocumentosEntregadorComando(),
+            new AprovarDocumentosEntregadorComando(),
 
             // Comandos de Gestão Geral de Usuários
             new AtivarDesativarContaComando(),

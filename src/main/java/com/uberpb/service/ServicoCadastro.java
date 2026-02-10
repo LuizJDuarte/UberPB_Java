@@ -3,6 +3,8 @@ package com.uberpb.service;
 import com.uberpb.exceptions.EmailJaExistenteException;
 import com.uberpb.model.Motorista;
 import com.uberpb.model.Passageiro;
+import com.uberpb.model.Entregador;
+import com.uberpb.model.Restaurante;
 import com.uberpb.repository.RepositorioUsuario;
 import com.uberpb.util.PasswordUtil;
 
@@ -56,5 +58,48 @@ public class ServicoCadastro {
         // Por padrão, a conta do motorista é inativa até que a validação de documentos seja completa.
         repositorioUsuario.salvar(motorista);
         return motorista;
+    }
+
+    /**
+     * Cadastra um entregador (motoboy/entregador) com documentos iniciais.
+     */
+    public Entregador cadastrarEntregador(String email, String senha, String cnh, String cpf) {
+        if (!PasswordUtil.isValidEmail(email)) {
+            throw new IllegalArgumentException("Formato de e-mail inválido.");
+        }
+        if (repositorioUsuario.buscarPorEmail(email) != null) {
+            throw new com.uberpb.exceptions.EmailJaExistenteException("Este e-mail já está cadastrado.");
+        }
+
+        String senhaHash = PasswordUtil.hashPassword(senha);
+        Entregador entregador = new Entregador(email, senhaHash);
+        entregador.setCnhNumero(cnh != null ? cnh : "");
+        entregador.setCpfNumero(cpf != null ? cpf : "");
+        entregador.setCnhValida(false);
+        entregador.setDocIdentidadeValido(false);
+        entregador.setContaAtiva(false);
+
+        repositorioUsuario.salvar(entregador);
+        return entregador;
+    }
+
+    /**
+     * Cadastra um restaurante no sistema.
+     */
+    public Restaurante cadastrarRestaurante(String email, String senha, String nomeFantasia, String cnpj) {
+        if (!PasswordUtil.isValidEmail(email)) {
+            throw new IllegalArgumentException("Formato de e-mail inválido.");
+        }
+        if (repositorioUsuario.buscarPorEmail(email) != null) {
+            throw new com.uberpb.exceptions.EmailJaExistenteException("Este e-mail já está cadastrado.");
+        }
+
+        String senhaHash = PasswordUtil.hashPassword(senha);
+        Restaurante restaurante = new Restaurante(email, senhaHash);
+        restaurante.setNomeFantasia(nomeFantasia != null ? nomeFantasia : "");
+        restaurante.setCnpj(cnpj != null ? cnpj : "");
+        restaurante.setContaAtiva(false);
+        repositorioUsuario.salvar(restaurante);
+        return restaurante;
     }
 }
