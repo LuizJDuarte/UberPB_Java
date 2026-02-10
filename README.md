@@ -121,6 +121,10 @@ Execute a Aplicação: Após a compilação bem-sucedida, execute a classe princ
 
 A aplicação será iniciada na linha de comando, e você poderá interagir com ela. Os dados serão persistidos em um arquivo chamado usuarios.txt no diretório de execução.
 
+Caso não funcione, execute usando a pasta classes no classpath:
+
+'java -cp 'C:\Users\rodri\Desktop\UberPB\UberPB_Java\classes' com.uberpb.app.AplicacaoUberPB'
+
 ### Processo de Desenvolvimento
 
 O projeto é desenvolvido em equipe de 4 integrantes seguindo uma metodologia ágil (inspirada em Scrum). O acompanhamento é feito através de um repositório GitHub.
