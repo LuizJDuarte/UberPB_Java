@@ -6,23 +6,23 @@ import com.uberpb.model.Passageiro;
 import com.uberpb.model.Entregador;
 import com.uberpb.model.Restaurante;
 import com.uberpb.repository.RepositorioUsuario;
+import com.uberpb.repository.RepositorioRestaurante;
 import com.uberpb.util.PasswordUtil;
 
 public class ServicoCadastro {
 
     private RepositorioUsuario repositorioUsuario;
+    private RepositorioRestaurante repositorioRestaurante; // 
 
     public ServicoCadastro(RepositorioUsuario repositorioUsuario) {
         this.repositorioUsuario = repositorioUsuario;
     }
+    
+    // Novo construtor ou setter para injetar o repositorio de restaurante
+    public void setRepositorioRestaurante(RepositorioRestaurante repositorioRestaurante) {
+        this.repositorioRestaurante = repositorioRestaurante;
+    }
 
-    /**
-     * Cadastra um novo passageiro no sistema.
-     * @param email O email do passageiro.
-     * @param senha A senha em texto claro.
-     * @return O objeto Passageiro recém-cadastrado.
-     * @throws EmailJaExistenteException Se o email já estiver em uso.
-     */
     public Passageiro cadastrarPassageiro(String email, String senha) {
         if (!PasswordUtil.isValidEmail(email)) {
             throw new IllegalArgumentException("Formato de e-mail inválido.");
@@ -37,14 +37,6 @@ public class ServicoCadastro {
         return passageiro;
     }
 
-    /**
-     * Cadastra um novo motorista no sistema. A conta inicial do motorista estará inativa
-     * até que seus documentos e veículo sejam validados (RF02).
-     * @param email O email do motorista.
-     * @param senha A senha em texto claro.
-     * @return O objeto Motorista recém-cadastrado.
-     * @throws EmailJaExistenteException Se o email já estiver em uso.
-     */
     public Motorista cadastrarMotorista(String email, String senha) {
         if (!PasswordUtil.isValidEmail(email)) {
             throw new IllegalArgumentException("Formato de e-mail inválido.");
@@ -55,14 +47,10 @@ public class ServicoCadastro {
 
         String senhaHash = PasswordUtil.hashPassword(senha);
         Motorista motorista = new Motorista(email, senhaHash);
-        // Por padrão, a conta do motorista é inativa até que a validação de documentos seja completa.
         repositorioUsuario.salvar(motorista);
         return motorista;
     }
 
-    /**
-     * Cadastra um entregador (motoboy/entregador) com documentos iniciais.
-     */
     public Entregador cadastrarEntregador(String email, String senha, String cnh, String cpf) {
         if (!PasswordUtil.isValidEmail(email)) {
             throw new IllegalArgumentException("Formato de e-mail inválido.");
@@ -83,9 +71,6 @@ public class ServicoCadastro {
         return entregador;
     }
 
-    /**
-     * Cadastra um restaurante no sistema.
-     */
     public Restaurante cadastrarRestaurante(String email, String senha, String nomeFantasia, String cnpj) {
         if (!PasswordUtil.isValidEmail(email)) {
             throw new IllegalArgumentException("Formato de e-mail inválido.");
@@ -98,8 +83,14 @@ public class ServicoCadastro {
         Restaurante restaurante = new Restaurante(email, senhaHash);
         restaurante.setNomeFantasia(nomeFantasia != null ? nomeFantasia : "");
         restaurante.setCnpj(cnpj != null ? cnpj : "");
-        restaurante.setContaAtiva(false);
+        restaurante.setContaAtiva(true);
+    
+        // SALVA EM AMBOS OS REPOSITÓRIOS
         repositorioUsuario.salvar(restaurante);
+        if (repositorioRestaurante != null) {
+            repositorioRestaurante.salvar(restaurante);
+        }
+        
         return restaurante;
     }
 }

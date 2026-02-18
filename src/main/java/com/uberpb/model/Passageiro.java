@@ -49,4 +49,7 @@ public class Passageiro extends Usuario {
 
         return "Passageiro - " + super.toString() + ", Status: " + status + ", " + ratingInfo;
     }
+
+    public record motorista() {
+    }
 }

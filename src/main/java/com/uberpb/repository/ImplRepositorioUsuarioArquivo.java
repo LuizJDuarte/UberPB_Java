@@ -6,6 +6,7 @@ import com.uberpb.model.Entregador;
 import com.uberpb.model.Restaurante;
 import com.uberpb.model.Usuario;
 import com.uberpb.model.Veiculo;
+import com.uberpb.model.Administrador;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,6 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
         gravar();
     }
 
-
     @Override
     public synchronized Usuario buscarPorEmail(String email) {
         return cache.stream()
@@ -68,8 +68,6 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
         gravar();
     }
 
-    // ===== IO =====
-
     private void carregar() {
         lerLinhas(caminho, this::parseLinhaUsuario);
     }
@@ -79,105 +77,60 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
     }
 
     private void parseLinhaUsuario(String linha) {
-        String[] parts = linha.split(",", -1); // formato legado já usado no projeto
+        if (linha == null || linha.isBlank()) return;
+        
+        // ✅ CORREÇÃO: Para o Restaurante, NÃO usamos o split(",") geral primeiro,
+        // pois a string do cardápio pode conter muitos dados. 
+        // Deixamos a própria classe Restaurante resolver sua linha.
+        if (linha.startsWith("RESTAURANTE")) {
+            Restaurante restaurante = Restaurante.fromString(linha);
+            if (restaurante != null) cache.add(restaurante);
+            return;
+        }
+
+        String[] parts = linha.split(",", -1);
+        if (parts.length < 3) return;
+
         String tipo = parts[0];
-        String email = parts.length > 1 ? parts[1] : "";
-        String senhaHash = parts.length > 2 ? parts[2] : "";
+        String email = parts[1];
+        String senhaHash = parts[2];
 
         if ("PASSAGEIRO".equalsIgnoreCase(tipo)) {
             Passageiro passageiro = new Passageiro(email, senhaHash);
-
-            // Carrega dados de avaliação
             if (parts.length > 3 && !parts[3].isEmpty()) {
-                try {
-                    passageiro.setRatingMedio(Double.parseDouble(parts[3]));
-                } catch (NumberFormatException e) {
-                    passageiro.setRatingMedio(0.0);
-                }
+                try { passageiro.setRatingMedio(Double.parseDouble(parts[3])); } catch (Exception ignored) {}
             }
             if (parts.length > 4 && !parts[4].isEmpty()) {
-                try {
-                    passageiro.setTotalAvaliacoes(Integer.parseInt(parts[4]));
-                } catch (NumberFormatException e) {
-                    passageiro.setTotalAvaliacoes(0);
-                }
+                try { passageiro.setTotalAvaliacoes(Integer.parseInt(parts[4])); } catch (Exception ignored) {}
             }
-            // Carrega o novo campo contaAtiva. Se o campo não existir (legado), o padrão é 'true'.
-            boolean contaAtiva = parts.length <= 5 || Boolean.parseBoolean(parts[5]);
-            passageiro.setContaAtiva(contaAtiva);
-            
+            if (parts.length > 5) passageiro.setContaAtiva(Boolean.parseBoolean(parts[5]));
             cache.add(passageiro);
-            return;
-        }
-        if ("MOTORISTA".equalsIgnoreCase(tipo)) {
-            boolean cnhValida  = parts.length > 3 && Boolean.parseBoolean(parts[3]);
-            boolean crlvValido = parts.length > 4 && Boolean.parseBoolean(parts[4]);
-            boolean contaAtiva = parts.length > 5 && Boolean.parseBoolean(parts[5]);
-
+        } else if ("MOTORISTA".equalsIgnoreCase(tipo)) {
             Motorista motorista = new Motorista(email, senhaHash);
-            motorista.setCnhValida(cnhValida);
-            motorista.setCrlvValido(crlvValido);
-            motorista.setContaAtiva(contaAtiva);
-
-            // ✅ CARREGAR DADOS DE AVALIAÇÃO DO MOTORISTA
+            if (parts.length > 3) motorista.setCnhValida(Boolean.parseBoolean(parts[3]));
+            if (parts.length > 4) motorista.setCrlvValido(Boolean.parseBoolean(parts[4]));
+            if (parts.length > 5) motorista.setContaAtiva(Boolean.parseBoolean(parts[5]));
             if (parts.length > 6 && !parts[6].isEmpty()) {
-                try {
-                    motorista.setRatingMedio(Double.parseDouble(parts[6]));
-                } catch (NumberFormatException e) {
-                    motorista.setRatingMedio(0.0);
-                }
+                try { motorista.setRatingMedio(Double.parseDouble(parts[6])); } catch (Exception ignored) {}
             }
             if (parts.length > 7 && !parts[7].isEmpty()) {
-                try {
-                    motorista.setTotalAvaliacoes(Integer.parseInt(parts[7]));
-                } catch (NumberFormatException e) {
-                    motorista.setTotalAvaliacoes(0);
-                }
+                try { motorista.setTotalAvaliacoes(Integer.parseInt(parts[7])); } catch (Exception ignored) {}
             }
-
-            // Carrega o status de disponibilidade (novo campo). Padrão 'false' se ausente.
-            if (parts.length > 8 && !parts[8].isEmpty()) {
-                motorista.setDisponivel(Boolean.parseBoolean(parts[8]));
-            }
-
-            // Carrega o veículo (agora na posição 9).
+            if (parts.length > 8) motorista.setDisponivel(Boolean.parseBoolean(parts[8]));
             if (parts.length > 9 && !parts[9].isEmpty() && !"null".equals(parts[9])) {
-                Veiculo veiculo = Veiculo.fromStringParaPersistencia(parts[9]);
-                motorista.setVeiculo(veiculo);
+                motorista.setVeiculo(Veiculo.fromStringParaPersistencia(parts[9]));
             }
-            
             cache.add(motorista);
-            return;
-        }
-        if ("ENTREGADOR".equalsIgnoreCase(tipo)) {
-            // Format: ENTREGADOR,email,senhaHash,cnhNumero,cpfNumero,cnhValida,docIdentidadeValido,contaAtiva
-            String cnhNumero = parts.length > 3 ? parts[3] : "";
-            String cpfNumero = parts.length > 4 ? parts[4] : "";
-            boolean cnhValida = parts.length > 5 && Boolean.parseBoolean(parts[5]);
-            boolean docIdentidadeValido = parts.length > 6 && Boolean.parseBoolean(parts[6]);
-            boolean contaAtiva = parts.length > 7 && Boolean.parseBoolean(parts[7]);
-
+        } else if ("ENTREGADOR".equalsIgnoreCase(tipo)) {
             Entregador entregador = new Entregador(email, senhaHash);
-            entregador.setCnhNumero(cnhNumero);
-            entregador.setCpfNumero(cpfNumero);
-            entregador.setCnhValida(cnhValida);
-            entregador.setDocIdentidadeValido(docIdentidadeValido);
-            entregador.setContaAtiva(contaAtiva);
+            if (parts.length > 3) entregador.setCnhNumero(parts[3]);
+            if (parts.length > 4) entregador.setCpfNumero(parts[4]);
+            if (parts.length > 5) entregador.setCnhValida(Boolean.parseBoolean(parts[5]));
+            if (parts.length > 6) entregador.setDocIdentidadeValido(Boolean.parseBoolean(parts[6]));
+            if (parts.length > 7) entregador.setContaAtiva(Boolean.parseBoolean(parts[7]));
             cache.add(entregador);
-            return;
-        }
-        if ("RESTAURANTE".equalsIgnoreCase(tipo)) {
-            // Format: RESTAURANTE,email,senhaHash,nomeFantasia,cnpj,contaAtiva
-            String nomeFantasia = parts.length > 3 ? parts[3] : "";
-            String cnpj = parts.length > 4 ? parts[4] : "";
-            boolean contaAtiva = parts.length > 5 && Boolean.parseBoolean(parts[5]);
-
-            Restaurante restaurante = new Restaurante(email, senhaHash);
-            restaurante.setNomeFantasia(nomeFantasia);
-            restaurante.setCnpj(cnpj);
-            restaurante.setContaAtiva(contaAtiva);
-            cache.add(restaurante);
-            return;
+        } else if ("ADMIN".equalsIgnoreCase(tipo)) {
+            cache.add(new Administrador(email, senhaHash));
         }
     }
 }

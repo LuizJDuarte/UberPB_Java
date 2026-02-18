@@ -1,12 +1,10 @@
 package com.uberpb.app;
 
-import com.uberpb.repository.RepositorioAvaliacao;
-import com.uberpb.repository.RepositorioCorrida;
-import com.uberpb.repository.RepositorioOferta;
-import com.uberpb.repository.RepositorioUsuario;
+import com.uberpb.repository.*;
 import com.uberpb.service.*;
 
 public class ContextoAplicacao {
+
     public final Sessao sessao;
 
     public final RepositorioUsuario repositorioUsuario;
@@ -16,6 +14,8 @@ public class ContextoAplicacao {
     public final RepositorioCorrida repositorioCorrida;
     public final ServicoCorrida servicoCorrida;
 
+    public final RepositorioRestaurante repositorioRestaurante;
+
     public final RepositorioOferta repositorioOferta;
     public final RepositorioAvaliacao repositorioAvaliacao;
     public final ServicoOferta servicoOferta;
@@ -24,7 +24,7 @@ public class ContextoAplicacao {
     public final ServicoPagamento servicoPagamento;
     public final ServicoAvaliacao servicoAvaliacao;
 
-    public final ServicoOtimizacaoRota servicoOtimizacaoRota; // nome usado pelos comandos
+    public final ServicoOtimizacaoRota servicoOtimizacaoRota;
     public final ServicoLocalizacao servicoLocalizacao;
     public final ServicoDirecionamentoCorrida servicoDirecionamento;
     public final EstimativaChegada servicoEstimativaChegada;
@@ -32,7 +32,14 @@ public class ContextoAplicacao {
     public final ServicoAdmin servicoAdmin;
     public final GerenciadorCorridasAtivas gerenciadorCorridas;
 
-    // Construtor vazio: inicializa todos os 'final' (pode ficar nulo; o provedor usa o construtor completo)
+    //  Carrinho
+    public final ServicoCarrinho servicoCarrinho;
+
+    //  NOVO — PEDIDOS
+    public final RepositorioPedido repositorioPedido;
+    public final ServicoPedido servicoPedido;
+
+    // CONSTRUTOR VAZIO
     public ContextoAplicacao() {
         this.sessao = null;
         this.repositorioUsuario = null;
@@ -40,6 +47,7 @@ public class ContextoAplicacao {
         this.servicoAutenticacao = null;
         this.repositorioCorrida = null;
         this.servicoCorrida = null;
+        this.repositorioRestaurante = null;
         this.repositorioOferta = null;
         this.repositorioAvaliacao = null;
         this.servicoOferta = null;
@@ -52,28 +60,41 @@ public class ContextoAplicacao {
         this.servicoEstimativaChegada = null;
         this.servicoAdmin = null;
         this.gerenciadorCorridas = null;
+        this.servicoCarrinho = null;
+        this.repositorioPedido = null;
+        this.servicoPedido = null;
     }
 
-    public ContextoAplicacao(Sessao sessao,
-                             RepositorioUsuario repositorioUsuario,
-                             ServicoCadastro servicoCadastro,
-                             ServicoAutenticacao servicoAutenticacao,
-                             RepositorioCorrida repositorioCorrida,
-                             ServicoCorrida servicoCorrida,
-                             RepositorioOferta repositorioOferta,
-                             RepositorioAvaliacao repositorioAvaliacao,
-                             ServicoOferta servicoOferta,
-                             ServicoValidacaoMotorista servicoValidacaoMotorista,
-                             ServicoPagamento servicoPagamento,
-                             ServicoAvaliacao servicoAvaliacao,
-                             ServicoOtimizacaoRota servicoOtimizacaoRota,
-                             ServicoLocalizacao servicoLocalizacao,
-                             ServicoDirecionamentoCorrida servicoDirecionamento,
-                             EstimativaChegada servicoEstimativaChegada,
-                             ServicoAdmin servicoAdmin,
-                             GerenciadorCorridasAtivas gerenciadorCorridas) {
+    // CONSTRUTOR COMPLETO
+    public ContextoAplicacao(
+            Sessao sessao,
+            RepositorioUsuario repositorioUsuario,
+            RepositorioRestaurante repositorioRestaurante,
+            ServicoCadastro servicoCadastro,
+            ServicoAutenticacao servicoAutenticacao,
+            RepositorioCorrida repositorioCorrida,
+            ServicoCorrida servicoCorrida,
+            RepositorioOferta repositorioOferta,
+            RepositorioAvaliacao repositorioAvaliacao,
+            ServicoOferta servicoOferta,
+            ServicoValidacaoMotorista servicoValidacaoMotorista,
+            ServicoPagamento servicoPagamento,
+            ServicoAvaliacao servicoAvaliacao,
+            ServicoOtimizacaoRota servicoOtimizacaoRota,
+            ServicoLocalizacao servicoLocalizacao,
+            ServicoDirecionamentoCorrida servicoDirecionamento,
+            EstimativaChegada servicoEstimativaChegada,
+            ServicoAdmin servicoAdmin,
+            GerenciadorCorridasAtivas gerenciadorCorridas,
+            ServicoCarrinho servicoCarrinho,
+
+            // 👇 NOVOS
+            RepositorioPedido repositorioPedido,
+            ServicoPedido servicoPedido
+    ) {
         this.sessao = sessao;
         this.repositorioUsuario = repositorioUsuario;
+        this.repositorioRestaurante = repositorioRestaurante;
         this.servicoCadastro = servicoCadastro;
         this.servicoAutenticacao = servicoAutenticacao;
         this.repositorioCorrida = repositorioCorrida;
@@ -90,25 +111,21 @@ public class ContextoAplicacao {
         this.servicoEstimativaChegada = servicoEstimativaChegada;
         this.servicoAdmin = servicoAdmin;
         this.gerenciadorCorridas = gerenciadorCorridas;
+        this.servicoCarrinho = servicoCarrinho;
+
+        // NOVOS
+        this.repositorioPedido = repositorioPedido;
+        this.servicoPedido = servicoPedido;
     }
 
-    public Sessao getSessao() {
-        return sessao;
-    }
+    // GETTERS
+    public Sessao getSessao() { return sessao; }
+    public RepositorioUsuario getRepositorioUsuario() { return repositorioUsuario; }
+    public RepositorioCorrida getRepositorioCorrida() { return repositorioCorrida; }
+    public ServicoAvaliacao getServicoAvaliacao() { return servicoAvaliacao; }
+    public RepositorioAvaliacao getRepositorioAvaliacao() { return repositorioAvaliacao; }
 
-    public RepositorioUsuario getRepositorioUsuario() {
-        return repositorioUsuario;
-    }
-
-    public RepositorioCorrida getRepositorioCorrida() {
-        return repositorioCorrida;
-    }
-
-    public ServicoAvaliacao getServicoAvaliacao() {
-        return servicoAvaliacao;
-    }
-
-    public RepositorioAvaliacao getRepositorioAvaliacao() {
-        return repositorioAvaliacao;
-    }
+    // NOVOS GETTERS
+    public RepositorioPedido getRepositorioPedido() { return repositorioPedido; }
+    public ServicoPedido getServicoPedido() { return servicoPedido; }
 }

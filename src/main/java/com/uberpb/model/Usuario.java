@@ -41,7 +41,7 @@ public abstract class Usuario {
         if (this instanceof Motorista)     return TipoUsuario.MOTORISTA;
         if (this instanceof Entregador)    return TipoUsuario.ENTREGADOR;
         if (this instanceof Restaurante)   return TipoUsuario.RESTAURANTE;
-        return TipoUsuario.PASSAGEIRO;
+        return TipoUsuario.PASSAGEIRO_CLIENTE;
     }
 
 }
