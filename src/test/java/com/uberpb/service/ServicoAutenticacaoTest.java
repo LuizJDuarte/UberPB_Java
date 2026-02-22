@@ -3,6 +3,7 @@ package com.uberpb.service;
 import com.uberpb.model.Usuario;
 import com.uberpb.model.Passageiro;
 import com.uberpb.repository.RepositorioUsuario;
+import com.uberpb.repository.RepositorioRestaurante;
 import com.uberpb.util.PasswordUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,18 @@ import static org.mockito.Mockito.when;
 public class ServicoAutenticacaoTest {
 
     private RepositorioUsuario repositorioUsuario;
+    private RepositorioRestaurante repositorioRestaurante; // ADICIONADO
     private ServicoAutenticacao servicoAutenticacao;
 
     @BeforeEach
     public void setUp() {
         repositorioUsuario = mock(RepositorioUsuario.class);
-        servicoAutenticacao = new ServicoAutenticacao(repositorioUsuario);
+        repositorioRestaurante = mock(RepositorioRestaurante.class); // MOCK ADICIONADO
+
+        servicoAutenticacao = new ServicoAutenticacao(
+                repositorioUsuario,
+                repositorioRestaurante
+        );
     }
 
     @Test
@@ -32,6 +39,7 @@ public class ServicoAutenticacaoTest {
         when(repositorioUsuario.buscarPorEmail(email)).thenReturn(usuario);
 
         Usuario usuarioAutenticado = servicoAutenticacao.autenticar(email, senha);
+
         assertNotNull(usuarioAutenticado);
         assertEquals(email, usuarioAutenticado.getEmail());
     }
@@ -40,9 +48,10 @@ public class ServicoAutenticacaoTest {
     public void testAutenticarFalhaUsuarioNaoEncontrado() {
         when(repositorioUsuario.buscarPorEmail("naoexiste@uberpb.com")).thenReturn(null);
 
-        Exception exception = assertThrows(com.uberpb.exceptions.UsuarioNaoEncontradoException.class, () -> {
-            servicoAutenticacao.autenticar("naoexiste@uberpb.com", "senha123");
-        });
+        Exception exception = assertThrows(
+                com.uberpb.exceptions.UsuarioNaoEncontradoException.class,
+                () -> servicoAutenticacao.autenticar("naoexiste@uberpb.com", "senha123")
+        );
 
         assertEquals("E-mail não cadastrado.", exception.getMessage());
     }
@@ -57,9 +66,10 @@ public class ServicoAutenticacaoTest {
 
         when(repositorioUsuario.buscarPorEmail(email)).thenReturn(usuario);
 
-        Exception exception = assertThrows(com.uberpb.exceptions.CredenciaisInvalidasException.class, () -> {
-            servicoAutenticacao.autenticar(email, senhaIncorreta);
-        });
+        Exception exception = assertThrows(
+                com.uberpb.exceptions.CredenciaisInvalidasException.class,
+                () -> servicoAutenticacao.autenticar(email, senhaIncorreta)
+        );
 
         assertEquals("Senha incorreta.", exception.getMessage());
     }
