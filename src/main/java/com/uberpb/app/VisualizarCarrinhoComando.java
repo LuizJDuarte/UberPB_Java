@@ -5,6 +5,9 @@ import com.uberpb.model.ItemCarrinho;
 import com.uberpb.model.Passageiro;
 import com.uberpb.model.Usuario;
 import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import static com.uberpb.app.ConsoleUI.*;
 
 public class VisualizarCarrinhoComando implements Comando {
@@ -82,91 +85,158 @@ public class VisualizarCarrinhoComando implements Comando {
 
     private void removerItem(CarrinhoCompras carrinho, Scanner entrada) {
 
-    System.out.print("Digite o número do item para remover: ");
+        System.out.print("Digite o número do item para remover: ");
 
-    try {
-        int opcao = Integer.parseInt(entrada.nextLine());
-        int idx = opcao - 1;
+        try {
+            int opcao = Integer.parseInt(entrada.nextLine());
+            int idx = opcao - 1;
 
-        if (idx >= 0 && idx < carrinho.getItens().size()) {
+            if (idx >= 0 && idx < carrinho.getItens().size()) {
 
-            carrinho.removerItemPorIndice(idx);
-            ok("Item removido com sucesso!");
+                carrinho.removerItemPorIndice(idx);
+                ok("Item removido com sucesso!");
 
-            if (carrinho.isEmpty()) {
-                System.out.println("Carrinho agora está vazio.");
+                if (carrinho.isEmpty()) {
+                    System.out.println("Carrinho agora está vazio.");
+                }
+
+            } else {
+                erro("Item inválido.");
             }
 
-        } else {
-            erro("Item inválido.");
+        } catch (NumberFormatException e) {
+            erro("Entrada inválida.");
         }
-
-    } catch (NumberFormatException e) {
-        erro("Entrada inválida.");
     }
-}
+
     private void finalizarPedido(ContextoAplicacao contexto, CarrinhoCompras carrinho, Scanner entrada) {
 
-    System.out.println("\nEscolha a forma de pagamento:");
-    System.out.println("1) Cartão de Crédito");
-    System.out.println("2) Cartão de Débito");
-    System.out.println("3) Pix");
-    System.out.println("4) Dinheiro");
-    System.out.print("> ");
+        // ETAPA 1: Escolher tipo de pedido (Imediato ou Agendado)
+        System.out.println("\n" + BOLD + "=== Tipo de Pedido ===" + RESET);
+        System.out.println("1) Pedido Imediato");
+        System.out.println("2) Pedido Agendado");
+        System.out.print("> ");
 
-    String pagamento = entrada.nextLine();
-    String tipoPagamento;
+        String tipoPedidoOp = entrada.nextLine();
+        com.uberpb.model.TipoPedido tipoPedido;
+        com.uberpb.model.AgendamentoPedido agendamento = null;
 
-    switch (pagamento) {
-        case "1":
-            tipoPagamento = "Cartão de Crédito";
-            break;
-        case "2":
-            tipoPagamento = "Cartão de Débito";
-            break;
-        case "3":
-            tipoPagamento = "Pix";
-            break;
-        case "4":
-            tipoPagamento = "Dinheiro";
-            break;
-        default:
-            erro("Forma de pagamento inválida.");
-            return;
+        switch (tipoPedidoOp) {
+            case "1":
+                tipoPedido = com.uberpb.model.TipoPedido.IMEDIATO;
+                break;
+            case "2":
+                tipoPedido = com.uberpb.model.TipoPedido.AGENDADO;
+                agendamento = coletarAgendamento(entrada);
+                if (agendamento == null) {
+                    erro("Agendamento cancelado.");
+                    return;
+                }
+                break;
+            default:
+                erro("Tipo de pedido inválido.");
+                return;
+        }
+
+        // ETAPA 2: Escolher forma de pagamento
+        System.out.println("\nEscolha a forma de pagamento:");
+        System.out.println("1) Cartão de Crédito");
+        System.out.println("2) Cartão de Débito");
+        System.out.println("3) Pix");
+        System.out.println("4) Dinheiro");
+        System.out.print("> ");
+
+        String pagamento = entrada.nextLine();
+        String tipoPagamento;
+
+        switch (pagamento) {
+            case "1":
+                tipoPagamento = "Cartão de Crédito";
+                break;
+            case "2":
+                tipoPagamento = "Cartão de Débito";
+                break;
+            case "3":
+                tipoPagamento = "Pix";
+                break;
+            case "4":
+                tipoPagamento = "Dinheiro";
+                break;
+            default:
+                erro("Forma de pagamento inválida.");
+                return;
+        }
+
+        // ETAPA 3: Confirmar pedido
+        System.out.println("\nResumo do Pedido:");
+        System.out.printf("Total a pagar: R$ %.2f%n", carrinho.getTotalGeral());
+        System.out.println("Forma de pagamento: " + tipoPagamento);
+        System.out.println("Tipo de pedido: " + tipoPedido.getDescricao());
+        if (agendamento != null) {
+            System.out.println("Data/Hora: " + agendamento.formatarParaPersistencia());
+        }
+
+        System.out.println("\nConfirmar pedido?");
+        System.out.println("1) Confirmar");
+        System.out.println("2) Cancelar");
+        System.out.print("> ");
+
+        String confirmacao = entrada.nextLine();
+
+        if (confirmacao.equals("1")) {
+
+            // CRIA O PEDIDO
+            var pedido = new com.uberpb.model.Pedido(
+                    contexto.sessao.getUsuarioAtual().getEmail(),
+                    carrinho.getRestaurante().getEmail(),
+                    carrinho.getItens(),
+                    carrinho.getTotalGeral(),
+                    tipoPagamento,
+                    tipoPedido,
+                    agendamento
+            );
+
+            // SALVA O PEDIDO
+            contexto.servicoPedido.salvarPedido(pedido);
+
+            ok("Pedido confirmado e salvo com sucesso!");
+            if (tipoPedido == com.uberpb.model.TipoPedido.AGENDADO) {
+                System.out.println("Seu pedido está agendado para: " + agendamento.formatarParaPersistencia());
+            }
+
+            // LIMPA O CARRINHO
+            carrinho.limpar();
+
+        } else {
+            System.out.println("Pedido cancelado.");
+        }
     }
 
-    System.out.println("\nResumo do Pedido:");
-    System.out.printf("Total a pagar: R$ %.2f%n", carrinho.getTotalGeral());
-    System.out.println("Forma de pagamento: " + tipoPagamento);
+    private com.uberpb.model.AgendamentoPedido coletarAgendamento(Scanner entrada) {
+        System.out.println("\n" + BOLD + "=== Agendar Pedido ===" + RESET);
+        System.out.println("Data e hora do agendamento (formato: dd/MM/yyyy HH:mm)");
+        System.out.print("> ");
 
-    System.out.println("\nConfirmar pedido?");
-    System.out.println("1) Confirmar");
-    System.out.println("2) Cancelar");
-    System.out.print("> ");
+        String dataHoraStr = entrada.nextLine();
 
-    String confirmacao = entrada.nextLine();
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime dataHora = LocalDateTime.parse(dataHoraStr, formatter);
 
-    if (confirmacao.equals("1")) {
+            com.uberpb.model.AgendamentoPedido agendamento = new com.uberpb.model.AgendamentoPedido(dataHora);
 
-        // CRIA O PEDIDO
-        var pedido = new com.uberpb.model.Pedido(
-                contexto.sessao.getUsuarioAtual().getEmail(),
-                carrinho.getRestaurante().getEmail(),
-                carrinho.getItens(),
-                carrinho.getTotalGeral(),
-                tipoPagamento
-        );
+            if (!agendamento.isValido()) {
+                erro(agendamento.getErroValidacao());
+                return null;
+            }
 
-        // SALVA O PEDIDO
-        contexto.servicoPedido.salvarPedido(pedido);
+            ok("Agendamento válido!");
+            return agendamento;
 
-        ok("Pedido confirmado e salvo com sucesso!");
-
-        // LIMPA O CARRINHO
-        carrinho.limpar();
-
-    } else {
-        System.out.println("Pedido cancelado.");
+        } catch (DateTimeParseException e) {
+            erro("Formato de data/hora inválido. Use dd/MM/yyyy HH:mm");
+            return null;
+        }
     }
 }
-}
+

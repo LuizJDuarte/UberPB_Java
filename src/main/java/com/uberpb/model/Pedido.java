@@ -11,6 +11,8 @@ public class Pedido {
     private double total;
     private String formaPagamento;
     private String status;
+    private TipoPedido tipoPedido;
+    private AgendamentoPedido agendamento;
 
     public Pedido(String emailCliente,
             String emailRestaurante,
@@ -24,6 +26,26 @@ public class Pedido {
         this.total = total;
         this.formaPagamento = formaPagamento;
         this.status = "CRIADO";
+        this.tipoPedido = TipoPedido.IMEDIATO;
+        this.agendamento = null;
+    }
+
+    public Pedido(String emailCliente,
+            String emailRestaurante,
+            List<ItemCarrinho> itens,
+            double total,
+            String formaPagamento,
+            TipoPedido tipoPedido,
+            AgendamentoPedido agendamento) {
+
+        this.emailCliente = emailCliente;
+        this.emailRestaurante = emailRestaurante;
+        this.itens = itens;
+        this.total = total;
+        this.formaPagamento = formaPagamento;
+        this.status = "CRIADO";
+        this.tipoPedido = tipoPedido;
+        this.agendamento = agendamento;
     }
 
     public String getEmailCliente() {
@@ -54,6 +76,22 @@ public class Pedido {
         this.status = status;
     }
 
+    public TipoPedido getTipoPedido() {
+        return tipoPedido;
+    }
+
+    public void setTipoPedido(TipoPedido tipoPedido) {
+        this.tipoPedido = tipoPedido;
+    }
+
+    public AgendamentoPedido getAgendamento() {
+        return agendamento;
+    }
+
+    public void setAgendamento(AgendamentoPedido agendamento) {
+        this.agendamento = agendamento;
+    }
+
     public String toStringParaPersistencia() {
         StringBuilder itensStr = new StringBuilder();
 
@@ -64,12 +102,16 @@ public class Pedido {
                     .append(";");
         }
 
+        String agendamentoStr = agendamento != null ? agendamento.formatarParaPersistencia() : "";
+
         return emailCliente + "," +
                 emailRestaurante + "," +
                 itensStr + "," +
                 total + "," +
                 formaPagamento + "," +
-                status;
+                status + "," +
+                tipoPedido.name() + "," +
+                agendamentoStr;
     }
 
    public static Pedido fromString(String linha) {
@@ -83,12 +125,30 @@ public class Pedido {
         String formaPagamento = parts[4];
         String status = parts[5];
 
+        TipoPedido tipoPedido = TipoPedido.IMEDIATO;
+        AgendamentoPedido agendamento = null;
+
+        // Se houver dados antigos (apenas 6 campos), usar defaults
+        if (parts.length >= 7) {
+            try {
+                tipoPedido = TipoPedido.valueOf(parts[6]);
+            } catch (IllegalArgumentException e) {
+                tipoPedido = TipoPedido.IMEDIATO;
+            }
+        }
+
+        if (parts.length >= 8 && !parts[7].isEmpty()) {
+            agendamento = AgendamentoPedido.fromString(parts[7]);
+        }
+
         Pedido p = new Pedido(
             emailCliente,
             emailRestaurante,
             new ArrayList<>(),
             total,
-            formaPagamento
+            formaPagamento,
+            tipoPedido,
+            agendamento
         );
 
         p.setStatus(status);

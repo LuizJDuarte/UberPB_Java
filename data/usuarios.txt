@@ -1,6 +1,7 @@
 MOTORISTA,teste@email.com,289160db0d9f39f9ae1754c4ec9c16f90b50e32e09c5fb5481ae642b3d3d1a36,false,false,false,0.0,0,false,null
 ENTREGADOR,entregador@email.com,b7b8ea6d2600ae107a31667a70bc2eea6065b77fc5a57507821dcf2b7d8097a5,true,true,true,false,false
-ADMIN,admin@uberpb.com,240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
 PASSAGEIRO,kay@gmail.com,03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4,0.0,0,true
-RESTAURANTE,restaurante@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,Bk - burguer,,true,0.000000,0.000000,0.00,30,VAZIO
-RESTAURANTE,cantinho@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,Cantinho Universitario,,true,0.000000,0.000000,0.00,30,VAZIO
+RESTAURANTE,restaurante@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,Bk - burguer,,true
+RESTAURANTE,cantinho@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,Cantinho Universitario,,true
+PASSAGEIRO,passageiro@email.com,b8feeaded4049cd018ea88700c48f35b3bd0ff77735aa1d9bde06d820033a9fc,0.0,0,true
+ADMIN,admin@uberpb.com,240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
