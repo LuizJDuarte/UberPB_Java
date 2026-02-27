@@ -1,0 +1,2 @@
+RESTAURANTE,restaurante@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,Bk - burguer,,true,5.950000,-142.220000,10.00,60,rodeio#carne suculenta com alface#20.00|Coca Cola#refrigerante lata #6.00|pudim#sobremesa#5.00
+RESTAURANTE,cantinho@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,Cantinho Universitario,,true,51.170000,171.170000,7.00,45,Pastel#frango #3.50|coxinha#massa de batata#7.00
