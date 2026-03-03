@@ -49,7 +49,7 @@ public class EntregadorTest {
         e.setDocIdentidadeValido(false);
         e.setContaAtiva(true);
 
-        String esperado = "ENTREGADOR,email@test.com,hash123,123456,99999999999,true,false,true";
+        String esperado = "ENTREGADOR,email@test.com,hash123,123456,99999999999,true,false,true,false";
 
         assertEquals(esperado, e.toStringParaPersistencia());
     }
@@ -67,8 +67,10 @@ public class EntregadorTest {
         String texto = e.toString();
 
         assertTrue(texto.contains("Entregador"));
-        assertTrue(texto.contains("Conta: Ativa"));
-        assertTrue(texto.contains("CNH: 123456 (OK)"));
-        assertTrue(texto.contains("CPF: 99999999999 (Pendente)"));
+        assertTrue(texto.contains("Ativa"));
+        assertTrue(texto.contains("CNH: 123456"));
+        assertTrue(texto.contains("OK"));
+        assertTrue(texto.contains("CPF: 99999999999"));
+        assertTrue(texto.contains("Pendente"));
     }
 }

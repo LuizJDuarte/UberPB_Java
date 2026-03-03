@@ -1,0 +1,29 @@
+# Arquivos compilados
+*.class
+bin/
+classes/
+target/
+
+# Dependências baixadas
+lib/
+
+# Logs e dados de teste
+*.log
+jacoco.exec
+*.exec
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+
+# Arquivos de dados temporários (manter apenas templates)
+# Remover linha abaixo se quiser versionar dados de teste
+# data/
+
+# OS
+.DS_Store
+Thumbs.db

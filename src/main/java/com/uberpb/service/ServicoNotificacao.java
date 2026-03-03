@@ -62,6 +62,13 @@ public class ServicoNotificacao {
     }
 
     /**
+     * RF24: Notifica cliente sobre evento genérico
+     */
+    public Notificacao notificarCliente(String emailCliente, String mensagem) {
+        return enviarNotificacao(emailCliente, TipoNotificacao.SISTEMA, mensagem);
+    }
+
+    /**
      * Busca notificações não lidas de um usuário
      */
     public List<Notificacao> buscarNotificacoesNaoLidas(String email) {

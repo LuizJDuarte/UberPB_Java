@@ -141,6 +141,11 @@ public final class ProvedorDependencias {
         lista.add(new VisualizarNotificacoesComando());
         lista.add(new EntregadorOnlineOfflineComando());
 
+        // RF24 - Aceitar/Recusar Pedidos de Entrega
+        lista.add(new ListarPedidosDisponiveisComando());
+        lista.add(new AceitarPedidoComando());
+        lista.add(new RecusarPedidoComando());
+
         return lista;
     }
 

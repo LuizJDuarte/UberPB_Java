@@ -47,10 +47,38 @@ public class ImplRepositorioPedidoArquivo extends BaseRepositorioArquivo impleme
                 .toList();
     }
 
+    @Override
+    public synchronized List<Pedido> buscarPorEntregador(String emailEntregador) {
+        return cache.stream()
+                .filter(p -> p.getEntregadorAlocado() != null)
+                .filter(p -> p.getEntregadorAlocado().equalsIgnoreCase(emailEntregador))
+                .toList();
+    }
+
+    @Override
+    public synchronized List<Pedido> buscarPedidosDisponiveisParaEntregador(String emailEntregador) {
+        return cache.stream()
+                .filter(p -> p.getEntregadorAlocado() != null)
+                .filter(p -> p.getEntregadorAlocado().equalsIgnoreCase(emailEntregador))
+                .filter(p -> p.getStatus().equals("CRIADO") || p.getStatus().equals("CONFIRMADO"))
+                .toList();
+    }
+
+    @Override
+    public synchronized void atualizar(Pedido pedido) {
+        // Remove o pedido antigo e adiciona o atualizado
+        cache.removeIf(p -> p.getEmailCliente().equals(pedido.getEmailCliente()) &&
+                p.getEmailRestaurante().equals(pedido.getEmailRestaurante()) &&
+                p.getTotal() == pedido.getTotal());
+        cache.add(pedido);
+        gravar();
+    }
+
     private void carregar() {
         lerLinhas(caminho, linha -> {
             Pedido p = Pedido.fromString(linha);
-            if (p != null) cache.add(p);
+            if (p != null)
+                cache.add(p);
         });
     }
 

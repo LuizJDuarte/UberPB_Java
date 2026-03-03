@@ -125,6 +125,94 @@ public class ServicoEntrega {
     }
 
     /**
+     * RF24: Entregador aceita um pedido
+     * 
+     * @param emailEntregador Email do entregador
+     * @param pedido          Pedido a ser aceito
+     * @return true se aceito com sucesso, false caso contrário
+     */
+    public boolean aceitarPedido(String emailEntregador, Pedido pedido) {
+        // Verifica se o pedido foi alocado para este entregador
+        if (pedido.getEntregadorAlocado() == null ||
+                !pedido.getEntregadorAlocado().equalsIgnoreCase(emailEntregador)) {
+            System.out.println("❌ Este pedido não foi alocado para você.");
+            return false;
+        }
+
+        // Verifica se o pedido ainda está disponível para aceitação
+        if (!pedido.getStatus().equals("CRIADO") && !pedido.getStatus().equals("CONFIRMADO")) {
+            System.out.println("❌ Este pedido não está mais disponível para aceitação.");
+            return false;
+        }
+
+        // Atualiza o status para ACEITO
+        pedido.setStatus("ACEITO");
+        repositorioPedido.atualizar(pedido);
+
+        // Notifica o cliente
+        servicoNotificacao.notificarCliente(
+                pedido.getEmailCliente(),
+                "Seu pedido foi aceito pelo entregador!");
+
+        System.out.println("✅ Pedido aceito com sucesso!");
+        return true;
+    }
+
+    /**
+     * RF24: Entregador recusa um pedido
+     * 
+     * @param emailEntregador Email do entregador
+     * @param pedido          Pedido a ser recusado
+     * @return true se recusado com sucesso, false caso contrário
+     */
+    public boolean recusarPedido(String emailEntregador, Pedido pedido) {
+        // Verifica se o pedido foi alocado para este entregador
+        if (pedido.getEntregadorAlocado() == null ||
+                !pedido.getEntregadorAlocado().equalsIgnoreCase(emailEntregador)) {
+            System.out.println("❌ Este pedido não foi alocado para você.");
+            return false;
+        }
+
+        // Verifica se o pedido ainda está disponível para recusa
+        if (!pedido.getStatus().equals("CRIADO") && !pedido.getStatus().equals("CONFIRMADO")) {
+            System.out.println("❌ Este pedido não está mais disponível para recusa.");
+            return false;
+        }
+
+        // Atualiza o status para RECUSADO
+        pedido.setStatus("RECUSADO");
+        // Remove a alocação do entregador
+        pedido.setEntregadorAlocado(null);
+        repositorioPedido.atualizar(pedido);
+
+        // Busca um novo entregador
+        String novoEntregador = buscarEntregadorMaisProximo(pedido.getEmailRestaurante());
+
+        if (novoEntregador != null && !novoEntregador.equalsIgnoreCase(emailEntregador)) {
+            // Aloca novo entregador
+            pedido.setEntregadorAlocado(novoEntregador);
+            pedido.setStatus("CRIADO"); // Volta para CRIADO para que o novo entregador possa aceitar
+            repositorioPedido.atualizar(pedido);
+
+            // Notifica o novo entregador
+            Usuario usuarioRest = repositorioUsuario.buscarPorEmail(pedido.getEmailRestaurante());
+            String nomeRestaurante = usuarioRest instanceof Restaurante r ? r.getNomeFantasia()
+                    : pedido.getEmailRestaurante();
+
+            servicoNotificacao.notificarEntregadorPedidoDisponivel(
+                    novoEntregador,
+                    nomeRestaurante,
+                    pedido.getTotal() * 0.15);
+
+            System.out.println("✅ Pedido recusado. Um novo entregador foi alocado.");
+        } else {
+            System.out.println("⚠️ Pedido recusado. Nenhum outro entregador disponível no momento.");
+        }
+
+        return true;
+    }
+
+    /**
      * Classe auxiliar para calcular distância
      */
     private static class ParEntregadorDistancia {

@@ -28,4 +28,25 @@ public class ServicoPedido {
     public List<Pedido> listarTodos() {
         return repositorio.listarTodos();
     }
+
+    /**
+     * RF24: Busca pedidos atribuídos a um entregador
+     */
+    public List<Pedido> buscarPorEntregador(String emailEntregador) {
+        return repositorio.buscarPorEntregador(emailEntregador);
+    }
+
+    /**
+     * RF24: Busca pedidos disponíveis para aceitação de um entregador
+     */
+    public List<Pedido> buscarPedidosDisponiveisParaEntregador(String emailEntregador) {
+        return repositorio.buscarPedidosDisponiveisParaEntregador(emailEntregador);
+    }
+
+    /**
+     * RF24: Atualiza o status de um pedido
+     */
+    public void atualizarPedido(Pedido pedido) {
+        repositorio.atualizar(pedido);
+    }
 }

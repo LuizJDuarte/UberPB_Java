@@ -30,7 +30,7 @@ public class ServicoEntregaTest {
     public void setUp() {
         repositorioUsuario = mock(RepositorioUsuario.class);
         repositorioPedido = mock(RepositorioPedido.class);
-        servicoLocalizacao = new ServicoLocalizacao(); // Usar implementação real
+        servicoLocalizacao = mock(ServicoLocalizacao.class);
         servicoNotificacao = mock(ServicoNotificacao.class);
 
         servicoEntrega = new ServicoEntrega(
@@ -177,5 +177,211 @@ public class ServicoEntregaTest {
 
         assertEquals(1, disponiveis.size());
         assertEquals("ent1@teste.com", disponiveis.get(0).getEmail());
+    }
+
+    // ========== TESTES RF24 - ACEITAR/RECUSAR PEDIDOS ==========
+
+    @Test
+    @DisplayName("RF24: Deve permitir entregador aceitar pedido alocado para ele")
+    public void testAceitarPedidoComSucesso() {
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("ent@teste.com");
+        pedido.setStatus("CRIADO");
+
+        boolean resultado = servicoEntrega.aceitarPedido("ent@teste.com", pedido);
+
+        assertTrue(resultado);
+        assertEquals("ACEITO", pedido.getStatus());
+
+        // Verifica que o pedido foi atualizado no repositório
+        verify(repositorioPedido, times(1)).atualizar(pedido);
+
+        // Verifica que o cliente foi notificado
+        verify(servicoNotificacao, times(1)).notificarCliente(
+                eq("cliente@teste.com"),
+                anyString());
+    }
+
+    @Test
+    @DisplayName("RF24: Não deve permitir aceitar pedido não alocado para o entregador")
+    public void testAceitarPedidoNaoAlocado() {
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("outro@teste.com");
+        pedido.setStatus("CRIADO");
+
+        boolean resultado = servicoEntrega.aceitarPedido("ent@teste.com", pedido);
+
+        assertFalse(resultado);
+        assertEquals("CRIADO", pedido.getStatus()); // Status não deve mudar
+
+        // Não deve atualizar repositório
+        verify(repositorioPedido, never()).atualizar(any());
+    }
+
+    @Test
+    @DisplayName("RF24: Não deve permitir aceitar pedido já processado")
+    public void testAceitarPedidoJaProcessado() {
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("ent@teste.com");
+        pedido.setStatus("ACEITO"); // Já aceito
+
+        boolean resultado = servicoEntrega.aceitarPedido("ent@teste.com", pedido);
+
+        assertFalse(resultado);
+
+        // Não deve atualizar repositório
+        verify(repositorioPedido, never()).atualizar(any());
+    }
+
+    @Test
+    @DisplayName("RF24: Deve permitir entregador recusar pedido e alocar novo entregador")
+    public void testRecusarPedidoComNovoEntregador() {
+        // Configurar restaurante
+        Restaurante restaurante = new Restaurante("rest@teste.com", "hash");
+        restaurante.setLocalizacao(new Localizacao(-7.12, -34.88));
+
+        // Primeiro entregador (que vai recusar)
+        Entregador entregador1 = new Entregador("ent1@teste.com", "hash");
+        entregador1.setContaAtiva(true);
+        entregador1.setDisponivel(true);
+
+        // Segundo entregador (que será alocado)
+        Entregador entregador2 = new Entregador("ent2@teste.com", "hash");
+        entregador2.setContaAtiva(true);
+        entregador2.setDisponivel(true);
+
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("ent1@teste.com");
+        pedido.setStatus("CRIADO");
+
+        List<Usuario> usuarios = Arrays.asList(restaurante, entregador1, entregador2);
+
+        when(repositorioUsuario.buscarPorEmail("rest@teste.com")).thenReturn(restaurante);
+        when(repositorioUsuario.buscarTodos()).thenReturn(usuarios);
+
+        // Configurar localizações para cenários de busca de entregador
+        Localizacao locEnt1 = new Localizacao(-7.15, -34.90); // Mais longe
+        Localizacao locEnt2 = new Localizacao(-7.11, -34.87); // Mais perto
+        Localizacao locRest = new Localizacao(-7.12, -34.88);
+
+        // Mocks para localização
+        when(servicoLocalizacao.obterLocalizacaoAtual("ent1@teste.com")).thenReturn(locEnt1);
+        when(servicoLocalizacao.obterLocalizacaoAtual("ent2@teste.com")).thenReturn(locEnt2);
+        when(servicoLocalizacao.distanciaKm(locEnt1, locRest)).thenReturn(5.0);
+        when(servicoLocalizacao.distanciaKm(locEnt2, locRest)).thenReturn(2.0);
+
+        boolean resultado = servicoEntrega.recusarPedido("ent1@teste.com", pedido);
+
+        assertTrue(resultado);
+
+        // Verifica que novo entregador foi alocado
+        assertEquals("ent2@teste.com", pedido.getEntregadorAlocado());
+        assertEquals("CRIADO", pedido.getStatus()); // Volta para CRIADO para novo entregador
+
+        // Verifica que o repositório foi atualizado duas vezes (recusa + nova alocação)
+        verify(repositorioPedido, atLeast(2)).atualizar(pedido);
+
+        // Verifica que novo entregador foi notificado
+        verify(servicoNotificacao, times(1)).notificarEntregadorPedidoDisponivel(
+                eq("ent2@teste.com"),
+                anyString(),
+                anyDouble());
+    }
+
+    @Test
+    @DisplayName("RF24: Deve permitir recusar pedido mesmo sem novo entregador disponível")
+    public void testRecusarPedidoSemNovoEntregador() {
+        Restaurante restaurante = new Restaurante("rest@teste.com", "hash");
+        restaurante.setLocalizacao(new Localizacao(-7.12, -34.88));
+
+        Entregador entregador = new Entregador("ent@teste.com", "hash");
+        entregador.setContaAtiva(true);
+        entregador.setDisponivel(true);
+
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("ent@teste.com");
+        pedido.setStatus("CRIADO");
+
+        List<Usuario> usuarios = Arrays.asList(restaurante, entregador);
+
+        when(repositorioUsuario.buscarPorEmail("rest@teste.com")).thenReturn(restaurante);
+        when(repositorioUsuario.buscarTodos()).thenReturn(usuarios);
+
+        boolean resultado = servicoEntrega.recusarPedido("ent@teste.com", pedido);
+
+        assertTrue(resultado);
+        assertEquals("RECUSADO", pedido.getStatus());
+        assertNull(pedido.getEntregadorAlocado());
+
+        // Verifica que foi atualizado no repositório
+        verify(repositorioPedido, atLeast(1)).atualizar(pedido);
+    }
+
+    @Test
+    @DisplayName("RF24: Não deve permitir recusar pedido não alocado para o entregador")
+    public void testRecusarPedidoNaoAlocado() {
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("outro@teste.com");
+        pedido.setStatus("CRIADO");
+
+        boolean resultado = servicoEntrega.recusarPedido("ent@teste.com", pedido);
+
+        assertFalse(resultado);
+        assertEquals("CRIADO", pedido.getStatus());
+        assertEquals("outro@teste.com", pedido.getEntregadorAlocado());
+
+        // Não deve atualizar repositório
+        verify(repositorioPedido, never()).atualizar(any());
+    }
+
+    @Test
+    @DisplayName("RF24: Não deve permitir recusar pedido já processado")
+    public void testRecusarPedidoJaProcessado() {
+        Pedido pedido = new Pedido(
+                "cliente@teste.com",
+                "rest@teste.com",
+                new ArrayList<>(),
+                100.0,
+                "CARTAO");
+        pedido.setEntregadorAlocado("ent@teste.com");
+        pedido.setStatus("EM_ROTA"); // Já em rota
+
+        boolean resultado = servicoEntrega.recusarPedido("ent@teste.com", pedido);
+
+        assertFalse(resultado);
+        assertEquals("EM_ROTA", pedido.getStatus());
+
+        // Não deve atualizar repositório
+        verify(repositorioPedido, never()).atualizar(any());
     }
 }

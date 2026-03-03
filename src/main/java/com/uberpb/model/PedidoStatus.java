@@ -5,6 +5,7 @@ public enum PedidoStatus {
     CONFIRMADO("Confirmado"),
     AGENDADO("Agendado"),
     ACEITO("Aceito"),
+    RECUSADO("Recusado"),
     EM_PREPARACAO("Em Preparação"),
     PRONTO("Pronto"),
     EM_ROTA("Em Rota"),
