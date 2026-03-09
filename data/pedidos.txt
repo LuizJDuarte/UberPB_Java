@@ -1,3 +1,2 @@
-kay@gmail.com,cantinho@gmail.com,,10.5,Cartão de Débito,CRIADO,IMEDIATO,
-passageiro@email.com,restaurante@gmail.com,rodeio:2;,30.0,Cartão de Crédito,CRIADO,IMEDIATO,
-passageiro@email.com,restaurante@gmail.com,rodeio:2;,50.0,Cartão de Crédito,CRIADO,AGENDADO,01/03/2026 12:05
+kay@gmail.com,restauranteTeste@gmail.com,,23.0,Cartão de Crédito,SAIU_PARA_ENTREGA,IMEDIATO,,entregador@gmail.com
+kay@gmail.com,restauranteTeste@gmail.com,,14.0,Cartão de Crédito,SAIU_PARA_ENTREGA,IMEDIATO,,entregador@gmail.com
