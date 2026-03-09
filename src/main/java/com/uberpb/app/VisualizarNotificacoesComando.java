@@ -43,7 +43,7 @@ public class VisualizarNotificacoesComando implements Comando {
 
         // Mostrar não lidas primeiro
         if (!naoLidas.isEmpty()) {
-            System.out.println("📬 NOTIFICAÇÕES NÃO LIDAS:");
+            System.out.println("NOTIFICAÇÕES NÃO LIDAS:");
             for (int i = 0; i < naoLidas.size(); i++) {
                 System.out.println((i + 1) + ". " + naoLidas.get(i));
             }
@@ -55,7 +55,7 @@ public class VisualizarNotificacoesComando implements Comando {
         lidas.removeAll(naoLidas);
 
         if (!lidas.isEmpty()) {
-            System.out.println("✅ NOTIFICAÇÕES LIDAS:");
+            System.out.println("NOTIFICAÇÕES LIDAS:");
             for (Notificacao n : lidas) {
                 System.out.println("   " + n);
             }

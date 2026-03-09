@@ -41,12 +41,20 @@ public class ServicoNotificacao {
     /**
      * Notifica restaurante sobre novo pedido
      */
-    public Notificacao notificarRestauranteNovoPedido(String emailRestaurante, String emailCliente, double total) {
+    public void notificarRestauranteNovoPedido(String emailRestaurante, String emailCliente, double total) {
+
         String mensagem = String.format(
-                "Novo pedido de %s! Total: R$ %.2f",
+                "Novo pedido recebido de %s no valor de R$ %.2f. Acesse para confirmar ou rejeitar.",
                 emailCliente,
                 total);
-        return enviarNotificacao(emailRestaurante, TipoNotificacao.NOVO_PEDIDO_RESTAURANTE, mensagem);
+
+        Notificacao notificacao = new Notificacao(
+                UUID.randomUUID().toString(),
+                emailRestaurante,
+                TipoNotificacao.NOVO_PEDIDO_RESTAURANTE,
+                mensagem);
+
+        repositorio.salvar(notificacao);
     }
 
     /**

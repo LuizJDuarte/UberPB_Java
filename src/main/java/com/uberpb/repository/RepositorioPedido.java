@@ -28,4 +28,6 @@ public interface RepositorioPedido {
      * RF24: Atualiza um pedido existente
      */
     void atualizar(Pedido pedido);
+
+    List<Pedido> buscarPedidosDoRestaurante(String email);
 }

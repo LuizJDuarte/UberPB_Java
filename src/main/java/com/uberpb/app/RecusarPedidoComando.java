@@ -27,17 +27,17 @@ public class RecusarPedidoComando implements Comando {
         Usuario usuario = contexto.sessao.getUsuarioAtual();
 
         if (!(usuario instanceof Entregador entregador)) {
-            System.out.println("⚠️ Este comando é apenas para entregadores.");
+            System.out.println("Este comando é apenas para entregadores.");
             return;
         }
 
         if (!entregador.isContaAtiva()) {
-            System.out.println("⚠️ Sua conta ainda não foi ativada pelo administrador.");
+            System.out.println("Sua conta ainda não foi ativada pelo administrador.");
             return;
         }
 
         if (!entregador.isDisponivel()) {
-            System.out.println("⚠️ Você precisa estar online para gerenciar pedidos.");
+            System.out.println("Você precisa estar online para recusar pedidos.");
             return;
         }
 
@@ -59,18 +59,17 @@ public class RecusarPedidoComando implements Comando {
             System.out.printf("    Restaurante: %s\n", pedido.getEmailRestaurante());
             System.out.printf("    Cliente: %s\n", pedido.getEmailCliente());
             System.out.printf("    Total: R$ %.2f\n", pedido.getTotal());
-            System.out.printf("    Taxa de Entrega: R$ %.2f\n", pedido.getTotal() * 0.15);
             System.out.printf("    Status: %s\n", pedido.getStatus());
         }
 
         System.out.println("\n====================================");
-        System.out.print("\nDigite o número do pedido que deseja recusar (ou 0 para cancelar): ");
+        System.out.print("\nDigite o número do pedido que deseja RECUSAR (ou 0 para cancelar): ");
 
         int escolha;
         try {
             escolha = Integer.parseInt(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
-            System.out.println("❌ Número inválido.");
+            System.out.println(" Número inválido.");
             return;
         }
 
@@ -80,14 +79,14 @@ public class RecusarPedidoComando implements Comando {
         }
 
         if (escolha < 1 || escolha > pedidosDisponiveis.size()) {
-            System.out.println("❌ Número de pedido inválido.");
+            System.out.println(" Número de pedido inválido.");
             return;
         }
 
         Pedido pedidoSelecionado = pedidosDisponiveis.get(escolha - 1);
 
         // Confirmação
-        System.out.printf("\nConfirma recusar o pedido do restaurante %s? (s/n): ",
+        System.out.printf("\nTem certeza que deseja RECUSAR o pedido do restaurante %s? (s/n): ",
                 pedidoSelecionado.getEmailRestaurante());
         String confirmacao = scanner.nextLine().trim().toLowerCase();
 
@@ -100,8 +99,10 @@ public class RecusarPedidoComando implements Comando {
         boolean sucesso = contexto.servicoEntrega.recusarPedido(entregador.getEmail(), pedidoSelecionado);
 
         if (sucesso) {
-            System.out.println("\n✅ Pedido recusado.");
-            System.out.println("   O sistema tentará alocar outro entregador para este pedido.");
+            System.out.println("\n Pedido recusado com sucesso.");
+            System.out.println("   O sistema tentará alocar outro entregador.");
+        } else {
+            System.out.println("\n Não foi possível recusar o pedido.");
         }
     }
 }

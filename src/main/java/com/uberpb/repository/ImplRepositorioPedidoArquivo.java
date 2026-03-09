@@ -47,6 +47,15 @@ public class ImplRepositorioPedidoArquivo extends BaseRepositorioArquivo impleme
                 .toList();
     }
 
+    /**
+     * Método exigido pela interface RepositorioPedido
+     * Apenas reaproveita o método que você já criou
+     */
+    @Override
+    public synchronized List<Pedido> buscarPedidosDoRestaurante(String email) {
+        return buscarPorRestaurante(email);
+    }
+
     @Override
     public synchronized List<Pedido> buscarPorEntregador(String emailEntregador) {
         return cache.stream()
@@ -60,25 +69,34 @@ public class ImplRepositorioPedidoArquivo extends BaseRepositorioArquivo impleme
         return cache.stream()
                 .filter(p -> p.getEntregadorAlocado() != null)
                 .filter(p -> p.getEntregadorAlocado().equalsIgnoreCase(emailEntregador))
-                .filter(p -> p.getStatus().equals("CRIADO") || p.getStatus().equals("CONFIRMADO"))
+                .filter(p -> !p.getStatus().equals("SAIU_PARA_ENTREGA") && !p.getStatus().equals("ENTREGUE"))
                 .toList();
     }
 
     @Override
     public synchronized void atualizar(Pedido pedido) {
-        // Remove o pedido antigo e adiciona o atualizado
-        cache.removeIf(p -> p.getEmailCliente().equals(pedido.getEmailCliente()) &&
-                p.getEmailRestaurante().equals(pedido.getEmailRestaurante()) &&
-                p.getTotal() == pedido.getTotal());
-        cache.add(pedido);
-        gravar();
+
+        for (int i = 0; i < cache.size(); i++) {
+
+            Pedido p = cache.get(i);
+
+            if (p.getEmailCliente().equals(pedido.getEmailCliente()) &&
+                    p.getEmailRestaurante().equals(pedido.getEmailRestaurante()) &&
+                    p.getTotal() == pedido.getTotal()) {
+
+                cache.set(i, pedido);
+                gravar();
+                return;
+            }
+        }
     }
 
     private void carregar() {
         lerLinhas(caminho, linha -> {
             Pedido p = Pedido.fromString(linha);
-            if (p != null)
+            if (p != null) {
                 cache.add(p);
+            }
         });
     }
 

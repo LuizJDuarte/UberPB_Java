@@ -27,17 +27,17 @@ public class AceitarPedidoComando implements Comando {
         Usuario usuario = contexto.sessao.getUsuarioAtual();
 
         if (!(usuario instanceof Entregador entregador)) {
-            System.out.println("⚠️ Este comando é apenas para entregadores.");
+            System.out.println(" Este comando é apenas para entregadores.");
             return;
         }
 
         if (!entregador.isContaAtiva()) {
-            System.out.println("⚠️ Sua conta ainda não foi ativada pelo administrador.");
+            System.out.println("Sua conta ainda não foi ativada pelo administrador.");
             return;
         }
 
         if (!entregador.isDisponivel()) {
-            System.out.println("⚠️ Você precisa estar online para aceitar pedidos.");
+            System.out.println(" Você precisa estar online para aceitar pedidos.");
             return;
         }
 
@@ -59,7 +59,7 @@ public class AceitarPedidoComando implements Comando {
             System.out.printf("    Restaurante: %s\n", pedido.getEmailRestaurante());
             System.out.printf("    Cliente: %s\n", pedido.getEmailCliente());
             System.out.printf("    Total: R$ %.2f\n", pedido.getTotal());
-            System.out.printf("    Taxa de Entrega: R$ %.2f\n", pedido.getTotal() * 0.15);
+           // System.out.printf("    Taxa de Entrega: R$ %.2f\n", pedido.getTotal() * 0.15);
             System.out.printf("    Status: %s\n", pedido.getStatus());
         }
 
@@ -70,7 +70,7 @@ public class AceitarPedidoComando implements Comando {
         try {
             escolha = Integer.parseInt(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
-            System.out.println("❌ Número inválido.");
+            System.out.println(" Número inválido.");
             return;
         }
 
@@ -80,7 +80,7 @@ public class AceitarPedidoComando implements Comando {
         }
 
         if (escolha < 1 || escolha > pedidosDisponiveis.size()) {
-            System.out.println("❌ Número de pedido inválido.");
+            System.out.println(" Número de pedido inválido.");
             return;
         }
 
@@ -100,10 +100,9 @@ public class AceitarPedidoComando implements Comando {
         boolean sucesso = contexto.servicoEntrega.aceitarPedido(entregador.getEmail(), pedidoSelecionado);
 
         if (sucesso) {
-            System.out.println("\n✅ Pedido aceito com sucesso!");
-            System.out.printf("   Taxa de Entrega: R$ %.2f\n", pedidoSelecionado.getTotal() * 0.15);
+            System.out.println("\n Pedido aceito com sucesso!");
             System.out.println("   O cliente foi notificado.");
-            System.out.println("\n📍 Próximos passos:");
+            System.out.println("\n Próximos passos:");
             System.out.println("   1. Aguarde o restaurante preparar o pedido");
             System.out.println("   2. Retire o pedido no restaurante");
             System.out.println("   3. Entregue ao cliente");

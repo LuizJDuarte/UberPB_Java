@@ -133,6 +133,8 @@ public final class ProvedorDependencias {
 
         lista.add(new GerenciarCardapioComando());
         lista.add(new VisualizarPedidosComando());
+        //[RF25] - O restaurante deve poder confirmar ou rejeitar pedidos recebidos.
+        lista.add(new GerenciarPedidosComando());
 
         lista.add(new VisualizarHistoricoComando());
         lista.add(new MenuAdminComando());
@@ -145,7 +147,6 @@ public final class ProvedorDependencias {
         lista.add(new ListarPedidosDisponiveisComando());
         lista.add(new AceitarPedidoComando());
         lista.add(new RecusarPedidoComando());
-
         return lista;
     }
 
