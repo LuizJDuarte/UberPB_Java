@@ -27,17 +27,17 @@ public class ListarPedidosDisponiveisComando implements Comando {
         Usuario usuario = contexto.sessao.getUsuarioAtual();
 
         if (!(usuario instanceof Entregador entregador)) {
-            System.out.println("⚠️ Este comando é apenas para entregadores.");
+            System.out.println(" Este comando é apenas para entregadores.");
             return;
         }
 
         if (!entregador.isContaAtiva()) {
-            System.out.println("⚠️ Sua conta ainda não foi ativada pelo administrador.");
+            System.out.println("Sua conta ainda não foi ativada pelo administrador.");
             return;
         }
 
         if (!entregador.isDisponivel()) {
-            System.out.println("⚠️ Você precisa estar online para visualizar pedidos.");
+            System.out.println(" Você precisa estar online para visualizar pedidos.");
             System.out.println("   Use o comando 'Online/Offline' para ficar disponível.");
             return;
         }
@@ -59,7 +59,6 @@ public class ListarPedidosDisponiveisComando implements Comando {
             System.out.printf("    Restaurante: %s\n", pedido.getEmailRestaurante());
             System.out.printf("    Cliente: %s\n", pedido.getEmailCliente());
             System.out.printf("    Total: R$ %.2f\n", pedido.getTotal());
-            System.out.printf("    Taxa de Entrega (estimada): R$ %.2f\n", pedido.getTotal() * 0.15);
             System.out.printf("    Status: %s\n", pedido.getStatus());
             System.out.printf("    Pagamento: %s\n", pedido.getFormaPagamento());
         }

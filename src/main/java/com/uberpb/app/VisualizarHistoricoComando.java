@@ -9,7 +9,11 @@ import java.util.Scanner;
 
 public class VisualizarHistoricoComando implements Comando {
     @Override public String nome() { return "Histórico de Corridas (filtrar por categoria)"; }
-    @Override public boolean visivelPara(Usuario u) { return u != null; }
+    @Override 
+    public boolean visivelPara(Usuario u) { 
+        return u instanceof com.uberpb.model.Passageiro 
+            || u instanceof com.uberpb.model.Motorista; 
+    }
 
     @Override
     public void executar(ContextoAplicacao ctx, Scanner in) {

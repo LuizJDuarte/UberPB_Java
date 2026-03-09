@@ -13,7 +13,7 @@ public class GerenciarCardapioComando implements Comando {
 
     @Override
     public String nome() {
-        return "Gerenciamento";
+        return "Gerenciar Cardápio";
     }
 
     @Override

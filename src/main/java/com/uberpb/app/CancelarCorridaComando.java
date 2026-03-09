@@ -15,7 +15,8 @@ public class CancelarCorridaComando implements Comando {
 
     @Override
     public boolean visivelPara(Usuario usuarioAtualOuNull) {
-        return usuarioAtualOuNull != null;
+        return usuarioAtualOuNull instanceof com.uberpb.model.Passageiro 
+            || usuarioAtualOuNull instanceof com.uberpb.model.Motorista;
     }
 
     @Override
