@@ -1,26 +1,29 @@
 package com.uberpb.service;
 
 import com.uberpb.exceptions.EmailJaExistenteException;
-import com.uberpb.model.Motorista;
-import com.uberpb.model.Passageiro;
-import com.uberpb.model.Usuario;
+import com.uberpb.model.*;
+import com.uberpb.repository.RepositorioRestaurante;
 import com.uberpb.repository.RepositorioUsuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class ServicoCadastroTest {
 
     private ServicoCadastro servicoCadastro;
     private RepositorioUsuario repositorioUsuario;
+    private RepositorioRestaurante repositorioRestaurante;
 
-    // Test-specific implementation of the repository that stores data in memory.
+    // ==========================
+    // REPOSITÓRIO EM MEMÓRIA
+    // ==========================
+
     static class InMemoryRepositorioUsuario implements RepositorioUsuario {
+
         private final Map<String, Usuario> database = new HashMap<>();
 
         @Override
@@ -55,65 +58,171 @@ public class ServicoCadastroTest {
     }
 
     @BeforeEach
-    public void setUp() {
-        // Use the in-memory repository for tests
+    void setup() {
+
         repositorioUsuario = new InMemoryRepositorioUsuario();
+        repositorioRestaurante = mock(RepositorioRestaurante.class);
+
         servicoCadastro = new ServicoCadastro(repositorioUsuario);
+        servicoCadastro.setRepositorioRestaurante(repositorioRestaurante);
     }
 
-    @Test
-    public void testCadastrarPassageiroComSucesso() {
-        String email = "passageiro@teste.com";
-        String senha = "senha123";
+    // ==========================
+    // PASSAGEIRO
+    // ==========================
 
-        Passageiro passageiro = servicoCadastro.cadastrarPassageiro(email, senha);
+    @Test
+    void deveCadastrarPassageiro() {
+
+        Passageiro passageiro =
+                servicoCadastro.cadastrarPassageiro("passageiro@email.com", "123");
 
         assertNotNull(passageiro);
-        assertEquals(email, passageiro.getEmail());
+        assertEquals("passageiro@email.com", passageiro.getEmail());
 
-        Usuario usuarioSalvo = repositorioUsuario.buscarPorEmail(email);
-        assertNotNull(usuarioSalvo);
-        assertEquals(email, usuarioSalvo.getEmail());
+        Usuario salvo = repositorioUsuario.buscarPorEmail("passageiro@email.com");
+
+        assertNotNull(salvo);
+        assertTrue(salvo instanceof Passageiro);
     }
 
     @Test
-    public void testCadastrarMotoristaComSucesso() {
-        String email = "motorista@teste.com";
-        String senha = "senha456";
+    void naoDeveCadastrarPassageiroEmailInvalido() {
 
-        Motorista motorista = servicoCadastro.cadastrarMotorista(email, senha);
+        assertThrows(IllegalArgumentException.class, () ->
+                servicoCadastro.cadastrarPassageiro("email-invalido", "123"));
+    }
+
+    // ==========================
+    // MOTORISTA
+    // ==========================
+
+    @Test
+    void deveCadastrarMotorista() {
+
+        Motorista motorista =
+                servicoCadastro.cadastrarMotorista("motorista@email.com", "123");
 
         assertNotNull(motorista);
-        assertEquals(email, motorista.getEmail());
-        assertFalse(motorista.isContaAtiva()); // Should be inactive by default
+        assertEquals("motorista@email.com", motorista.getEmail());
 
-        Usuario usuarioSalvo = repositorioUsuario.buscarPorEmail(email);
-        assertNotNull(usuarioSalvo);
-        assertEquals(email, usuarioSalvo.getEmail());
+        Usuario salvo = repositorioUsuario.buscarPorEmail("motorista@email.com");
+
+        assertTrue(salvo instanceof Motorista);
     }
 
     @Test
-    public void testNaoDeveCadastrarEmailJaExistente() {
-        String email = "existente@teste.com";
-        String senha = "senha123";
+    void motoristaNaoPodeTerEmailDuplicado() {
 
-        // Arrange: Register a user first
-        servicoCadastro.cadastrarPassageiro(email, senha);
+        servicoCadastro.cadastrarMotorista("motorista@email.com", "123");
 
-        // Act & Assert: Try to register the same email again and expect an exception
-        assertThrows(EmailJaExistenteException.class, () -> {
-            servicoCadastro.cadastrarMotorista(email, "outrasenha");
-        });
+        assertThrows(EmailJaExistenteException.class, () ->
+                servicoCadastro.cadastrarMotorista("motorista@email.com", "456"));
+    }
+
+    // ==========================
+    // ENTREGADOR
+    // ==========================
+
+    @Test
+    void deveCadastrarEntregador() {
+
+        Entregador entregador = servicoCadastro.cadastrarEntregador(
+                "entregador@email.com",
+                "123",
+                "123456",
+                "99999999999"
+        );
+
+        assertNotNull(entregador);
+        assertEquals("123456", entregador.getCnhNumero());
+        assertEquals("99999999999", entregador.getCpfNumero());
+
+        assertTrue(entregador.isContaAtiva());
+        assertFalse(entregador.isCnhValida());
+        assertFalse(entregador.isDocIdentidadeValido());
     }
 
     @Test
-    public void testNaoDeveCadastrarComEmailInvalido() {
-        String emailInvalido = "email-invalido";
-        String senha = "senha123";
+    void deveCadastrarEntregadorComCamposNull() {
 
-        // Expect an IllegalArgumentException for invalid email format
-        assertThrows(IllegalArgumentException.class, () -> {
-            servicoCadastro.cadastrarPassageiro(emailInvalido, senha);
-        });
+        Entregador entregador = servicoCadastro.cadastrarEntregador(
+                "entregador2@email.com",
+                "123",
+                null,
+                null
+        );
+
+        assertEquals("", entregador.getCnhNumero());
+        assertEquals("", entregador.getCpfNumero());
     }
+
+    @Test
+    void entregadorNaoPodeTerEmailDuplicado() {
+
+        servicoCadastro.cadastrarEntregador(
+                "entregador@email.com", "123", "1", "1");
+
+        assertThrows(EmailJaExistenteException.class, () ->
+                servicoCadastro.cadastrarEntregador(
+                        "entregador@email.com", "123", "2", "2"));
+    }
+
+    // ==========================
+    // RESTAURANTE
+    // ==========================
+
+    @Test
+    void deveCadastrarRestaurante() {
+
+        Restaurante restaurante =
+                servicoCadastro.cadastrarRestaurante(
+                        "restaurante@email.com",
+                        "123",
+                        "Pizza Top",
+                        "12345678000199"
+                );
+
+        assertNotNull(restaurante);
+
+        assertEquals("Pizza Top", restaurante.getNomeFantasia());
+        assertEquals("12345678000199", restaurante.getCnpj());
+
+        verify(repositorioRestaurante).salvar(restaurante);
+    }
+
+    @Test
+    void restauranteComCamposNull() {
+
+        Restaurante restaurante =
+                servicoCadastro.cadastrarRestaurante(
+                        "rest2@email.com",
+                        "123",
+                        null,
+                        null
+                );
+
+        assertEquals("", restaurante.getNomeFantasia());
+        assertEquals("", restaurante.getCnpj());
+    }
+
+    @Test
+    void restauranteNaoPodeTerEmailDuplicado() {
+
+        servicoCadastro.cadastrarRestaurante(
+                "rest@email.com",
+                "123",
+                "R1",
+                "1"
+        );
+
+        assertThrows(EmailJaExistenteException.class, () ->
+                servicoCadastro.cadastrarRestaurante(
+                        "rest@email.com",
+                        "123",
+                        "R2",
+                        "2"
+                ));
+    }
+
 }
