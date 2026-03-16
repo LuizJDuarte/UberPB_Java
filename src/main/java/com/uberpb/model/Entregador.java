@@ -78,6 +78,14 @@ public class Entregador extends Usuario {
                 .append(",").append(cnhNumero).append(",").append(cpfNumero)
                 .append(",").append(cnhValida).append(",").append(docIdentidadeValido)
                 .append(",").append(contaAtiva).append(",").append(disponivel);
+        
+        // ⭐ NOVO: Adicionar localização à persistência
+        if (localizacao != null) {
+            sb.append(",").append(localizacao.latitude()).append(",").append(localizacao.longitude());
+        } else {
+            sb.append(",0.0,0.0");
+        }
+        
         return sb.toString();
     }
 
@@ -85,9 +93,13 @@ public class Entregador extends Usuario {
     public String toString() {
         String statusConta = contaAtiva ? "Ativa" : "Inativa";
         String statusOnline = disponivel ? "Online" : "Offline";
+        String loc = localizacao != null ? 
+            String.format(" | Loc: [%.4f, %.4f]", localizacao.latitude(), localizacao.longitude()) : "";
+        
         return "Entregador - " + super.toString() +
                 ", Status: " + statusConta + " | " + statusOnline +
                 ", CNH: " + cnhNumero + " (" + (cnhValida ? "OK" : "Pendente") + ")" +
-                ", CPF: " + cpfNumero + " (" + (docIdentidadeValido ? "OK" : "Pendente") + ")";
+                ", CPF: " + cpfNumero + " (" + (docIdentidadeValido ? "OK" : "Pendente") + ")" +
+                loc;
     }
 }

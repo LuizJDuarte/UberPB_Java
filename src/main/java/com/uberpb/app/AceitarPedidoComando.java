@@ -21,7 +21,18 @@ public class AceitarPedidoComando implements Comando {
     public boolean visivelPara(Usuario usuarioAtualOuNull) {
         return usuarioAtualOuNull instanceof Entregador;
     }
-
+    private void imprimirResumoRota(com.uberpb.service.RotaOtimizada rota, String destino) {
+    // Nomes corrigidos conforme sua classe RotaOtimizada
+    System.out.printf("📍 ROTA %s (%.2f km | %.0f min):\n", 
+                      destino, rota.getDistanciaKm(), rota.getTempoEstimadoMinutos());
+    
+    System.out.print("   Caminho: ");
+    // Usando getPontosRota() e garantindo o tipo Localizacao
+    for (com.uberpb.model.Localizacao p : rota.getPontosRota()) {
+        System.out.printf("[%.2f, %.2f] ", p.latitude(), p.longitude());
+    }
+    
+    System.out.println("\n");}
     @Override
     public void executar(ContextoAplicacao contexto, Scanner scanner) {
         Usuario usuario = contexto.sessao.getUsuarioAtual();
@@ -106,6 +117,41 @@ public class AceitarPedidoComando implements Comando {
             System.out.println("   1. Aguarde o restaurante preparar o pedido");
             System.out.println("   2. Retire o pedido no restaurante");
             System.out.println("   3. Entregue ao cliente");
+            
+            // RF27: Visualizar rota até o restaurante e até o cliente
+            try {
+                var restauranteObj = contexto.servicoCadastro.buscar(pedidoSelecionado.getEmailRestaurante());
+                var clienteObj = contexto.servicoCadastro.buscar(pedidoSelecionado.getEmailCliente());
+
+                if (restauranteObj != null && clienteObj != null) {
+                    com.uberpb.model.Usuario restaurante = (com.uberpb.model.Usuario) restauranteObj;
+                    com.uberpb.model.Usuario cliente = (com.uberpb.model.Usuario) clienteObj;
+
+                    // Obter localizações usando getLocalizacao()
+                    com.uberpb.model.Localizacao locEntregador = entregador.getLocalizacao();
+                    com.uberpb.model.Localizacao locRestaurante = restaurante.getLocalizacao();
+                    com.uberpb.model.Localizacao locCliente = cliente.getLocalizacao();
+
+                    // Calcular rotas otimizadas
+                    var rotaParaRestaurante = contexto.servicoOtimizacaoRota.calcularRotaOtimizada(
+                        locEntregador, 
+                        locRestaurante
+                    );
+
+                    var rotaParaCliente = contexto.servicoOtimizacaoRota.calcularRotaOtimizada(
+                        locRestaurante, 
+                        locCliente
+                    );
+
+                    System.out.println("\n🗺️  [MAPA DE NAVEGAÇÃO]");
+                    imprimirResumoRota(rotaParaRestaurante, "ATÉ O RESTAURANTE");
+                    imprimirResumoRota(rotaParaCliente, "ATÉ O CLIENTE");
+                }
+            } catch (Exception e) {
+                    System.err.println(" Erro ao gerar visualização: " + e.getMessage());
+            e.printStackTrace();
+            }
+        
         }
     }
 }

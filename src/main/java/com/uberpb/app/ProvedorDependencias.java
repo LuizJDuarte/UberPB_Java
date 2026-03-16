@@ -67,7 +67,7 @@ public final class ProvedorDependencias {
 
         // Serviços opcionais
         ServicoValidacaoMotorista servValid = null;
-        ServicoOtimizacaoRota servOpt = null;
+        ServicoOtimizacaoRota servOpt = new ServicoOtimizacaoRota();
         ServicoDirecionamentoCorrida servDirec = null;
         EstimativaChegada servEta = null;
         ServicoAdmin servAdmin = null;

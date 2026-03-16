@@ -22,6 +22,9 @@ public class CadastrarEntregadorComando implements Comando {
         System.out.print("Email: ");
         String email = entrada.nextLine();
 
+        System.out.print("Sua localização atual (ex: Rua Central, 100): ");
+        String endereco = entrada.nextLine();
+
         System.out.print("Senha: ");
         String senha = entrada.nextLine();
 
@@ -32,6 +35,9 @@ public class CadastrarEntregadorComando implements Comando {
         String cpf = entrada.nextLine();
 
         Entregador e = contexto.servicoCadastro.cadastrarEntregador(email, senha, cnh, cpf);
+        com.uberpb.model.Localizacao loc = contexto.servicoLocalizacao.geocodificar(endereco);
+        e.setLocalizacao(loc);
+        contexto.repositorioUsuario.salvar(e);
         System.out.println("OK! Entregador cadastrado: " + e.getEmail());
         System.out.println("Aguardando validação de documentos pelo admin.");
     }
