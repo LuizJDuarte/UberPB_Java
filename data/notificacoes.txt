@@ -1,14 +1,20 @@
-25de8990-a5a3-48a8-9c03-b304e2f1be68,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 23;00. Acesse para confirmar ou rejeitar.,2026-03-09T16:44:32.718113200,false
-3270e4bf-3977-4530-a7f9-95fa29e36d5b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 23;00,2026-03-09T16:44:32.718113200,true
-4d336f0f-66e5-4cd7-892f-568a6342afa9,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-09T16:44:32.718113200,true
-8b7886ca-5d3d-4a76-912f-0c5f51cabc68,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-09T16:44:32.718113200,true
-b7ce0171-edf6-44c2-b0b5-b0a89a821e01,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-09T16:44:32.718113200,true
-00a784a6-a394-48fd-9fe6-b96fc8c3c13f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-09T16:44:32.718113200,true
-777ab5f4-5710-427d-9ec5-b4969ff30932,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-09T16:44:32.718113200,true
-338be0f5-14ff-46c8-80f9-b9d7c7a0af81,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-09T16:44:32.718113200,false
-55cb7ab4-8d0f-461a-82b8-3f8f4e90b3c3,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-09T16:44:32.719134200,true
-200eb826-7942-4e1a-9589-d442a0641a5d,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-09T16:44:32.719134200,true
-88826215-0554-40ba-8845-ddc8ec22897a,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-09T16:44:32.719134200,true
-af10f74f-1bcf-4cfc-8982-3960a35de1cc,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-09T16:44:32.719134200,true
-e4f7983c-62dd-4b98-845d-eedddd11cbbc,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-09T16:44:32.719134200,true
-3e03daed-e517-4dbf-853e-a4ead191ab2c,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-09T16:45:20.582630400,true
+25de8990-a5a3-48a8-9c03-b304e2f1be68,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 23;00. Acesse para confirmar ou rejeitar.,2026-03-15T22:38:55.332806600,true
+3270e4bf-3977-4530-a7f9-95fa29e36d5b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 23;00,2026-03-15T22:38:55.332806600,true
+4d336f0f-66e5-4cd7-892f-568a6342afa9,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-15T22:38:55.332806600,true
+8b7886ca-5d3d-4a76-912f-0c5f51cabc68,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-15T22:38:55.332806600,true
+b7ce0171-edf6-44c2-b0b5-b0a89a821e01,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-15T22:38:55.332806600,true
+00a784a6-a394-48fd-9fe6-b96fc8c3c13f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-15T22:38:55.332806600,true
+777ab5f4-5710-427d-9ec5-b4969ff30932,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-15T22:38:55.332806600,true
+338be0f5-14ff-46c8-80f9-b9d7c7a0af81,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-15T22:38:55.332806600,true
+55cb7ab4-8d0f-461a-82b8-3f8f4e90b3c3,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-15T22:38:55.332806600,true
+200eb826-7942-4e1a-9589-d442a0641a5d,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-15T22:38:55.332806600,true
+88826215-0554-40ba-8845-ddc8ec22897a,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-15T22:38:55.332806600,true
+af10f74f-1bcf-4cfc-8982-3960a35de1cc,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-15T22:38:55.332806600,true
+e4f7983c-62dd-4b98-845d-eedddd11cbbc,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-15T22:38:55.332806600,true
+3e03daed-e517-4dbf-853e-a4ead191ab2c,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-15T22:38:55.332806600,true
+3e494440-28a4-4b61-9df1-b0ad41a3c51c,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-15T22:40:14.330511400,false
+10276a86-2723-4f60-a6f5-48ce8cb44e2b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-15T22:40:54.640408800,false
+b31f59c6-7890-45ef-8ab4-1179ef517d82,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-15T22:40:54.651199300,false
+42f92aaa-9b7d-4034-806b-b819377eea5f,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-15T22:41:50.612202100,false
+4ac674c8-5f0f-49ac-9b33-bc33e5f57e64,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-15T22:42:09.036344800,false
+b7b9fa02-02ed-4b85-bf35-5fbe4683129f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-15T22:42:09.041494600,false

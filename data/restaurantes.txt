@@ -1,1 +1,1 @@
-RESTAURANTE,restauranteTeste@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,MC pato,,true,5.950000,-142.220000,8.00,60,coca cola#refrigerante lata#6.00|batata frita#experimente j�#16.00|mc flury#sorvete#15.00
+RESTAURANTE,restauranteTeste@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,MC pato,,true,5.950000,-142.220000,8.00,60,coca cola#refrigerante lata#6.00|batata frita#experimente j�#16.00|mc flury#sorvete#15.00|guarana zero#refrigerante lata#7.00

@@ -47,10 +47,6 @@ public class ImplRepositorioPedidoArquivo extends BaseRepositorioArquivo impleme
                 .toList();
     }
 
-    /**
-     * Método exigido pela interface RepositorioPedido
-     * Apenas reaproveita o método que você já criou
-     */
     @Override
     public synchronized List<Pedido> buscarPedidosDoRestaurante(String email) {
         return buscarPorRestaurante(email);
@@ -64,12 +60,27 @@ public class ImplRepositorioPedidoArquivo extends BaseRepositorioArquivo impleme
                 .toList();
     }
 
+    /**
+     * RF24: Busca pedidos disponíveis para entregador aceitar
+     */
     @Override
     public synchronized List<Pedido> buscarPedidosDisponiveisParaEntregador(String emailEntregador) {
+
+        // 🔴 MUDANÇA AQUI
+        // ANTES ERA ASSIM:
+        /*
         return cache.stream()
                 .filter(p -> p.getEntregadorAlocado() != null)
                 .filter(p -> p.getEntregadorAlocado().equalsIgnoreCase(emailEntregador))
                 .filter(p -> !p.getStatus().equals("SAIU_PARA_ENTREGA") && !p.getStatus().equals("ENTREGUE"))
+                .toList();
+        */
+
+        // ✔ AGORA: somente pedidos que ainda podem ser aceitos
+        return cache.stream()
+                .filter(p -> p.getEntregadorAlocado() != null)
+                .filter(p -> p.getEntregadorAlocado().equalsIgnoreCase(emailEntregador))
+                .filter(p -> p.getStatus().equals("CRIADO") || p.getStatus().equals("CONFIRMADO"))
                 .toList();
     }
 
@@ -89,6 +100,18 @@ public class ImplRepositorioPedidoArquivo extends BaseRepositorioArquivo impleme
                 return;
             }
         }
+    }
+
+    /**
+     * MUDANÇA ADICIONADA PARA TESTES
+     * Permite limpar o repositório antes de cada teste
+     */
+    public synchronized void limpar() {
+
+        // ANTES: esse método não existia
+
+        cache.clear();
+        gravar();
     }
 
     private void carregar() {
