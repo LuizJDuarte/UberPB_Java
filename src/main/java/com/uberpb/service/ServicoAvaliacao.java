@@ -20,9 +20,9 @@ public class ServicoAvaliacao {
     private final RepositorioCorrida repositorioCorrida;
     private final RepositorioUsuario repositorioUsuario;
 
-    public ServicoAvaliacao(RepositorioAvaliacao repositorioAvaliacao, 
-                           RepositorioCorrida repositorioCorrida,
-                           RepositorioUsuario repositorioUsuario) {
+    public ServicoAvaliacao(RepositorioAvaliacao repositorioAvaliacao,
+            RepositorioCorrida repositorioCorrida,
+            RepositorioUsuario repositorioUsuario) {
         this.repositorioAvaliacao = repositorioAvaliacao;
         this.repositorioCorrida = repositorioCorrida;
         this.repositorioUsuario = repositorioUsuario;
@@ -33,10 +33,14 @@ public class ServicoAvaliacao {
      */
     public void avaliarMotorista(String corridaId, String passageiroEmail, int rating, String comentario) {
         validarAvaliacao(corridaId, passageiroEmail, rating);
-        
+
         Corrida corrida = repositorioCorrida.buscarPorId(corridaId);
         if (corrida == null) {
             throw new IllegalArgumentException("Corrida não encontrada: " + corridaId);
+        }
+
+        if (corrida.getStatus() != CorridaStatus.CONCLUIDA) {
+            throw new IllegalArgumentException("A corrida precisa estar concluída para ser avaliada.");
         }
 
         if (!corrida.getEmailPassageiro().equals(passageiroEmail)) {
@@ -47,23 +51,19 @@ public class ServicoAvaliacao {
             throw new IllegalArgumentException("Corrida não possui motorista alocado para avaliação.");
         }
 
-        // Verificar se já foi avaliada
-        if (repositorioAvaliacao.corridaFoiAvaliada(corridaId)) {
-            throw new IllegalArgumentException("Esta corrida já foi avaliada.");
+        if (passageiroJaAvaliouMotorista(corridaId, passageiroEmail)) {
+            throw new IllegalArgumentException("O passageiro já avaliou esta corrida.");
         }
 
         // Criar avaliação
         AvaliacaoPassageiro avaliacao = new AvaliacaoPassageiro(
-            corridaId, corrida.getMotoristaAlocado(), passageiroEmail, rating, comentario
-        );
+                corridaId, corrida.getMotoristaAlocado(), passageiroEmail, rating, comentario);
         repositorioAvaliacao.salvar(avaliacao);
 
         // Atualizar rating do motorista
         atualizarRatingMotorista(corrida.getMotoristaAlocado(), rating);
 
-        // Marcar corrida como avaliada
-        corrida.setAvaliada(true);
-        repositorioCorrida.atualizar(corrida);
+        atualizarStatusAvaliacaoCorrida(corrida);
 
         System.out.println("✅ Avaliação do motorista registrada com sucesso!");
     }
@@ -73,33 +73,37 @@ public class ServicoAvaliacao {
      */
     public void avaliarPassageiro(String corridaId, String motoristaEmail, int rating, String comentario) {
         validarAvaliacao(corridaId, motoristaEmail, rating);
-        
+
         Corrida corrida = repositorioCorrida.buscarPorId(corridaId);
         if (corrida == null) {
             throw new IllegalArgumentException("Corrida não encontrada: " + corridaId);
+        }
+
+        if (corrida.getStatus() != CorridaStatus.CONCLUIDA) {
+            throw new IllegalArgumentException("A corrida precisa estar concluída para ser avaliada.");
+        }
+
+        if (corrida.getMotoristaAlocado() == null) {
+            throw new IllegalArgumentException("Corrida não possui motorista alocado para avaliação.");
         }
 
         if (!corrida.getMotoristaAlocado().equals(motoristaEmail)) {
             throw new IllegalArgumentException("Apenas o motorista da corrida pode avaliar o passageiro.");
         }
 
-        // Verificar se já foi avaliada
-        if (repositorioAvaliacao.corridaFoiAvaliada(corridaId)) {
-            throw new IllegalArgumentException("Esta corrida já foi avaliada.");
+        if (motoristaJaAvaliouPassageiro(corridaId, motoristaEmail)) {
+            throw new IllegalArgumentException("O motorista já avaliou esta corrida.");
         }
 
         // Criar avaliação
         AvaliacaoMotorista avaliacao = new AvaliacaoMotorista(
-            corridaId, corrida.getEmailPassageiro(), motoristaEmail, rating, comentario
-        );
+                corridaId, corrida.getEmailPassageiro(), motoristaEmail, rating, comentario);
         repositorioAvaliacao.salvar(avaliacao);
 
         // Atualizar rating do passageiro
         atualizarRatingPassageiro(corrida.getEmailPassageiro(), rating);
 
-        // Marcar corrida como avaliada
-        corrida.setAvaliada(true);
-        repositorioCorrida.atualizar(corrida);
+        atualizarStatusAvaliacaoCorrida(corrida);
 
         System.out.println("✅ Avaliação do passageiro registrada com sucesso!");
     }
@@ -153,13 +157,19 @@ public class ServicoAvaliacao {
      */
     public boolean podeAvaliarCorrida(String corridaId, String usuarioEmail) {
         Corrida corrida = repositorioCorrida.buscarPorId(corridaId);
-        if (corrida == null || corrida.isAvaliada()) {
+        if (corrida == null || corrida.getStatus() != CorridaStatus.CONCLUIDA) {
             return false;
         }
 
-        // Verificar se o usuário é passageiro ou motorista da corrida
-        return corrida.getEmailPassageiro().equals(usuarioEmail) || 
-               (corrida.getMotoristaAlocado() != null && corrida.getMotoristaAlocado().equals(usuarioEmail));
+        if (corrida.getEmailPassageiro().equals(usuarioEmail)) {
+            return !passageiroJaAvaliouMotorista(corridaId, usuarioEmail);
+        }
+
+        if (corrida.getMotoristaAlocado() != null && corrida.getMotoristaAlocado().equals(usuarioEmail)) {
+            return !motoristaJaAvaliouPassageiro(corridaId, usuarioEmail);
+        }
+
+        return false;
     }
 
     /**
@@ -167,17 +177,51 @@ public class ServicoAvaliacao {
      */
     public List<Corrida> getCorridasParaAvaliar(String usuarioEmail) {
         List<Corrida> todasCorridas = repositorioCorrida.buscarTodas();
-        List<Corrida> paraAvaliar = new ArrayList<>(); // ✅ CORRIGIDO: Import ArrayList adicionado
+        List<Corrida> paraAvaliar = new ArrayList<>();
 
         for (Corrida corrida : todasCorridas) {
-            if (corrida.getStatus() == CorridaStatus.CONCLUIDA && 
-                !corrida.isAvaliada() &&
-                (corrida.getEmailPassageiro().equals(usuarioEmail) || 
-                 (corrida.getMotoristaAlocado() != null && corrida.getMotoristaAlocado().equals(usuarioEmail)))) {
+            if (corrida.getStatus() == CorridaStatus.CONCLUIDA &&
+                    usuarioPodeAvaliarCorrida(corrida, usuarioEmail)) {
                 paraAvaliar.add(corrida);
             }
         }
 
         return paraAvaliar;
+    }
+
+    private boolean usuarioPodeAvaliarCorrida(Corrida corrida, String usuarioEmail) {
+        if (corrida.getEmailPassageiro().equals(usuarioEmail)) {
+            return !passageiroJaAvaliouMotorista(corrida.getId(), usuarioEmail);
+        }
+
+        if (corrida.getMotoristaAlocado() != null && corrida.getMotoristaAlocado().equals(usuarioEmail)) {
+            return !motoristaJaAvaliouPassageiro(corrida.getId(), usuarioEmail);
+        }
+
+        return false;
+    }
+
+    private boolean passageiroJaAvaliouMotorista(String corridaId, String passageiroEmail) {
+        return repositorioAvaliacao.buscarPorCorrida(corridaId).stream()
+                .filter(AvaliacaoPassageiro.class::isInstance)
+                .map(AvaliacaoPassageiro.class::cast)
+                .anyMatch(av -> av.getPassageiroEmail().equalsIgnoreCase(passageiroEmail));
+    }
+
+    private boolean motoristaJaAvaliouPassageiro(String corridaId, String motoristaEmail) {
+        return repositorioAvaliacao.buscarPorCorrida(corridaId).stream()
+                .filter(AvaliacaoMotorista.class::isInstance)
+                .map(AvaliacaoMotorista.class::cast)
+                .anyMatch(av -> av.getMotoristaEmail().equalsIgnoreCase(motoristaEmail));
+    }
+
+    private void atualizarStatusAvaliacaoCorrida(Corrida corrida) {
+        boolean temAvaliacaoPassageiro = repositorioAvaliacao.buscarPorCorrida(corrida.getId()).stream()
+                .anyMatch(AvaliacaoPassageiro.class::isInstance);
+        boolean temAvaliacaoMotorista = repositorioAvaliacao.buscarPorCorrida(corrida.getId()).stream()
+                .anyMatch(AvaliacaoMotorista.class::isInstance);
+
+        corrida.setAvaliada(temAvaliacaoPassageiro && temAvaliacaoMotorista);
+        repositorioCorrida.atualizar(corrida);
     }
 }

@@ -1,4 +1,3 @@
 cliente1@teste.com,rest1@teste.com,,50.0,CARTAO,CRIADO,IMEDIATO,,ent@teste.com
 cliente2@teste.com,rest2@teste.com,,75.0,DINHEIRO,CRIADO,IMEDIATO,,
 cliente3@teste.com,rest3@teste.com,,100.0,PIX,CRIADO,IMEDIATO,,outro@teste.com
-kay@gmail.com,restauranteTeste@gmail.com,,14.0,Cartão de Débito,EM_PREPARO,IMEDIATO,,entregador@gmail.com

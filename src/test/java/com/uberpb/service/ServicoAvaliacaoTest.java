@@ -4,10 +4,11 @@ import com.uberpb.model.*;
 import com.uberpb.repository.RepositorioAvaliacao;
 import com.uberpb.repository.RepositorioCorrida;
 import com.uberpb.repository.RepositorioUsuario;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,24 +29,32 @@ public class ServicoAvaliacaoTest {
         repoUsuario = mock(RepositorioUsuario.class);
 
         servico = new ServicoAvaliacao(repoAvaliacao, repoCorrida, repoUsuario);
+
+        when(repoAvaliacao.buscarPorCorrida(anyString())).thenReturn(List.of());
     }
 
     @Test
-    void deveAvaliarMotoristaComSucesso() {
+    void deveAvaliarMotoristaComSucessoERegistrarNotaComentario() {
 
         Corrida corrida = mock(Corrida.class);
 
         when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
         when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
         when(corrida.getMotoristaAlocado()).thenReturn("motorista@email.com");
-        when(repoAvaliacao.corridaFoiAvaliada("1")).thenReturn(false);
 
         Motorista motorista = mock(Motorista.class);
         when(repoUsuario.buscarPorEmail("motorista@email.com")).thenReturn(motorista);
 
         servico.avaliarMotorista("1", "pass@email.com", 5, "Ótima corrida");
 
-        verify(repoAvaliacao).salvar(any(AvaliacaoPassageiro.class));
+        ArgumentCaptor<Avaliacao> captor = ArgumentCaptor.forClass(Avaliacao.class);
+        verify(repoAvaliacao).salvar(captor.capture());
+
+        AvaliacaoPassageiro avaliacao = (AvaliacaoPassageiro) captor.getValue();
+        assertEquals(5, avaliacao.getRating());
+        assertEquals("Ótima corrida", avaliacao.getComentario());
+
         verify(repoCorrida).atualizar(corrida);
         verify(repoUsuario).atualizar(motorista);
     }
@@ -56,9 +65,9 @@ public class ServicoAvaliacaoTest {
         Corrida corrida = mock(Corrida.class);
 
         when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
         when(corrida.getMotoristaAlocado()).thenReturn("motorista@email.com");
         when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
-        when(repoAvaliacao.corridaFoiAvaliada("1")).thenReturn(false);
 
         Passageiro passageiro = mock(Passageiro.class);
         when(repoUsuario.buscarPorEmail("pass@email.com")).thenReturn(passageiro);
@@ -68,6 +77,42 @@ public class ServicoAvaliacaoTest {
         verify(repoAvaliacao).salvar(any(AvaliacaoMotorista.class));
         verify(repoCorrida).atualizar(corrida);
         verify(repoUsuario).atualizar(passageiro);
+    }
+
+    @Test
+    void devePermitirAvaliacaoMutuaNaMesmaCorrida() {
+        Corrida corrida = new Corrida(
+                "1",
+                "pass@email.com",
+                "Origem",
+                "Destino",
+                null,
+                null,
+                CategoriaVeiculo.UBERX,
+                MetodoPagamento.PIX,
+                "motorista@email.com",
+                CorridaStatus.CONCLUIDA);
+
+        when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+
+        Motorista motorista = new Motorista("motorista@email.com", "hash");
+        Passageiro passageiro = new Passageiro("pass@email.com", "hash");
+        when(repoUsuario.buscarPorEmail("motorista@email.com")).thenReturn(motorista);
+        when(repoUsuario.buscarPorEmail("pass@email.com")).thenReturn(passageiro);
+
+        List<Avaliacao> avaliacoes = new ArrayList<>();
+        doAnswer(invocation -> {
+            Avaliacao avaliacao = invocation.getArgument(0);
+            avaliacoes.add(avaliacao);
+            return null;
+        }).when(repoAvaliacao).salvar(any(Avaliacao.class));
+        when(repoAvaliacao.buscarPorCorrida("1")).thenAnswer(invocation -> new ArrayList<>(avaliacoes));
+
+        assertDoesNotThrow(() -> servico.avaliarMotorista("1", "pass@email.com", 5, "Muito bom"));
+        assertDoesNotThrow(() -> servico.avaliarPassageiro("1", "motorista@email.com", 4, "Pontual"));
+
+        assertTrue(corrida.isAvaliada());
+        assertEquals(2, avaliacoes.size());
     }
 
     @Test
@@ -93,20 +138,44 @@ public class ServicoAvaliacaoTest {
     }
 
     @Test
-    void naoDevePermitirAvaliarCorridaJaAvaliada() {
+    void naoDevePermitirAvaliarAntesDaCorridaConcluida() {
 
         Corrida corrida = mock(Corrida.class);
 
         when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.EM_ANDAMENTO);
         when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
         when(corrida.getMotoristaAlocado()).thenReturn("motorista@email.com");
-        when(repoAvaliacao.corridaFoiAvaliada("1")).thenReturn(true);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             servico.avaliarMotorista("1", "pass@email.com", 5, "ok");
         });
 
-        assertEquals("Esta corrida já foi avaliada.", ex.getMessage());
+        assertEquals("A corrida precisa estar concluída para ser avaliada.", ex.getMessage());
+    }
+
+    @Test
+    void naoDevePermitirMesmaParteAvaliarDuasVezes() {
+        Corrida corrida = mock(Corrida.class);
+
+        when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
+        when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
+        when(corrida.getMotoristaAlocado()).thenReturn("motorista@email.com");
+
+        AvaliacaoPassageiro avaliacaoExistente = new AvaliacaoPassageiro(
+                "1",
+                "motorista@email.com",
+                "pass@email.com",
+                4,
+                "Boa");
+        when(repoAvaliacao.buscarPorCorrida("1")).thenReturn(List.of(avaliacaoExistente));
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            servico.avaliarMotorista("1", "pass@email.com", 5, "Excelente");
+        });
+
+        assertEquals("O passageiro já avaliou esta corrida.", ex.getMessage());
     }
 
     @Test
@@ -115,9 +184,9 @@ public class ServicoAvaliacaoTest {
         Corrida corrida = mock(Corrida.class);
 
         when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
         when(corrida.getEmailPassageiro()).thenReturn("outro@email.com");
         when(corrida.getMotoristaAlocado()).thenReturn("motorista@email.com");
-        when(repoAvaliacao.corridaFoiAvaliada("1")).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> {
             servico.avaliarMotorista("1", "pass@email.com", 5, "ok");
@@ -130,9 +199,9 @@ public class ServicoAvaliacaoTest {
         Corrida corrida = mock(Corrida.class);
 
         when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
         when(corrida.getMotoristaAlocado()).thenReturn("outro@email.com");
         when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
-        when(repoAvaliacao.corridaFoiAvaliada("1")).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> {
             servico.avaliarPassageiro("1", "motorista@email.com", 5, "ok");
@@ -166,12 +235,31 @@ public class ServicoAvaliacaoTest {
     }
 
     @Test
+    void deveCalcularMediaDoMotoristaAoReceberNovaAvaliacao() {
+        Corrida corrida = mock(Corrida.class);
+
+        when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
+        when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
+        when(corrida.getMotoristaAlocado()).thenReturn("motorista@email.com");
+
+        Motorista motorista = new Motorista("motorista@email.com", "hash");
+        motorista.adicionarAvaliacao(4);
+        when(repoUsuario.buscarPorEmail("motorista@email.com")).thenReturn(motorista);
+
+        servico.avaliarMotorista("1", "pass@email.com", 5, "Excelente");
+
+        assertEquals(4.5, motorista.getRatingMedio(), 0.01);
+        assertEquals(2, motorista.getTotalAvaliacoes());
+    }
+
+    @Test
     void devePermitirAvaliarCorrida() {
 
         Corrida corrida = mock(Corrida.class);
 
         when(repoCorrida.buscarPorId("1")).thenReturn(corrida);
-        when(corrida.isAvaliada()).thenReturn(false);
+        when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
         when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
 
         boolean resultado = servico.podeAvaliarCorrida("1", "pass@email.com");
@@ -179,14 +267,12 @@ public class ServicoAvaliacaoTest {
         assertTrue(resultado);
     }
 
-
     @Test
     void deveListarCorridasParaAvaliar() {
 
         Corrida corrida = mock(Corrida.class);
 
         when(corrida.getStatus()).thenReturn(CorridaStatus.CONCLUIDA);
-        when(corrida.isAvaliada()).thenReturn(false);
         when(corrida.getEmailPassageiro()).thenReturn("pass@email.com");
 
         when(repoCorrida.buscarTodas()).thenReturn(List.of(corrida));

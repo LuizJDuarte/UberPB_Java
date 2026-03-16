@@ -32,7 +32,7 @@ public class AvaliarCorridaComando implements Comando {
         if (corridasParaAvaliar.isEmpty()) {
             System.out.println("📝 Nenhuma corrida disponível para avaliação no momento.");
             System.out.println("   - As corridas precisam estar CONCLUÍDAS");
-            System.out.println("   - E ainda não terem sido avaliadas");
+            System.out.println("   - E você ainda não pode ter avaliado a sua parte");
             return;
         }
         
