@@ -1,20 +1,48 @@
-25de8990-a5a3-48a8-9c03-b304e2f1be68,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 23;00. Acesse para confirmar ou rejeitar.,2026-03-15T22:38:55.332806600,true
-3270e4bf-3977-4530-a7f9-95fa29e36d5b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 23;00,2026-03-15T22:38:55.332806600,true
-4d336f0f-66e5-4cd7-892f-568a6342afa9,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-15T22:38:55.332806600,true
-8b7886ca-5d3d-4a76-912f-0c5f51cabc68,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-15T22:38:55.332806600,true
-b7ce0171-edf6-44c2-b0b5-b0a89a821e01,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-15T22:38:55.332806600,true
-00a784a6-a394-48fd-9fe6-b96fc8c3c13f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-15T22:38:55.332806600,true
-777ab5f4-5710-427d-9ec5-b4969ff30932,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-15T22:38:55.332806600,true
-338be0f5-14ff-46c8-80f9-b9d7c7a0af81,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-15T22:38:55.332806600,true
-55cb7ab4-8d0f-461a-82b8-3f8f4e90b3c3,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-15T22:38:55.332806600,true
-200eb826-7942-4e1a-9589-d442a0641a5d,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-15T22:38:55.332806600,true
-88826215-0554-40ba-8845-ddc8ec22897a,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-15T22:38:55.332806600,true
-af10f74f-1bcf-4cfc-8982-3960a35de1cc,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-15T22:38:55.332806600,true
-e4f7983c-62dd-4b98-845d-eedddd11cbbc,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-15T22:38:55.332806600,true
-3e03daed-e517-4dbf-853e-a4ead191ab2c,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-15T22:38:55.332806600,true
-3e494440-28a4-4b61-9df1-b0ad41a3c51c,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-15T22:40:14.330511400,false
-10276a86-2723-4f60-a6f5-48ce8cb44e2b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-15T22:40:54.640408800,false
-b31f59c6-7890-45ef-8ab4-1179ef517d82,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-15T22:40:54.651199300,false
-42f92aaa-9b7d-4034-806b-b819377eea5f,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-15T22:41:50.612202100,false
-4ac674c8-5f0f-49ac-9b33-bc33e5f57e64,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-15T22:42:09.036344800,false
-b7b9fa02-02ed-4b85-bf35-5fbe4683129f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-15T22:42:09.041494600,false
+25de8990-a5a3-48a8-9c03-b304e2f1be68,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 23;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,true
+3270e4bf-3977-4530-a7f9-95fa29e36d5b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 23;00,2026-03-16T15:26:04.951283700,true
+4d336f0f-66e5-4cd7-892f-568a6342afa9,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,true
+8b7886ca-5d3d-4a76-912f-0c5f51cabc68,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,true
+b7ce0171-edf6-44c2-b0b5-b0a89a821e01,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-16T15:26:04.951283700,true
+00a784a6-a394-48fd-9fe6-b96fc8c3c13f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-16T15:26:04.951283700,true
+777ab5f4-5710-427d-9ec5-b4969ff30932,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-16T15:26:04.951283700,true
+338be0f5-14ff-46c8-80f9-b9d7c7a0af81,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,true
+55cb7ab4-8d0f-461a-82b8-3f8f4e90b3c3,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-16T15:26:04.951283700,true
+200eb826-7942-4e1a-9589-d442a0641a5d,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,true
+88826215-0554-40ba-8845-ddc8ec22897a,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-16T15:26:04.951283700,true
+af10f74f-1bcf-4cfc-8982-3960a35de1cc,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-16T15:26:04.951283700,true
+e4f7983c-62dd-4b98-845d-eedddd11cbbc,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,true
+3e03daed-e517-4dbf-853e-a4ead191ab2c,kay@gmail.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-16T15:26:04.951283700,true
+3e494440-28a4-4b61-9df1-b0ad41a3c51c,restauranteTeste@gmail.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de kay@gmail.com no valor de R$ 14;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,false
+10276a86-2723-4f60-a6f5-48ce8cb44e2b,entregador@gmail.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante MC pato! Valor da entrega: R$ 14;00,2026-03-16T15:26:04.951283700,false
+b31f59c6-7890-45ef-8ab4-1179ef517d82,kay@gmail.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,false
+42f92aaa-9b7d-4034-806b-b819377eea5f,kay@gmail.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,false
+4ac674c8-5f0f-49ac-9b33-bc33e5f57e64,kay@gmail.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-16T15:26:04.951283700,false
+b7b9fa02-02ed-4b85-bf35-5fbe4683129f,entregador@gmail.com,PEDIDO_EM_ROTA,O pedido do cliente kay@gmail.com agora está em preparo.,2026-03-16T15:26:04.951283700,false
+ad94f786-3fa9-4525-b7d7-d99187a26164,r1@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de p1@email.com no valor de R$ 2602;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,false
+350d2f91-deaf-4fa2-9230-2265347c953a,e1@email.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante 1! Valor da entrega: R$ 2602;00,2026-03-16T15:26:04.951283700,true
+9fe1cd7c-e982-4f16-acd8-ab1e69c50a73,p1@email.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,false
+023bde33-5761-4775-a04a-20e8d9235345,p1@email.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-16T15:26:04.951283700,false
+1fb5cdd4-b99f-4b7e-b3e3-6b345f1a11f8,e1@email.com,PEDIDO_EM_ROTA,O pedido do cliente p1@email.com agora está em preparo.,2026-03-16T15:26:04.951283700,true
+9f69b972-f523-46cc-a9f7-9091fd87ce48,p1@email.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-16T15:26:04.951283700,false
+b4e68c60-3baf-442b-8b25-39e811884791,r1@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de p1@email.com no valor de R$ 54;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,false
+b6fe419a-a241-4a43-9e68-67b400ff7760,e1@email.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante 1! Valor da entrega: R$ 54;00,2026-03-16T15:26:04.951283700,false
+2d5002dc-7480-4c6c-b50e-0a26c4f65c81,p1@email.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,false
+0f7fbcce-a96b-4667-af64-2711dcf10aa7,p1@email.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,false
+73ca1660-780d-4400-879d-c4a5f571820b,p1@email.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-16T15:26:04.951283700,false
+12c64e8c-f69d-41d8-b2c0-bfff94da94dd,e1@email.com,PEDIDO_EM_ROTA,O pedido do cliente p1@email.com agora está em preparo.,2026-03-16T15:26:04.951283700,false
+18f050c5-4ab6-42a0-bb84-0efeb2ca71c0,p1@email.com,SISTEMA,Seu pedido saiu para entrega.,2026-03-16T15:26:04.951283700,false
+e98d8e86-a56c-4f41-ba23-2b218c55edba,r1@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de p1@email.com no valor de R$ 52;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,false
+18acdafc-3a8f-4428-b978-8f6757a6a24d,e1@email.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante 1! Valor da entrega: R$ 52;00,2026-03-16T15:26:04.951283700,false
+080c03f8-d432-4fc4-87e2-58972c790d4b,p1@email.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,false
+1fc43a46-0416-4d46-874e-c238d163951a,p1@email.com,SISTEMA,Seu pedido está sendo preparado.,2026-03-16T15:26:04.951283700,false
+1e5fd110-71db-441a-9948-4527fb8d7a63,e1@email.com,PEDIDO_EM_ROTA,O pedido do cliente p1@email.com agora está em preparo.,2026-03-16T15:26:04.951283700,false
+47470eae-2cb6-4136-80ec-dd3ce4c9988d,r1@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de p1@email.com no valor de R$ 28;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:26:04.951283700,false
+6cff52f9-8f3d-403c-a70a-507587b31d10,e1@email.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante 1! Valor da entrega: R$ 28;00,2026-03-16T15:26:04.951283700,false
+eeb7428d-bf48-47e6-b6ff-ba5c44eca8ed,p1@email.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:26:04.951283700,false
+c592ab76-d7b4-4a1a-a131-93e64f6f34e6,p1@email.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,false
+ceb8cc16-67b0-413c-80f9-385c02abf027,p1@email.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,false
+2c598731-0e14-4682-91ca-14ced7e397a1,p1@email.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:26:04.951283700,false
+b7b83908-95f9-46df-9157-ad0de3ff9fe4,r1@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de p2@email.com no valor de R$ 28;00. Acesse para confirmar ou rejeitar.,2026-03-16T15:27:19.087979800,false
+ca07b1f0-b6df-46f7-9002-baf8a402f55f,e1@email.com,PEDIDO_DISPONIVEL_ENTREGADOR,Pedido disponível do restaurante 1! Valor da entrega: R$ 28;00,2026-03-16T15:29:15.901902700,false
+c01d834b-9c05-4ae6-b24c-696e535876e1,p2@email.com,SISTEMA,Seu pedido foi confirmado pelo restaurante.,2026-03-16T15:29:15.910934600,false
+ea347d97-ae64-4022-9cf2-a6e7b72b41f9,p2@email.com,SISTEMA,Um entregador aceitou a entrega do seu pedido!,2026-03-16T15:30:00.974752,false

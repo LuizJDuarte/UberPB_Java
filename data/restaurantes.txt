@@ -1,1 +1,2 @@
 RESTAURANTE,restauranteTeste@gmail.com,a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,MC pato,,true,5.950000,-142.220000,8.00,60,coca cola#refrigerante lata#6.00|batata frita#experimente j�#16.00|mc flury#sorvete#15.00|guarana zero#refrigerante lata#7.00
+RESTAURANTE,r1@email.com,d03febfa0a4c438c5db62bb3278e51fb235b53bb1f65ea5f44b0fccb903c46e3,1,,true,-63.630000,-46.410000,2.00,16,podrao#xtudo#26.00|tem#temtem#10.00

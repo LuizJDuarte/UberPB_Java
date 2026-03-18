@@ -3,11 +3,13 @@ package com.uberpb.model;
 public abstract class Usuario {
     protected String email;
     protected String senhaHash; // Senha já hashed
+    protected Localizacao localizacao; // ⭐ NOVO: Campo de localização
 
     // Construtor
     public Usuario(String email, String senhaHash) {
         this.email = email;
         this.senhaHash = senhaHash;
+        this.localizacao = new Localizacao(0.0, 0.0); // ⭐ Inicializar com localização padrão
     }
 
     // Getters
@@ -19,6 +21,11 @@ public abstract class Usuario {
         return senhaHash;
     }
 
+    // ⭐ NOVO: Getter para localização
+    public Localizacao getLocalizacao() {
+        return localizacao;
+    }
+
     // Setters (se necessário, mas para email/senha pode ser só no construtor)
     public void setEmail(String email) {
         this.email = email;
@@ -26,6 +33,16 @@ public abstract class Usuario {
 
     public void setSenhaHash(String senhaHash) {
         this.senhaHash = senhaHash;
+    }
+
+    // ⭐ NOVO: Setter para localização
+    public void setLocalizacao(Localizacao localizacao) {
+        this.localizacao = localizacao;
+    }
+
+    // ⭐ NOVO: Método conveniente para atualizar localização
+    public void atualizarLocalizacao(double latitude, double longitude) {
+        this.localizacao = new Localizacao(latitude, longitude);
     }
 
     // Métodos abstratos ou comuns
@@ -43,5 +60,4 @@ public abstract class Usuario {
         if (this instanceof Restaurante)   return TipoUsuario.RESTAURANTE;
         return TipoUsuario.PASSAGEIRO_CLIENTE;
     }
-
 }

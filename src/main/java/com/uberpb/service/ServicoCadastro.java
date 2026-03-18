@@ -51,6 +51,11 @@ public class ServicoCadastro {
         return motorista;
     }
 
+    // Adicione este método na classe ServicoCadastro
+public com.uberpb.model.Usuario buscar(String email) {
+    return repositorioUsuario.buscarPorEmail(email);
+}
+
     public Entregador cadastrarEntregador(String email, String senha, String cnh, String cpf) {
         if (!PasswordUtil.isValidEmail(email)) {
             throw new IllegalArgumentException("Formato de e-mail inválido.");

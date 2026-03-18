@@ -29,8 +29,13 @@ public class CadastrarPassageiroComando implements Comando {
         System.out.print("Senha: ");
         String senha = entrada.nextLine();
 
-        // Chama o seu serviço de cadastro já existente:
-        contexto.servicoCadastro.cadastrarPassageiro(email, senha);
+        System.out.print("Seu endereço (ex: Bairro Liberdade): ");
+    String endereco = entrada.nextLine();
+
+    var p = contexto.servicoCadastro.cadastrarPassageiro(email, senha);
+
+    com.uberpb.model.Localizacao loc = contexto.servicoLocalizacao.geocodificar(endereco);
+    p.setLocalizacao(loc);
 
         System.out.println("OK! Passageiro cadastrado.");
     }

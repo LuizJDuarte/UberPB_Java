@@ -16,6 +16,22 @@ public class ServicoOtimizacaoRotaTest {
     }
 
     @Test
+    public void VisualizacaoDaRota() {
+        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
+        Localizacao origem = new Localizacao(-7.22, -35.88);
+        Localizacao destino = new Localizacao(-7.25, -35.91);
+
+        var rota = servico.calcularRotaOtimizada(origem, destino);
+
+        // Testa se a lista de pontos tem exatamente 5 itens
+        assertEquals(5, rota.getPontosRota().size(), "A rota deveria ter 5 pontos");
+        
+        // Testa se a distância é maior que zero
+        assertTrue(rota.getDistanciaKm() > 0, "A distância deveria ser positiva");
+    }
+
+
+    @Test
     void deveCalcularRotaOtimizada() {
 
         Localizacao origem = new Localizacao(-7.23072, -35.8817);

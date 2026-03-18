@@ -6,6 +6,7 @@ import com.uberpb.repository.RepositorioRestaurante;
 import com.uberpb.repository.RepositorioUsuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.uberpb.repository.ImplRepositorioUsuarioArquivo;
 
 import java.util.*;
 
@@ -141,6 +142,18 @@ public class ServicoCadastroTest {
         assertTrue(entregador.isContaAtiva());
         assertFalse(entregador.isCnhValida());
         assertFalse(entregador.isDocIdentidadeValido());
+    }
+
+    @Test
+    public void deveCadastrarEntregadorComLocalizacao() {
+        var repo = ImplRepositorioUsuarioArquivo.getInstance();
+        ServicoCadastro servico = new ServicoCadastro(repo);
+        
+        var e = servico.cadastrarEntregador("teste@entregador.com", "123", "CNH123", "CPF123");
+        e.setLocalizacao(new com.uberpb.model.Localizacao(-7.0, -35.0));
+        
+        assertNotNull(e.getLocalizacao());
+        assertEquals(-7.0, e.getLocalizacao().latitude());
     }
 
     @Test

@@ -5,7 +5,7 @@ package com.uberpb.model;
  *   - Construtor: Motorista(String email, String senhaHash)
  *   - Campos: veiculo, cnhValida, crlvValido, contaAtiva
  * Persistência:
- *   "MOTORISTA,email,senhaHash,cnhValida,crlvValido,contaAtiva,ratingMedio,totalAvaliacoes,veiculoDataOuNull"
+ *   "MOTORISTA,email,senhaHash,cnhValida,crlvValido,contaAtiva,ratingMedio,totalAvaliacoes,disponivel,latitude,longitude,veiculoDataOuNull"
  */
 public class Motorista extends Usuario {
 
@@ -69,11 +69,20 @@ public class Motorista extends Usuario {
           .append(contaAtiva).append(",")
           .append(ratingMedio).append(",")
           .append(totalAvaliacoes).append(",")
-          .append(disponivel).append(","); // Novo campo
+          .append(disponivel).append(",");
+        
+        // ⭐ NOVO: Adicionar localização
+        if (localizacao != null) {
+            sb.append(localizacao.latitude()).append(",").append(localizacao.longitude()).append(",");
+        } else {
+            sb.append("0.0,0.0,");
+        }
+        
+        // Veículo (mantém no final)
         if (veiculo != null) {
             sb.append(veiculo.toStringParaPersistencia());
         } else {
-            sb.append("null"); // Apenas 'null', sem vírgula antes
+            sb.append("null");
         }
         return sb.toString();
     }
@@ -85,12 +94,15 @@ public class Motorista extends Usuario {
         String ratingInfo = totalAvaliacoes > 0 ?
             String.format("⭐ %.1f (%d avaliações)", ratingMedio, totalAvaliacoes) :
             "⭐ Sem avaliações";
+        String loc = localizacao != null ? 
+            String.format(" | Loc: [%.4f, %.4f]", localizacao.latitude(), localizacao.longitude()) : "";
 
         return "Motorista - " + super.toString() +
                ", Status: " + statusConta + " | " + statusOnline +
                ", CNH: " + (cnhValida ? "OK" : "Pendente") +
                ", CRLV: " + (crlvValido ? "OK" : "Pendente") +
                ", " + ratingInfo +
-               (veiculo != null ? ", " + veiculo.toString() : ", Sem veículo");
+               (veiculo != null ? ", " + veiculo.toString() : ", Sem veículo") +
+               loc;
     }
 }
