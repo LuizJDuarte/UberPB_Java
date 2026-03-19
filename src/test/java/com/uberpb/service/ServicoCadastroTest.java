@@ -6,236 +6,168 @@ import com.uberpb.repository.RepositorioRestaurante;
 import com.uberpb.repository.RepositorioUsuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.uberpb.repository.ImplRepositorioUsuarioArquivo;
-
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ServicoCadastroTest {
+class ServicoCadastroTest {
 
-    private ServicoCadastro servicoCadastro;
     private RepositorioUsuario repositorioUsuario;
     private RepositorioRestaurante repositorioRestaurante;
-
-    // ==========================
-    // REPOSITÓRIO EM MEMÓRIA
-    // ==========================
-
-    static class InMemoryRepositorioUsuario implements RepositorioUsuario {
-
-        private final Map<String, Usuario> database = new HashMap<>();
-
-        @Override
-        public void salvar(Usuario usuario) {
-            database.put(usuario.getEmail(), usuario);
-        }
-
-        @Override
-        public void atualizar(Usuario usuario) {
-            database.put(usuario.getEmail(), usuario);
-        }
-
-        @Override
-        public Usuario buscarPorEmail(String email) {
-            return database.get(email);
-        }
-
-        @Override
-        public List<Usuario> buscarTodos() {
-            return List.copyOf(database.values());
-        }
-
-        @Override
-        public void remover(String email) {
-            database.remove(email);
-        }
-
-        @Override
-        public void limpar() {
-            database.clear();
-        }
-    }
+    private ServicoCadastro servico;
 
     @BeforeEach
     void setup() {
-
-        repositorioUsuario = new InMemoryRepositorioUsuario();
+        repositorioUsuario = mock(RepositorioUsuario.class);
         repositorioRestaurante = mock(RepositorioRestaurante.class);
-
-        servicoCadastro = new ServicoCadastro(repositorioUsuario);
-        servicoCadastro.setRepositorioRestaurante(repositorioRestaurante);
+        servico = new ServicoCadastro(repositorioUsuario);
+        servico.setRepositorioRestaurante(repositorioRestaurante);
     }
 
-    // ==========================
+    // =========================
     // PASSAGEIRO
-    // ==========================
+    // =========================
 
     @Test
     void deveCadastrarPassageiro() {
+        when(repositorioUsuario.buscarPorEmail("teste@email.com")).thenReturn(null);
 
-        Passageiro passageiro =
-                servicoCadastro.cadastrarPassageiro("passageiro@email.com", "123");
+        Passageiro p = servico.cadastrarPassageiro("teste@email.com", "123");
 
-        assertNotNull(passageiro);
-        assertEquals("passageiro@email.com", passageiro.getEmail());
-
-        Usuario salvo = repositorioUsuario.buscarPorEmail("passageiro@email.com");
-
-        assertNotNull(salvo);
-        assertTrue(salvo instanceof Passageiro);
+        assertNotNull(p);
+        verify(repositorioUsuario).salvar(p);
     }
 
     @Test
     void naoDeveCadastrarPassageiroEmailInvalido() {
-
         assertThrows(IllegalArgumentException.class, () ->
-                servicoCadastro.cadastrarPassageiro("email-invalido", "123"));
+                servico.cadastrarPassageiro("email_invalido", "123"));
     }
 
-    // ==========================
+    @Test
+    void naoDeveCadastrarPassageiroEmailDuplicado() {
+        when(repositorioUsuario.buscarPorEmail("teste@email.com"))
+                .thenReturn(new Passageiro("teste@email.com", "hash"));
+
+        assertThrows(EmailJaExistenteException.class, () ->
+                servico.cadastrarPassageiro("teste@email.com", "123"));
+    }
+
+    // =========================
     // MOTORISTA
-    // ==========================
+    // =========================
 
     @Test
     void deveCadastrarMotorista() {
+        when(repositorioUsuario.buscarPorEmail("m@email.com")).thenReturn(null);
 
-        Motorista motorista =
-                servicoCadastro.cadastrarMotorista("motorista@email.com", "123");
+        Motorista m = servico.cadastrarMotorista("m@email.com", "123");
 
-        assertNotNull(motorista);
-        assertEquals("motorista@email.com", motorista.getEmail());
-
-        Usuario salvo = repositorioUsuario.buscarPorEmail("motorista@email.com");
-
-        assertTrue(salvo instanceof Motorista);
+        assertNotNull(m);
+        verify(repositorioUsuario).salvar(m);
     }
 
     @Test
-    void motoristaNaoPodeTerEmailDuplicado() {
-
-        servicoCadastro.cadastrarMotorista("motorista@email.com", "123");
+    void naoDeveCadastrarMotoristaEmailDuplicado() {
+        when(repositorioUsuario.buscarPorEmail("m@email.com"))
+                .thenReturn(new Motorista("m@email.com", "hash"));
 
         assertThrows(EmailJaExistenteException.class, () ->
-                servicoCadastro.cadastrarMotorista("motorista@email.com", "456"));
+                servico.cadastrarMotorista("m@email.com", "123"));
     }
 
-    // ==========================
+    // =========================
     // ENTREGADOR
-    // ==========================
+    // =========================
 
     @Test
-    void deveCadastrarEntregador() {
+    void deveCadastrarEntregadorComDados() {
+        when(repositorioUsuario.buscarPorEmail("e@email.com")).thenReturn(null);
 
-        Entregador entregador = servicoCadastro.cadastrarEntregador(
-                "entregador@email.com",
-                "123",
-                "123456",
-                "99999999999"
-        );
+        Entregador e = servico.cadastrarEntregador("e@email.com", "123", "123CNH", "123CPF");
 
-        assertNotNull(entregador);
-        assertEquals("123456", entregador.getCnhNumero());
-        assertEquals("99999999999", entregador.getCpfNumero());
+        assertEquals("123CNH", e.getCnhNumero());
+        assertEquals("123CPF", e.getCpfNumero());
+        assertTrue(e.isContaAtiva());
 
-        assertTrue(entregador.isContaAtiva());
-        assertFalse(entregador.isCnhValida());
-        assertFalse(entregador.isDocIdentidadeValido());
-    }
-
-    @Test
-    public void deveCadastrarEntregadorComLocalizacao() {
-        var repo = ImplRepositorioUsuarioArquivo.getInstance();
-        ServicoCadastro servico = new ServicoCadastro(repo);
-        
-        var e = servico.cadastrarEntregador("teste@entregador.com", "123", "CNH123", "CPF123");
-        e.setLocalizacao(new com.uberpb.model.Localizacao(-7.0, -35.0));
-        
-        assertNotNull(e.getLocalizacao());
-        assertEquals(-7.0, e.getLocalizacao().latitude());
+        verify(repositorioUsuario).salvar(e);
     }
 
     @Test
     void deveCadastrarEntregadorComCamposNull() {
+        when(repositorioUsuario.buscarPorEmail("e@email.com")).thenReturn(null);
 
-        Entregador entregador = servicoCadastro.cadastrarEntregador(
-                "entregador2@email.com",
-                "123",
-                null,
-                null
-        );
+        Entregador e = servico.cadastrarEntregador("e@email.com", "123", null, null);
 
-        assertEquals("", entregador.getCnhNumero());
-        assertEquals("", entregador.getCpfNumero());
+        assertEquals("", e.getCnhNumero());
+        assertEquals("", e.getCpfNumero());
     }
 
     @Test
-    void entregadorNaoPodeTerEmailDuplicado() {
-
-        servicoCadastro.cadastrarEntregador(
-                "entregador@email.com", "123", "1", "1");
+    void naoDeveCadastrarEntregadorEmailDuplicado() {
+        when(repositorioUsuario.buscarPorEmail("e@email.com"))
+                .thenReturn(new Entregador("e@email.com", "hash"));
 
         assertThrows(EmailJaExistenteException.class, () ->
-                servicoCadastro.cadastrarEntregador(
-                        "entregador@email.com", "123", "2", "2"));
+                servico.cadastrarEntregador("e@email.com", "123", "cnh", "cpf"));
     }
 
-    // ==========================
+    // =========================
     // RESTAURANTE
-    // ==========================
+    // =========================
 
     @Test
-    void deveCadastrarRestaurante() {
+    void deveCadastrarRestauranteComRepositorio() {
+        when(repositorioUsuario.buscarPorEmail("r@email.com")).thenReturn(null);
 
-        Restaurante restaurante =
-                servicoCadastro.cadastrarRestaurante(
-                        "restaurante@email.com",
-                        "123",
-                        "Pizza Top",
-                        "12345678000199"
-                );
-
-        assertNotNull(restaurante);
-
-        assertEquals("Pizza Top", restaurante.getNomeFantasia());
-        assertEquals("12345678000199", restaurante.getCnpj());
-
-        verify(repositorioRestaurante).salvar(restaurante);
-    }
-
-    @Test
-    void restauranteComCamposNull() {
-
-        Restaurante restaurante =
-                servicoCadastro.cadastrarRestaurante(
-                        "rest2@email.com",
-                        "123",
-                        null,
-                        null
-                );
-
-        assertEquals("", restaurante.getNomeFantasia());
-        assertEquals("", restaurante.getCnpj());
-    }
-
-    @Test
-    void restauranteNaoPodeTerEmailDuplicado() {
-
-        servicoCadastro.cadastrarRestaurante(
-                "rest@email.com",
-                "123",
-                "R1",
-                "1"
+        Restaurante r = servico.cadastrarRestaurante(
+                "r@email.com", "123", "Meu Restaurante", "123CNPJ"
         );
 
-        assertThrows(EmailJaExistenteException.class, () ->
-                servicoCadastro.cadastrarRestaurante(
-                        "rest@email.com",
-                        "123",
-                        "R2",
-                        "2"
-                ));
+        assertEquals("Meu Restaurante", r.getNomeFantasia());
+        assertEquals("123CNPJ", r.getCnpj());
+
+        verify(repositorioUsuario).salvar(r);
+        verify(repositorioRestaurante).salvar(r);
     }
 
+    @Test
+    void deveCadastrarRestauranteSemRepositorioRestaurante() {
+        ServicoCadastro servicoSemRepo = new ServicoCadastro(repositorioUsuario);
+
+        when(repositorioUsuario.buscarPorEmail("r@email.com")).thenReturn(null);
+
+        Restaurante r = servicoSemRepo.cadastrarRestaurante(
+                "r@email.com", "123", "Restaurante", "CNPJ"
+        );
+
+        assertNotNull(r);
+        verify(repositorioUsuario).salvar(r);
+        // NÃO deve lançar erro mesmo sem repositorioRestaurante
+    }
+
+    @Test
+    void naoDeveCadastrarRestauranteEmailDuplicado() {
+        when(repositorioUsuario.buscarPorEmail("r@email.com"))
+                .thenReturn(new Restaurante("r@email.com", "hash"));
+
+        assertThrows(EmailJaExistenteException.class, () ->
+                servico.cadastrarRestaurante("r@email.com", "123", "Nome", "CNPJ"));
+    }
+
+    // =========================
+    // BUSCAR
+    // =========================
+
+    @Test
+    void deveBuscarUsuario() {
+        Usuario u = new Passageiro("teste@email.com", "hash");
+
+        when(repositorioUsuario.buscarPorEmail("teste@email.com"))
+                .thenReturn(u);
+
+        Usuario resultado = servico.buscar("teste@email.com");
+
+        assertEquals(u, resultado);
+    }
 }

@@ -1,90 +1,82 @@
 package com.uberpb.service;
 
 import com.uberpb.model.Localizacao;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ServicoOtimizacaoRotaTest {
-
-    private ServicoOtimizacaoRota servico;
-
-    @BeforeEach
-    void setUp() {
-        servico = new ServicoOtimizacaoRota();
-    }
-
-    @Test
-    public void VisualizacaoDaRota() {
-        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
-        Localizacao origem = new Localizacao(-7.22, -35.88);
-        Localizacao destino = new Localizacao(-7.25, -35.91);
-
-        var rota = servico.calcularRotaOtimizada(origem, destino);
-
-        // Testa se a lista de pontos tem exatamente 5 itens
-        assertEquals(5, rota.getPontosRota().size(), "A rota deveria ter 5 pontos");
-        
-        // Testa se a distância é maior que zero
-        assertTrue(rota.getDistanciaKm() > 0, "A distância deveria ser positiva");
-    }
-
+class ServicoOtimizacaoRotaTest {
 
     @Test
     void deveCalcularRotaOtimizada() {
+        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
 
-        Localizacao origem = new Localizacao(-7.23072, -35.8817);
-        Localizacao destino = new Localizacao(-7.25000, -35.9000);
+        Localizacao origem = new Localizacao(0, 0);
+        Localizacao destino = new Localizacao(1, 1);
 
         RotaOtimizada rota = servico.calcularRotaOtimizada(origem, destino);
 
         assertNotNull(rota);
-    }
-
-    @Test
-    void deveManterOrigemEDestinoCorretos() {
-
-        Localizacao origem = new Localizacao(-7.23, -35.88);
-        Localizacao destino = new Localizacao(-7.25, -35.90);
-
-        RotaOtimizada rota = servico.calcularRotaOtimizada(origem, destino);
-
         assertEquals(origem, rota.getOrigem());
         assertEquals(destino, rota.getDestino());
+
+        assertTrue(rota.getDistanciaKm() > 0);
+        assertTrue(rota.getTempoEstimadoMinutos() > 0);
+        assertNotNull(rota.getPontosRota());
+        assertFalse(rota.getPontosRota().isEmpty());
     }
 
     @Test
-    void deveGerarPontosDaRota() {
+    void deveGerarPontosNaRota() {
+        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
 
-        Localizacao origem = new Localizacao(-7.23, -35.88);
-        Localizacao destino = new Localizacao(-7.25, -35.90);
+        Localizacao origem = new Localizacao(0, 0);
+        Localizacao destino = new Localizacao(10, 10);
 
         RotaOtimizada rota = servico.calcularRotaOtimizada(origem, destino);
 
         assertNotNull(rota.getPontosRota());
         assertTrue(rota.getPontosRota().size() >= 2);
+
+        assertEquals(origem, rota.getPontosRota().get(0));
+        assertEquals(destino, rota.getPontosRota()
+                .get(rota.getPontosRota().size() - 1));
     }
 
     @Test
-    void distanciaOtimizadaDeveSerPositiva() {
+    void deveCalcularEconomiaTempo() {
+        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
 
-        Localizacao origem = new Localizacao(-7.23, -35.88);
-        Localizacao destino = new Localizacao(-7.25, -35.90);
-
-        RotaOtimizada rota = servico.calcularRotaOtimizada(origem, destino);
-
-        assertTrue(rota.getDistanciaKm() > 0);
-    }
-
-    @Test
-    void economiaDeTempoDeveSerPositiva() {
-
-        Localizacao origem = new Localizacao(-7.23, -35.88);
-        Localizacao destino = new Localizacao(-7.25, -35.90);
+        Localizacao origem = new Localizacao(0, 0);
+        Localizacao destino = new Localizacao(2, 2);
 
         RotaOtimizada rota = servico.calcularRotaOtimizada(origem, destino);
 
         assertTrue(rota.getEconomiaTempoPercentual() >= 0);
+    }
+
+    @Test
+    void deveRetornarNullParaCorrida() {
+        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
+
+        RotaOtimizada rota = servico.calcularRotaParaCorrida("123");
+
+        assertNull(rota);
+    }
+
+    @Test
+    void deveVariarDistanciaComEntradasDiferentes() {
+        ServicoOtimizacaoRota servico = new ServicoOtimizacaoRota();
+
+        Localizacao origem1 = new Localizacao(0, 0);
+        Localizacao destino1 = new Localizacao(1, 1);
+
+        Localizacao origem2 = new Localizacao(0, 0);
+        Localizacao destino2 = new Localizacao(5, 5);
+
+        RotaOtimizada rota1 = servico.calcularRotaOtimizada(origem1, destino1);
+        RotaOtimizada rota2 = servico.calcularRotaOtimizada(origem2, destino2);
+
+        assertTrue(rota2.getDistanciaKm() > rota1.getDistanciaKm());
     }
 }

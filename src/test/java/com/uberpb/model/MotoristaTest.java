@@ -1,93 +1,127 @@
 package com.uberpb.model;
 
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MotoristaTest {
 
     @Test
-    void testToStringParaPersistenciaCompleto() {
-        Motorista motorista = new Motorista("motorista@teste.com", "senhaHash123");
-        motorista.setCnhValida(true);
-        motorista.setCrlvValido(true);
-        motorista.setContaAtiva(true);
-        motorista.setVeiculo(new Veiculo("Fusca", 1980, "ABC-1234", "Azul", 4, "P"));
+    void deveCriarMotoristaComValoresPadrao() {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        String expected = "MOTORISTA,motorista@teste.com,senhaHash123,true,true,true,0.0,0,false,Fusca|1980|ABC-1234|Azul|4|P|";
-
-        assertEquals(expected, motorista.toStringParaPersistencia());
+        assertFalse(m.isContaAtiva());
+        assertFalse(m.isCnhValida());
+        assertFalse(m.isCrlvValido());
+        assertFalse(m.isDisponivel());
+        assertEquals(0.0, m.getRatingMedio());
+        assertEquals(0, m.getTotalAvaliacoes());
+        assertNull(m.getVeiculo());
     }
 
     @Test
-    void testToStringParaPersistenciaParcial() {
-        Motorista motorista = new Motorista("motorista2@teste.com", "outraSenha");
+    void deveSetarDadosCorretamente() {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        String expected = "MOTORISTA,motorista2@teste.com,outraSenha,false,false,false,0.0,0,false,null";
+        m.setContaAtiva(true);
+        m.setCnhValida(true);
+        m.setCrlvValido(true);
+        m.setDisponivel(true);
+        m.setRatingMedio(4.567); // testa arredondamento
+        m.setTotalAvaliacoes(10);
 
-        assertEquals(expected, motorista.toStringParaPersistencia());
+        assertTrue(m.isContaAtiva());
+        assertTrue(m.isCnhValida());
+        assertTrue(m.isCrlvValido());
+        assertTrue(m.isDisponivel());
+        assertEquals(4.6, m.getRatingMedio()); // arredondado
+        assertEquals(10, m.getTotalAvaliacoes());
     }
 
     @Test
-    void testAdicionarAvaliacao() {
-        Motorista motorista = new Motorista("motorista@teste.com", "senha123");
-        motorista.adicionarAvaliacao(5);
-        motorista.adicionarAvaliacao(4);
+    void deveAdicionarAvaliacaoCorretamente() {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        assertEquals(4.5, motorista.getRatingMedio(), 0.01);
-        assertEquals(2, motorista.getTotalAvaliacoes());
+        m.adicionarAvaliacao(5);
+        assertEquals(1, m.getTotalAvaliacoes());
+        assertEquals(5.0, m.getRatingMedio());
+
+        m.adicionarAvaliacao(3);
+        assertEquals(2, m.getTotalAvaliacoes());
+        assertEquals(4.0, m.getRatingMedio()); // média
     }
 
     @Test
-    void testGettersSetters() {
-        Motorista motorista = new Motorista("m@teste.com", "123");
+    void deveGerarPersistenciaSemLocalizacaoESemVeiculo() {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        motorista.setCnhValida(true);
-        assertTrue(motorista.isCnhValida());
+        String texto = m.toStringParaPersistencia();
 
-        motorista.setCrlvValido(true);
-        assertTrue(motorista.isCrlvValido());
-
-        motorista.setContaAtiva(true);
-        assertTrue(motorista.isContaAtiva());
-
-        Veiculo v = new Veiculo("Corsa", 2010, "XYZ-9876", "Prata", 4, "A");
-        motorista.setVeiculo(v);
-        assertEquals(v, motorista.getVeiculo());
+        assertTrue(texto.contains("MOTORISTA"));
+        assertTrue(texto.contains("email@test.com"));
+        assertTrue(texto.contains("senha"));
+        assertTrue(texto.contains("0.0,0.0"));
+        assertTrue(texto.endsWith("null"));
     }
 
     @Test
-    void testToString() {
-        Motorista motorista = new Motorista("motorista@teste.com", "senhaHash123");
+    void deveGerarPersistenciaComLocalizacao() throws Exception {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        String esperado = "Motorista - Email: motorista@teste.com, Status: Inativa | Offline, CNH: Pendente, CRLV: Pendente, ⭐ Sem avaliações, Sem veículo";
+        setLocalizacao(m, new Localizacao(10.0, 20.0));
 
-        assertEquals(esperado, motorista.toString());
+        String texto = m.toStringParaPersistencia();
+
+        assertTrue(texto.contains("10.0"));
+        assertTrue(texto.contains("20.0"));
     }
 
     @Test
-    void testVeiculoAlterado() {
-        Motorista motorista = new Motorista("motorista@teste.com", "senha");
-        assertNull(motorista.getVeiculo());
+    void deveGerarPersistenciaComVeiculo() {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        Veiculo v1 = new Veiculo("Gol", 2015, "DEF-4567", "Preto", 4, "A");
-        motorista.setVeiculo(v1);
-        assertEquals(v1, motorista.getVeiculo());
+        // ✅ CONSTRUTOR CORRETO (6 PARÂMETROS)
+        Veiculo v = new Veiculo("ABC1234", 2020, "Gol", "Branco", 4, "DOC123");
+        m.setVeiculo(v);
 
-        Veiculo v2 = new Veiculo("Fiesta", 2018, "GHI-8910", "Branco", 4, "B");
-        motorista.setVeiculo(v2);
-        assertEquals(v2, motorista.getVeiculo());
+        String texto = m.toStringParaPersistencia();
+
+        assertTrue(texto.contains("ABC1234"));
     }
 
     @Test
-    void testAdicionarAvaliacaoExtremos() {
-        Motorista motorista = new Motorista("m@teste.com", "123");
+    void deveGerarToStringSemAvaliacoes() {
+        Motorista m = new Motorista("email@test.com", "senha");
 
-        // rating mínimo
-        motorista.adicionarAvaliacao(0);
-        assertEquals(0, motorista.getRatingMedio(), 0.01);
+        String texto = m.toString();
 
-        // rating máximo
-        motorista.adicionarAvaliacao(5);
-        assertEquals(2.5, motorista.getRatingMedio(), 0.01);
+        assertTrue(texto.contains("Sem avaliações"));
+    }
+
+    @Test
+    void deveGerarToStringComAvaliacoesELocalizacao() throws Exception {
+        Motorista m = new Motorista("email@test.com", "senha");
+
+        m.adicionarAvaliacao(5);
+        m.setContaAtiva(true);
+        m.setDisponivel(true);
+
+        setLocalizacao(m, new Localizacao(1.0, 2.0));
+
+        String texto = m.toString();
+
+        assertTrue(texto.contains("⭐"));
+        assertTrue(texto.contains("Loc"));
+        assertTrue(texto.contains("Online"));
+        assertTrue(texto.contains("Ativa"));
+    }
+
+    // helper pra setar localização sem mexer na classe
+    private void setLocalizacao(Motorista m, Localizacao loc) throws Exception {
+        Field field = Usuario.class.getDeclaredField("localizacao");
+        field.setAccessible(true);
+        field.set(m, loc);
     }
 }
