@@ -9,10 +9,15 @@ public final class MapaASCII {
         var d = encurtar(destino != null ? destino : "Destino", 36);
 
         int total = 30;
-        int pos = Math.max(0, Math.min(total, (percent * total) / 100));
+
+        // CORREÇÃO: usa (total-1) para centralizar corretamente
+        int pos = (percent * (total - 1)) / 100;
+        pos = Math.max(0, Math.min(pos, total - 1)); // garante limite
 
         StringBuilder trilho = new StringBuilder("|");
-        for (int i = 0; i < total; i++) trilho.append(i == pos ? 'o' : '-'); // o = “carro”
+        for (int i = 0; i < total; i++) {
+            trilho.append(i == pos ? 'o' : '-'); // 'o' = “carro”
+        }
         trilho.append("|");
 
         return o + "\n" + trilho + "\n" + d;

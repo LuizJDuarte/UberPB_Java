@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServicoPagamento {
-    
-	public ServicoPagamento(RepositorioCorrida rc, RepositorioUsuario ru) { }
 
-	
     private final Map<String, Corrida> transacoesPendentes = new HashMap<>();
-    
+
+    public ServicoPagamento(RepositorioCorrida rc, RepositorioUsuario ru) {
+        // Pode usar futuramente
+    }
+
     /**
      * Processa o pagamento de uma corrida
      */
@@ -22,15 +23,14 @@ public class ServicoPagamento {
         if (corrida == null) {
             throw new IllegalArgumentException("Corrida não pode ser nula");
         }
-        
+
         System.out.println("💳 PROCESSANDO PAGAMENTO:");
         System.out.println("   Corrida: " + corrida.getId().substring(0, 8));
         System.out.println("   Método: " + metodo.name());
-        
+
         try {
-            // Simular processamento do pagamento
             boolean sucesso = simularProcessamentoPagamento(metodo);
-            
+
             if (sucesso) {
                 System.out.println("   ✅ Pagamento aprovado!");
                 transacoesPendentes.remove(corrida.getId());
@@ -39,98 +39,111 @@ public class ServicoPagamento {
                 System.out.println("   ❌ Pagamento recusado!");
                 return false;
             }
-            
+
         } catch (Exception e) {
             System.err.println("Erro no processamento: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
      * Simula o processamento de diferentes métodos de pagamento
      */
     private boolean simularProcessamentoPagamento(MetodoPagamento metodo) {
-        // Simular diferentes taxas de sucesso baseadas no método
         double taxaSucesso;
-        
+
         switch (metodo) {
             case CARTAO:
-                taxaSucesso = 0.95; // 95% de sucesso
+                taxaSucesso = 0.95;
                 break;
             case PIX:
-                taxaSucesso = 0.98; // 98% de sucesso
+                taxaSucesso = 0.98;
                 break;
             case PAYPAL:
-                taxaSucesso = 0.90; // 90% de sucesso
+                taxaSucesso = 0.90;
                 break;
             case DINHEIRO:
-                taxaSucesso = 1.00; // 100% de sucesso (pagamento em dinheiro)
+                taxaSucesso = 1.00;
                 break;
             default:
                 taxaSucesso = 0.85;
         }
-        
-        // Simular processamento com base na taxa de sucesso
+
         return Math.random() <= taxaSucesso;
     }
-    
+
     /**
      * Gerar QR Code PIX (simulado)
      */
     public String gerarQrCodePix(Corrida corrida, double valor) {
         String qrCodeSimulado = String.format(
-            "00020126580014BR.GOV.BCB.PIX0136%d5204000053039865406%.2f5802BR5900UBER PB6008JOAO PESSOA62070503***6304%s",
-            System.currentTimeMillis(), valor, gerarChecksum(corrida.getId())
+                "00020126580014BR.GOV.BCB.PIX0136%d5204000053039865406%.2f5802BR5900UBER PB6008JOAO PESSOA62070503***6304%s",
+                System.currentTimeMillis(), valor, gerarChecksum(corrida.getId())
         );
-        
+
         System.out.println("📱 QR CODE PIX GERADO:");
         System.out.println("   Valor: R$ " + valor);
         System.out.println("   QR Code: " + qrCodeSimulado.substring(0, 50) + "...");
-        
+
         return qrCodeSimulado;
     }
-    
+
     /**
-     * Processar pagamento com cartão
+     * Processar pagamento com cartão (VERSÃO SEGURA)
      */
     public boolean processarCartao(String numeroCartao, String validade, String cvv, double valor) {
-        System.out.println("💳 Processando cartão: " + numeroCartao.substring(0, 4) + "********" + numeroCartao.substring(12));
-        System.out.println("   Valor: R$ " + valor);
-        
-        // Validações básicas
-        if (numeroCartao == null || numeroCartao.length() != 16) {
+
+        // Validação antes de qualquer substring
+        if (numeroCartao == null || !numeroCartao.matches("\\d{16}")) {
             throw new IllegalArgumentException("Número do cartão inválido");
         }
-        if (cvv == null || cvv.length() != 3) {
+
+        if (cvv == null || !cvv.matches("\\d{3}")) {
             throw new IllegalArgumentException("CVV inválido");
         }
-        
+
+        if (validade == null || !validade.matches("\\d{2}/\\d{2}")) {
+            throw new IllegalArgumentException("Validade inválida");
+        }
+
+        //  Agora seguro usar substring
+        System.out.println("💳 Processando cartão: "
+                + numeroCartao.substring(0, 4)
+                + "********"
+                + numeroCartao.substring(12));
+
+        System.out.println("   Valor: R$ " + valor);
+
         return simularProcessamentoPagamento(MetodoPagamento.CARTAO);
     }
-    
+
     /**
      * Processar pagamento com PayPal
      */
     public boolean processarPayPal(String emailPayPal, double valor) {
         System.out.println("🔵 Processando PayPal: " + emailPayPal);
         System.out.println("   Valor: R$ " + valor);
-        
-        if (emailPayPal == null || !emailPayPal.contains("@")) {
+
+        if (emailPayPal == null || !emailPayPal.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             throw new IllegalArgumentException("Email do PayPal inválido");
         }
-        
+
         return simularProcessamentoPagamento(MetodoPagamento.PAYPAL);
     }
-    
+
     private String gerarChecksum(String input) {
         int hash = input.hashCode();
         return String.format("%04X", Math.abs(hash) % 65536);
     }
-    
+
     /**
-     * Obter detalhes do método de pagamento
+     * Obter detalhes do método de pagamento (SEGURA)
      */
     public String getDetalhesMetodoPagamento(MetodoPagamento metodo) {
+        if (metodo == null) {
+            return "Método de pagamento";
+        }
+
         switch (metodo) {
             case PIX:
                 return "Pagamento instantâneo - Disponível 24h";
