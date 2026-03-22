@@ -1,0 +1,2 @@
+1d2fb2a6-d415-42bb-b894-c9e580112995,restaurante@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de passageiro@email.com no valor de R$ 20;00. Acesse para confirmar ou rejeitar.,2026-03-18T11:52:22.890962900,false
+a22c31bd-3eec-490f-b5bd-7cdfc038d4ca,restaurante@email.com,NOVO_PEDIDO_RESTAURANTE,Novo pedido recebido de passageiro@email.com no valor de R$ 20;00. Acesse para confirmar ou rejeitar.,2026-03-18T11:53:11.270112100,false

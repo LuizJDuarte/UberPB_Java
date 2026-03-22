@@ -6,12 +6,11 @@ package com.uberpb.model;
  */
 public class Entregador extends Usuario {
 
-    private String cnhNumero; // número da CNH
-    private String cpfNumero; // número do CPF
-    private boolean cnhValida; // caso aplicável
+    private String cnhNumero;     // número da CNH
+    private String cpfNumero;     // número do CPF
+    private boolean cnhValida;    // caso aplicável
     private boolean docIdentidadeValido;
     private boolean contaAtiva;
-    private boolean disponivel; // se está online para receber pedidos de entrega
 
     public Entregador(String email, String senhaHash) {
         super(email, senhaHash);
@@ -20,86 +19,36 @@ public class Entregador extends Usuario {
         this.cnhValida = false;
         this.docIdentidadeValido = false;
         this.contaAtiva = false;
-        this.disponivel = false; // Começa offline por padrão
     }
 
-    public String getCnhNumero() {
-        return cnhNumero;
-    }
+    public String getCnhNumero() { return cnhNumero; }
+    public void setCnhNumero(String cnhNumero) { this.cnhNumero = cnhNumero; }
 
-    public void setCnhNumero(String cnhNumero) {
-        this.cnhNumero = cnhNumero;
-    }
+    public String getCpfNumero() { return cpfNumero; }
+    public void setCpfNumero(String cpfNumero) { this.cpfNumero = cpfNumero; }
 
-    public String getCpfNumero() {
-        return cpfNumero;
-    }
+    public boolean isCnhValida() { return cnhValida; }
+    public void setCnhValida(boolean cnhValida) { this.cnhValida = cnhValida; }
 
-    public void setCpfNumero(String cpfNumero) {
-        this.cpfNumero = cpfNumero;
-    }
+    public boolean isDocIdentidadeValido() { return docIdentidadeValido; }
+    public void setDocIdentidadeValido(boolean docIdentidadeValido) { this.docIdentidadeValido = docIdentidadeValido; }
 
-    public boolean isCnhValida() {
-        return cnhValida;
-    }
-
-    public void setCnhValida(boolean cnhValida) {
-        this.cnhValida = cnhValida;
-    }
-
-    public boolean isDocIdentidadeValido() {
-        return docIdentidadeValido;
-    }
-
-    public void setDocIdentidadeValido(boolean docIdentidadeValido) {
-        this.docIdentidadeValido = docIdentidadeValido;
-    }
-
-    public boolean isContaAtiva() {
-        return contaAtiva;
-    }
-
-    public void setContaAtiva(boolean contaAtiva) {
-        this.contaAtiva = contaAtiva;
-    }
-
-    public boolean isDisponivel() {
-        return disponivel;
-    }
-
-    public void setDisponivel(boolean disponivel) {
-        this.disponivel = disponivel;
-    }
+    public boolean isContaAtiva() { return contaAtiva; }
+    public void setContaAtiva(boolean contaAtiva) { this.contaAtiva = contaAtiva; }
 
     @Override
     public String toStringParaPersistencia() {
         StringBuilder sb = new StringBuilder();
         sb.append("ENTREGADOR").append(",").append(email).append(",").append(senhaHash)
-                .append(",").append(cnhNumero).append(",").append(cpfNumero)
-                .append(",").append(cnhValida).append(",").append(docIdentidadeValido)
-                .append(",").append(contaAtiva).append(",").append(disponivel);
-        
-        // ⭐ NOVO: Adicionar localização à persistência
-        if (localizacao != null) {
-            sb.append(",").append(localizacao.latitude()).append(",").append(localizacao.longitude());
-        } else {
-            sb.append(",0.0,0.0");
-        }
-        
+          .append(",").append(cnhNumero).append(",").append(cpfNumero)
+          .append(",").append(cnhValida).append(",").append(docIdentidadeValido).append(",").append(contaAtiva);
         return sb.toString();
     }
 
     @Override
     public String toString() {
-        String statusConta = contaAtiva ? "Ativa" : "Inativa";
-        String statusOnline = disponivel ? "Online" : "Offline";
-        String loc = localizacao != null ? 
-            String.format(" | Loc: [%.4f, %.4f]", localizacao.latitude(), localizacao.longitude()) : "";
-        
-        return "Entregador - " + super.toString() +
-                ", Status: " + statusConta + " | " + statusOnline +
-                ", CNH: " + cnhNumero + " (" + (cnhValida ? "OK" : "Pendente") + ")" +
-                ", CPF: " + cpfNumero + " (" + (docIdentidadeValido ? "OK" : "Pendente") + ")" +
-                loc;
+        return "Entregador - " + super.toString() + ", Conta: " + (contaAtiva?"Ativa":"Inativa") +
+               ", CNH: " + cnhNumero + " (" + (cnhValida?"OK":"Pendente") + ")" +
+               ", CPF: " + cpfNumero + " (" + (docIdentidadeValido?"OK":"Pendente") + ")";
     }
 }

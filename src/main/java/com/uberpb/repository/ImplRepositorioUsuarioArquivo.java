@@ -37,7 +37,7 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
         cache.add(usuario);
         gravar();
     }
-
+    
     @Override
     public synchronized void remover(String email) {
         cache.removeIf(u -> u.getEmail().equalsIgnoreCase(email));
@@ -77,22 +77,19 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
     }
 
     private void parseLinhaUsuario(String linha) {
-        if (linha == null || linha.isBlank())
-            return;
-
+        if (linha == null || linha.isBlank()) return;
+        
         // ✅ CORREÇÃO: Para o Restaurante, NÃO usamos o split(",") geral primeiro,
-        // pois a string do cardápio pode conter muitos dados.
+        // pois a string do cardápio pode conter muitos dados. 
         // Deixamos a própria classe Restaurante resolver sua linha.
         if (linha.startsWith("RESTAURANTE")) {
             Restaurante restaurante = Restaurante.fromString(linha);
-            if (restaurante != null)
-                cache.add(restaurante);
+            if (restaurante != null) cache.add(restaurante);
             return;
         }
 
         String[] parts = linha.split(",", -1);
-        if (parts.length < 3)
-            return;
+        if (parts.length < 3) return;
 
         String tipo = parts[0];
         String email = parts[1];
@@ -101,60 +98,36 @@ public class ImplRepositorioUsuarioArquivo extends BaseRepositorioArquivo implem
         if ("PASSAGEIRO".equalsIgnoreCase(tipo)) {
             Passageiro passageiro = new Passageiro(email, senhaHash);
             if (parts.length > 3 && !parts[3].isEmpty()) {
-                try {
-                    passageiro.setRatingMedio(Double.parseDouble(parts[3]));
-                } catch (Exception ignored) {
-                }
+                try { passageiro.setRatingMedio(Double.parseDouble(parts[3])); } catch (Exception ignored) {}
             }
             if (parts.length > 4 && !parts[4].isEmpty()) {
-                try {
-                    passageiro.setTotalAvaliacoes(Integer.parseInt(parts[4]));
-                } catch (Exception ignored) {
-                }
+                try { passageiro.setTotalAvaliacoes(Integer.parseInt(parts[4])); } catch (Exception ignored) {}
             }
-            if (parts.length > 5)
-                passageiro.setContaAtiva(Boolean.parseBoolean(parts[5]));
+            if (parts.length > 5) passageiro.setContaAtiva(Boolean.parseBoolean(parts[5]));
             cache.add(passageiro);
         } else if ("MOTORISTA".equalsIgnoreCase(tipo)) {
             Motorista motorista = new Motorista(email, senhaHash);
-            if (parts.length > 3)
-                motorista.setCnhValida(Boolean.parseBoolean(parts[3]));
-            if (parts.length > 4)
-                motorista.setCrlvValido(Boolean.parseBoolean(parts[4]));
-            if (parts.length > 5)
-                motorista.setContaAtiva(Boolean.parseBoolean(parts[5]));
+            if (parts.length > 3) motorista.setCnhValida(Boolean.parseBoolean(parts[3]));
+            if (parts.length > 4) motorista.setCrlvValido(Boolean.parseBoolean(parts[4]));
+            if (parts.length > 5) motorista.setContaAtiva(Boolean.parseBoolean(parts[5]));
             if (parts.length > 6 && !parts[6].isEmpty()) {
-                try {
-                    motorista.setRatingMedio(Double.parseDouble(parts[6]));
-                } catch (Exception ignored) {
-                }
+                try { motorista.setRatingMedio(Double.parseDouble(parts[6])); } catch (Exception ignored) {}
             }
             if (parts.length > 7 && !parts[7].isEmpty()) {
-                try {
-                    motorista.setTotalAvaliacoes(Integer.parseInt(parts[7]));
-                } catch (Exception ignored) {
-                }
+                try { motorista.setTotalAvaliacoes(Integer.parseInt(parts[7])); } catch (Exception ignored) {}
             }
-            if (parts.length > 8)
-                motorista.setDisponivel(Boolean.parseBoolean(parts[8]));
+            if (parts.length > 8) motorista.setDisponivel(Boolean.parseBoolean(parts[8]));
             if (parts.length > 9 && !parts[9].isEmpty() && !"null".equals(parts[9])) {
                 motorista.setVeiculo(Veiculo.fromStringParaPersistencia(parts[9]));
             }
             cache.add(motorista);
         } else if ("ENTREGADOR".equalsIgnoreCase(tipo)) {
             Entregador entregador = new Entregador(email, senhaHash);
-            if (parts.length > 3)
-                entregador.setCnhNumero(parts[3]);
-            if (parts.length > 4)
-                entregador.setCpfNumero(parts[4]);
-            if (parts.length > 5)
-                entregador.setCnhValida(Boolean.parseBoolean(parts[5]));
-            if (parts.length > 6)
-                entregador.setDocIdentidadeValido(Boolean.parseBoolean(parts[6]));
-            if (parts.length > 7)
-                entregador.setContaAtiva(Boolean.parseBoolean(parts[7]));
-            if (parts.length > 8)
-                entregador.setDisponivel(Boolean.parseBoolean(parts[8]));
+            if (parts.length > 3) entregador.setCnhNumero(parts[3]);
+            if (parts.length > 4) entregador.setCpfNumero(parts[4]);
+            if (parts.length > 5) entregador.setCnhValida(Boolean.parseBoolean(parts[5]));
+            if (parts.length > 6) entregador.setDocIdentidadeValido(Boolean.parseBoolean(parts[6]));
+            if (parts.length > 7) entregador.setContaAtiva(Boolean.parseBoolean(parts[7]));
             cache.add(entregador);
         } else if ("ADMIN".equalsIgnoreCase(tipo)) {
             cache.add(new Administrador(email, senhaHash));

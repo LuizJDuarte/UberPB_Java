@@ -1,0 +1,2 @@
+passageiro@email.com,restaurante@email.com,,20.0,Cartão de Crédito,CRIADO,IMEDIATO,,
+passageiro@email.com,restaurante@email.com,Batata Frita:1;,20.0,Cartão de Crédito,CRIADO,IMEDIATO,,

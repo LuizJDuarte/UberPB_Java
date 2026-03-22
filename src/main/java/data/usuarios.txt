@@ -1,1 +1,9 @@
 ADMIN,admin@uberpb.com,240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
+PASSAGEIRO,passageiro@email.com,b8feeaded4049cd018ea88700c48f35b3bd0ff77735aa1d9bde06d820033a9fc,0.0,0,true
+PASSAGEIRO,passageiro5@email.com,49961fb6b33b96fd2d4e5491283afb5e5d254b3e9a4590923e9a03bb5708297d,0.0,0,true
+MOTORISTA,motoristaj@email.com,f04d8a60f85046f62ccd9b8ed068d12e94715cd9455958100cbaa3446b02a094,true,true,true,0.0,0,true,0.0,0.0,0.0|0|||0||
+MOTORISTA,motorista@email.com,8312144bea75cf6713bef1f8777c16d51f231115fdb022aa099fbb4d3a16cb66,true,true,true,0.0,0,true,0.0,0.0,0.0|0|||0||
+RESTAURANTE,restaurante@email.com,9450efafc315f661489c58cf6fd73106b44a42eb6dcd54ef8e12681e1ea40619,Restaurante,,true,-82.260000,-135.670000,5.00,10,Batata Frita#Batata Frita (200g)#15.00
+RESTAURANTE,restaurante2@email.com,9450efafc315f661489c58cf6fd73106b44a42eb6dcd54ef8e12681e1ea40619,Big Burger,,true,0.000000,0.000000,0.00,30,VAZIO
+ENTREGADOR,entregadorj@email.com,b7b8ea6d2600ae107a31667a70bc2eea6065b77fc5a57507821dcf2b7d8097a5,123123123123,12312312312,true,true,true,true,0.0,0.0
+RESTAURANTE,restaurante3@email.com,30d6ae7bd6d61cce9abd90ce06414dfae19038edff3faa26b141e93e06522d8f,Lanchonete Bela Vista,,true,0.000000,0.000000,0.00,30,VAZIO

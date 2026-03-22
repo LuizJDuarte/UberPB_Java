@@ -1,0 +1,3 @@
+RESTAURANTE,restaurante@email.com,9450efafc315f661489c58cf6fd73106b44a42eb6dcd54ef8e12681e1ea40619,Restaurante,,true,-82.260000,-135.670000,5.00,10,Batata Frita#Batata Frita (200g)#15.00
+RESTAURANTE,restaurante2@email.com,9450efafc315f661489c58cf6fd73106b44a42eb6dcd54ef8e12681e1ea40619,Big Burger,,true,-59.620000,73.750000,5.00,15,VAZIO
+RESTAURANTE,restaurante3@email.com,30d6ae7bd6d61cce9abd90ce06414dfae19038edff3faa26b141e93e06522d8f,Lanchonete Bela Vista,,true,-43.830000,-71.840000,5.00,20,Suco#Suco de uva integral (200ml)#7.00
